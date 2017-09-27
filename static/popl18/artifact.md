@@ -16,6 +16,6 @@ or from source following the [installation instructions](https://github.com/ucsd
 The benchmarks are located in the following directories
 
 - [no-PLE](https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/nople)
-- [PLE])https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/ple)
+- [PLE](https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/ple)
 - [det-par-laws](https://github.com/iu-parfunc/lvars/tree/verified)
 - [class-par-laws](https://github.com/iu-parfunc/verified-instances/tree/popl18)
