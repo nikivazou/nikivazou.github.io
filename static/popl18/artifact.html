@@ -1,24 +1,35 @@
-<h2 id="artifactfortowardscompletespecificationandverificationwithsmtsolvers">Artifact for "Towards Complete Specification and Verification with SMT Solvers"</h2>
-
-<h1 id="installliquidhaskell">Install Liquid Haskell</h1>
-
-<p>You can install Liquid Haskell with cabal</p>
-
-<pre><code>cabal install liquidhaskell
-</code></pre>
-
-<p>or from source following the (installation instructions)[https://github.com/ucsd-progsys/liquidhaskell/blob/develop/INSTALL.md].</p>
-
-<h1 id="runthebenchmarks">Run the benchmarks</h1>
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+</head>
+<body>
+<h2 id="artifact-for-towards-complete-specification-and-verification-with-smt-solvers">Artifact for “Towards Complete Specification and Verification with SMT Solvers”</h2>
+<h1 id="run-the-benchmarks">Run the benchmarks</h1>
+<p>You can run the benchmarks from the paper using <code>docker</code> with</p>
+<pre><code>$ docker run -it atondwal/popl18</code></pre>
+<p>You can open an interactive shell and run specific benchmarks</p>
+<pre><code>$ docker run -it atondwal/popl18 bash
+# stack exec -- liquid benchmarks/popl18/ple/pos/Unification.hs
+# stack exec -- liquid benchmarks/popl18/ple/pos/Solver.hs
+# stack test liquidhaskell</code></pre>
 <p>The benchmarks are located in the following directories</p>
-
 <ul>
-<li>(no-PLE)(https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/nople)</li>
-
-<li>(PLE)[https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/ple]</li>
-
-<li>(det-par-laws)[https://github.com/iu-parfunc/lvars/tree/verified]</li>
-
-<li>(class-par-laws)[https://github.com/iu-parfunc/verified-instances/tree/popl18]</li>
+<li><a href="https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/nople">no-PLE</a></li>
+<li><a href="https://github.com/ucsd-progsys/liquidhaskell/tree/popl18/benchmarks/popl18/ple">PLE</a></li>
+<li><a href="https://github.com/iu-parfunc/lvars/tree/verified">det-par-laws</a></li>
+<li><a href="https://github.com/iu-parfunc/verified-instances/tree/popl18">class-par-laws</a></li>
 </ul>
+<h1 id="install-liquid-haskell">Install Liquid Haskell</h1>
+<p>Alternatively, you can install Liquid Haskell on your own machine. It depends on <code>z3</code> and you can be installed with <code>cabal</code></p>
+<pre><code>$ cabal install liquidhaskell</code></pre>
+<p>See the complete <a href="https://github.com/ucsd-progsys/liquidhaskell/blob/develop/INSTALL.md">installation instructions</a>.</p>
+<h1 id="virtual-machine">Virtual Machine</h1>
+<p>Alternatively, you can use the following VM:</p>
+<p><span class="citation">@TODO</span></p>
+</body>
+</html>
