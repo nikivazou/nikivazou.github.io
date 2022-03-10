@@ -1,0 +1,252 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\input{glyphtounicode}
+
+
+\pagestyle{fancy}
+\fancyhf{} % clear all header and footer fields
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      {\small#3} & {\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & #2 \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.15in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+%-------------------------------------------
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+%----------HEADING----------
+
+
+\begin{center}
+    \textbf{\Huge \scshape Niki Vazou} \\ \vspace{1pt}
+    \small \href{mailto:niki.vazou@imdea.org}{\underline{niki.vazou@imdea.org}} $|$ 
+    \href{https://nikivazou.github.io/}{\underline{nikivazou.github.io}} $|$
+    \href{https://github.com/nikivazou}{\underline{github.com/nikivazou}} $|$
+    \href{https://twitter.com/nikivazou}{\underline{twitter.com/nikivazou}}
+\end{center}
+
+
+%-----------POSITIONS-----------
+\section{Positions}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+    {Research Assistant Professor}{2018 – Present}
+    {IMDEA Software Institute, Madrid, Spain.}{}
+    \resumeSubheading
+    {Postdoctoral Fellow}{2017 - 2018}
+    {Computer Science Department, University of Maryland, College Park, USA.}{}
+    \resumeSubheading
+    {Internship with Jeff Polakow}{Summer 2016}
+    {Awake Networks, Mountain View, USA.}{}
+    \resumeSubheading
+    {Internship with Daan Leijen}{Summer 2014}
+    {Microsoft Research, Redmond, USA.}{}
+    \resumeSubheading
+    {Internship with Dimitrios Vytiniotis}{Fall 2013}
+    {Microsoft Research, Cambridge, UK.}{}
+
+  \resumeSubHeadingListEnd
+
+
+%-----------EDUCATION-----------
+\section{Education}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Phd}{2011-2017}
+      {Computer Science and Engineering, University of California, San Diego, USA.}{}
+
+      {Supervisor: Ranjit Jhala; Thesis title: “Liquid Haskell: Haskell as a Theorem Prover”.}{}
+    \resumeSubheading
+      {Diploma}{2005-2010}
+      {National Technical University of Athens, Athens, Greece.}{}
+
+      {Supervisor: Nikolaos Papaspyrou; Thesis title: “Memory Safety with Linear Capabilities”.}{}
+  \resumeSubHeadingListEnd
+
+\section{(Co-)Supervision of Graduate Students \& Interns}
+\resumeSubHeadingListStart
+\resumeProjectHeading
+    {IMDEA Software Institute, Madrid, Spain.}{2019 -- Present}
+    \resumeItemListStart
+      \resumeItem{PhD candidate Lisa Vasilenko on “Relational refinement types”.}
+      \resumeItem{Master student Mustafa Hafidi on "Tactics for Liquid Haskell”.}
+      \resumeItem{Undergrad student David Munuera on “Haskell to CIAO”.}
+      \resumeItem{Research intern Zack Grannan on “Rewriting for Liquid Haskell”. \emph{Published at ECOOP'23.}}
+      \resumeItem{Research intern Stefan Malewski on “gradual refinement types”.}
+    \resumeItemListEnd
+
+\resumeProjectHeading
+    {Computer Science Department, University of Maryland, College Park, USA.}{2017 -- 2018}
+    \resumeItemListStart
+    \resumeItem{PhD candidate Milod Kazerounian on “Refinement types for Ruby”. \emph{Published at VMCAI'18 and PLDI'19.}}
+    \resumeItem{PhD candidate James Parker on “Verification of secure web applications”. \emph{Published at POPL'19 and OOPSLA'20.}}
+    \resumeItemListEnd
+
+\resumeProjectHeading
+    {National Technical University of Athens, Athens, Greece.}{2018}
+    \resumeItemListStart
+    \resumeItem{Diploma student George Petrou on “Verification with Liquid Haskell”.}
+    \resumeItemListEnd
+\resumeSubHeadingListEnd
+
+
+
+\section{Teaching Activities}
+\resumeSubHeadingListStart
+
+\resumeSubheading
+  {Computer Science Department, Universidad Politecnica de Madrid, Madrid, Spain.}{Fall 2019}
+  {2 months/20 hours seminar on Advanced Functional Programming.}{}
+\resumeSubheading
+  {Computer Science Department, University of Maryland, College Park, USA.}{Winter 2018}
+  {Lecturer at Advanced Functional Programming (CMSC498V).}{}
+\resumeSubheading
+  {Computer Science Department, University of Maryland, College Park, USA.}{Fall 2017}
+  {Co-Lecturer at Introduction to Programming (CMSC330).}{}
+\resumeSubheading
+  {Clubes De Ciencia, Guanajuato, Mexico.}{Summer 2015}
+  {1 week/40 hours course on Functional Programming.}{}
+  
+\resumeSubHeadingListEnd
+
+\section{Organization of Scientific Meetings}
+\resumeSubHeadingListStart
+\resumeProjectHeading
+    {Co-Chair, Artifact Evaluation, PLDI.}{2022}
+\resumeProjectHeading
+    {Co-Chair, Artifact Evaluation, PLDI.}{2021}
+\resumeProjectHeading
+    {Virtualization Committee, ICFP.}{2020}
+\resumeProjectHeading
+    {Co-Chair, Student Research Competition, POPL.}{2020}
+\resumeProjectHeading
+    {Chair, Student Research Competition, POPL.}{2019}
+\resumeProjectHeading
+    {Chair, Haskell Implementors’ Workshop.}{2019}
+\resumeProjectHeading
+    {Co-Chair, Programming Languages and Analysis for Security.}{2019}
+\resumeProjectHeading
+    {Co-Organizer, Programming Languages Mentoring Workshop, ICFP.}{2018}
+\resumeProjectHeading
+    {Co-Chair, Workshop on Type-Driven Development.}{2018}
+\resumeSubHeadingListEnd
+
+\section{Membership of Scientific Societies}
+\resumeSubHeadingListStart
+\resumeProjectHeading
+    {Board Member of Haskell Foundation.}{2021 - present}
+\resumeProjectHeading
+    {Visitor of IFIP Working Group 2.1 on Algorithmic Languages and Calculi.}{2019 - present}
+\resumeProjectHeading
+    {Visitor of IFIP Working Group 2.8 on Functional Programming.}{2019 - present}
+\resumeProjectHeading
+    {Member of The ACM SIGPLAN Haskell Symposium Steering Committee.}{2017 - 2021}
+\resumeProjectHeading
+    {Member of Haskell.org Committee.}{2016 - 2020}
+\resumeProjectHeading
+    {Event Coordinator at Graduate Women in Computing, UCSD.}{2015 - 2016}
+\resumeSubHeadingListEnd
+
+\section{Reviewing Activities}
+ \begin{itemize}[leftmargin=0.15in, label={}]
+    \small{\item{ESOP'23, POPL’22, WITS'22, TYPES'22, OOPSLA'22, FLOPS'11, PLS'21, PEPM'21, VMCAI’21, CAV’20, FCS’20, POPL’19, ESOP’18, ICFP’18, PEPM’21, PLS’21, TFP’20, Haskell’18, ML-Family Workshop’17, HOPE’17, PADL’17, Scala’17, Haskell’16, HiW’16, TFP’16, PADL’16, Scala’16, AEC@POPL’16, AEC@PLDI’16.
+    }}
+ \end{itemize}
+
+
+ \section{Grants \& Awards}
+ \resumeSubHeadingListStart
+ \resumeProjectHeading
+     {ERC Starting Grant}{2021}
+ \resumeProjectHeading
+     {Wallenberg Academy Fellowship.}{2021}
+ \resumeProjectHeading
+     {Juan de la Cierva Incorporacion Grant, by Spanish Ministry of Science and Innovation.}{2021 - 2023}
+ \resumeProjectHeading
+     {Atraccion de Talento Fellowship, by Madrid Regional Government.}{2020 - 2024}
+ \resumeProjectHeading
+     {Best paper award at ACM SIGPLAN Conference OOPSLA.}{2018}
+ \resumeProjectHeading
+     {Victor Balisi Postdoctoral Fellowship, University of Maryland, College Park, USA.}{2017 - 2018}
+ \resumeProjectHeading
+     {Graduate Award for Research, University of California, San Diego, USA.}{2015}
+ \resumeProjectHeading
+     {Microsoft Research Graduate Research Fellowship.}{2014 - 2016}
+ \resumeSubHeadingListEnd
+ 
+ \vspace*{\fill}
+ \hfill \emph{Last Updated: March 2022}
+%-------------------------------------------
+\end{document}
