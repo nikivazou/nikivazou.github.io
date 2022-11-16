@@ -1,0 +1,127 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Niki Vazou - index</title>
+        <link rel="stylesheet" href="./css/default.css" />
+    </head>
+    <body>
+        <header>
+            <div class="logo">
+                <a href="./">Niki Vazou</a>
+            </div>
+            <nav>
+                <div class="dropdown">
+                <a href="./crete.html">Crete</a>
+                <div class="dropdown-content">
+                    <a href="./crete.html#crete-project">Project</a>
+                    <a href="./crete.html#crete-people">People</a>
+                    <a href="./crete.html#crete-positions">Open Positions</a>
+                    <a href="./crete.html#crete-publications">Publications</a>
+                </div>
+            </div>
+            <a href="./publications.html">Publications</a>
+                <a href="./activities.html">Activities</a>
+            <!--    <a href="/activities.html">Activities</a> -->
+            </nav>
+        </header>
+
+        <main role="main">
+            <div id="subheader">
+                <h2 id="crete-project">The CRETE Project (ERC Starting Grant)</h2>
+                <table><tr>
+        <td width="90%">
+            <p>
+            Refinement types are a type-based, static verification technique designed to be practical. They enrich the types of an existing programming language with logical predicates to specify program properties and automatically validate these specifications using SMT solvers. Refinement types are a promising verification technology that in the last decade has spread to mainstream languages (e.g., Haskell, C, Ruby, Scala, and the ML-family) to verify sophisticated properties of real world applications, e.g., safety of cryptographic protocols, memory and resource usage, and web security. 
+            </p>
+
+            <p>
+                The weakness of refinement types is that they do not meet the soundness standards set by theorem provers. 
+                A sound verification system  accepts as safe only those programs that never violate their specifications. 
+                Refinement type checkers (e.g., Liquid Haskell, F*, and Stainless) approximately report five unsoundness bugs per year,  
+                as opposed to only one reported by the Coq theorem prover. 
+                This rarity of unsoundness bugs in Coq is unsurprising since  Coq is designed to soundly machine check mathematical proofs. 
+                Coq's soundness design recipe though cannot be directly applied to refinement type checkers that aim to practically verify real world programs. 
+            </p>
+            
+        </td>
+        <td width="20%"></td>
+        <td width="10%" align="top">
+            <p style="text-align:center;">
+                <img src="./images/erc.jpg" height="160" />
+            </p>
+            <br>
+            <p style="text-align:center;">
+                <img src="./images/crete.png" width="200" />
+            </p>
+            <br>
+            <p style="text-align:center;">
+                <img src="./images/imdea.png" height="160" />
+            </p>
+        </td>
+    </tr></table>
+    <p><b>The goal of CRETE is to design a sound and practical refinement type system.</b></p>            
+
+<br> <br>
+<h2 id="crete-people">People</h2>
+
+<ul>
+    <li><a href="https://nikivazou.github.io/"> Niki Vazou</a>, Research Assistant Proffesor, PI.</li>
+    <li><a href="https://alf0nso.github.io/Alf0nso/"> Afonso Rafael</a>, Research Intern.</li>
+    <li>Lykourgos Mastorou, Research Intern.</li>
+    <li> Antonio Zegarelli, Research Intern, co-supervised by Marco Guarnieri.</li>
+    <li><a href="https://oquechy.github.io"> Lisa Vasilenko</a>, PhD Student, co-supervised by Gilles Barthe.</li>
+</ul>
+
+<br><br> 
+
+<h2 id="crete-positions">Open Positions</h2>
+
+<p>
+    If you want to join CRETE as a Postdoc, Ph.D., or intern, 
+    email Niki Vazou (niki . vazou @ imdea . org) and submit 
+    <a href="https://careers.software.imdea.org/">an application</a> at IMDEA.
+</p>
+
+<br><br> 
+
+<h2 id="crete-publications">Publications</h2>
+
+<ul>
+    <li><p><strong>Safe Couplings: Coupled Refinement Types</strong> <em>by</em> Lisa Vasilenko, Niki Vazou, and Gilles Barthe. ICFP 2022 
+        [<a href="https://dl.acm.org/doi/pdf/10.1145/3547643">.pdf</a>, 
+        <a href="https://zenodo.org/record/6710298#.Y3UzcuzMI-Q">artifact</a>]</p></li>
+    <li><p><strong>Coinduction Inductively: Mechanizing Coinductive Proofs in Liquid Haskell</strong>
+    <em>by</em> Lykourgos Mastorou, Nikolaos Papaspyrou, and Niki Vazou. Haskell 2022. 
+    [<a href="https://nikivazou.github.io/static/Haskell22/coinduction.pdf">.pdf</a>,
+     <a href="https://dl.acm.org/do/10.1145/3554303/full/">artifact</a>]
+    </p></li>
+    <li><p><strong>How to Safely Use Extensionality in Liquid Haskell</strong>
+    <em>by</em> Niki Vazou and Michael Greenberg. Haskell 2022. 
+    [<a href="https://dl.acm.org/doi/abs/10.1145/3546189.3549919">.pdf</a>, 
+    <a href="https://dl.acm.org/do/10.1145/3554301/full/">artifact</a>]
+    </p></li>
+    <li><p><strong>Liquid Proof Macros</strong>
+    <em>by</em> Henry Blanchette, Niki Vazou, and Leonidas Lampropoulos. Haskell 2022. 
+    [<a href="https://nikivazou.github.io/static/Haskell22/macros.pdf">.pdf</a>,
+     <a href="https://dl.acm.org/do/10.1145/3554302/full/">artifact</a>]
+    </p></li>
+    <li><p><strong>ANOSY: Approximated Knowledge Synthesis with Refinement Types for Declassification</strong> <em>by</em> Sankha Guria, Niki Vazou, Marco Guarnieri, and James Parker. PLDI 2022. 
+        [<a href="https://dl.acm.org/doi/10.1145/3519939.3523725">.pdf</a>, 
+        <a href="https://zenodo.org/record/6412048#.Y3U3WezMI-Q">artifact</a>]</p></li>
+    <li><p><strong>REST: Integrating Term Rewriting with Program Verification </strong> <em>by</em> Zachary Grannan, Niki Vazou, Eva Darulova, and Alexander J. Summers. ECOOP 2022. 
+        [<a href="https://drops.dagstuhl.de/opus/volltexte/2022/16210/">.pdf</a>, 
+        <a href="https://drops.dagstuhl.de/opus/volltexte/2022/16210/artifact/DARTS-8-2-12-artifact-4c74c72ab1072f56789e9a9f112abac2.gz.tar">artifact</a>]</p></li>
+</ul>
+
+
+
+        <footer>
+            Site proudly generated by
+            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+        </footer>
+    </body>
+</html>
