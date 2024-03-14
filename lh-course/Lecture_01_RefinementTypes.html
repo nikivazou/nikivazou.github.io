@@ -197,7 +197,8 @@ MathJax.Hub.Config({
 
 <section id="refinement-types" class="level1">
 <h1>Refinement Types</h1>
-<p>Refinement types are types refined with logical predicates that enforce a variety of invariants at compile time. In this course, we will learn the refinement type system of Liquid Haskell. Concretely, these lectures are developed using the <code>Liquid Haskell</code> plugin, using the below Haskell language pragma.</p>
+<p>Refinement types are types refined with logical predicates that enforce a variety of invariants at compile time. In this course, we will learn the refinement type system of Liquid Haskell.</p>
+<p>If you follow this course via a brouser, you can just click the check button that exists on the code spinnets to run Liquid Haskell on your file. If you follow it on an editor, then compile the code using the Haskell compiler and turn on the `Liquid Haskell plugin``, but uncommenting the following line:</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -215,7 +216,7 @@ main :: IO ()
 main = return ()</div>
 </div>
 
-<p>Having activated the <code>Liquid Haskell</code> plugin, compilation will use the <code>Liquid Haskell</code> type checker, for example to check that division by zero is not possible.</p>
+<p>Either way, you can now use the <code>Liquid Haskell</code> type checker, for example to check that division by zero is not possible.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -236,17 +237,18 @@ test x = 42 `div` 2</div>
 <p>The above type specifies that the second argument must be non-zero and is automatically checked at compile time, using an SMT solver. Today, we will learn how these checks are performed, and how to write and use refined types in Haskell.</p>
 <section id="installation" class="level2">
 <h2>Installation</h2>
-<p>To install Liquid Haskell, you can use <code>cabal</code> or source installation:</p>
+<p>Liquid Haskell exists on <a href="https://hackage.haskell.org/package/liquidhaskell">hackage</a>, which is the Haskell package repository, so you can install it using <code>cabal</code>, <code>stack</code>, or instal it from source:</p>
 <ul>
 <li><a href="https://ucsd-progsys.github.io/liquidhaskell/install/"><code>cabal install liquidhaskell</code></a> will install the Liquid Haskell plugin that you can use in your Haskell projects.</li>
 <li><a href="https://github.com/ucsd-progsys/liquidhaskell?tab=readme-ov-file#running-the-pluging-on-individual-files">Source installation</a> will let you clone Liquid Haskell from github and install it.</li>
 </ul>
 <p>The source code of these class notes can also be downloaded and executed from <a href="https://github.com/nikivazou/liquidhaskell-course">github</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<p><strong>Note:</strong> This is the first time I am giving these lectures, so I would appreciate any feedback you might have, via pull requests or email at <code>niki.vazou@imdea.org</code>.</p>
+<p><strong>Note:</strong> This is the first time I am giving these lectures, so I would appreciate any feedback you might have, via the virtual classroom, pull requests, or email at <code>niki.vazou@imdea.org</code>.</p>
 </section>
 <section id="basic-refinement-types" class="level2">
 <h2>Basic Refinement Types</h2>
-<p>Did you note that <code>2</code> is a good argument for the division operator? Then, what is the type of <code>2</code>?</p>
+<p>Did you note that <code>2</code> is a good argument for the division operator?</p>
+<p>But, what is the type of <code>2</code>?</p>
 <p>In Haskell <code>2:Int</code>, but the same value can have many different refinement types. A basic refinement type has the form</p>
 <p><span class="math display">\[ \{ v:b \mid p \} \]</span> where <span class="math inline">\(b\)</span> is the base type (e.g., <code>Int</code>, <code>Bool</code>, etc.) and <span class="math inline">\(p\)</span> is a logical predicate.</p>
 <p>For example, the logical predicate that refines the type of <code>2</code> can have many different forms:</p>
@@ -293,7 +295,7 @@ two = 2 </div>
   }
 \]</span></p>
 <p>This rule states that in an expression, like <span class="math inline">\(2\)</span>, that has type <span class="math inline">\(\tau_1\)</span> and <span class="math inline">\(\tau_1\)</span> is a subtype of <span class="math inline">\(\tau_2\)</span>, then <span class="math inline">\(2\)</span> can also have type <span class="math inline">\(\tau_2\)</span>.</p>
-<p>So, <span class="math inline">\(2 : \{ \texttt{Int} \mid 0 \leq v \}\)</span>, because <span class="math inline">\(\{ \texttt{Int} \mid 2 = v \} \preceq \{ \texttt{Int} \mid 0 &lt;= v \}\)</span>. But, let’s see how subtyping is decided.</p>
+<p>So, <span class="math inline">\(2 : \{ \texttt{Int} \mid 0 \leq v \}\)</span>, because <span class="math inline">\(\{ \texttt{Int} \mid v = 2 \} \preceq \{ \texttt{Int} \mid 0 \leq v \}\)</span>. But, let’s see how subtyping is decided.</p>
 </section>
 <section id="from-subtyping-to-verification-conditions" class="level2">
 <h2>From Subtyping to Verification Conditions</h2>
@@ -374,7 +376,7 @@ two = 2 </div>
 <p><strong>Question:</strong> Do we need more boolean operators? Or maybe less?</p>
 <p><em>Uninterpreted functions</em> are essentially logical functions that always return the same value for the same input.</p>
 <p><span class="math display">\[
-\forall x y. x = y \Rightarrow f(x) = f(y)
+\forall x\ y. x = y \Rightarrow f(x) = f(y)
 \]</span></p>
 <p>They are essential for program verification because 1. they can be used to encode program functions in the logic and 2. they can be used to capture ideas not directly implemented.</p>
 <p>For example, in Liquid Haskell, we use the <code>measure</code> keyword to define uninterpreted functions.</p>
@@ -468,7 +470,7 @@ plusSix x = x + 6 </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">{-@ type Odd = {v:Int | v mod 2 = 1} @-}
+  <div id="program-7" class="programbox">{-@ type Odd  = {v:Int | v mod 2 = 1} @-}
 {-@ type Even = {v:Int | v mod 2 = 0} @-}
 
 {-@ addOdds :: x:Odd -> y:Odd -> Even @-}
@@ -599,7 +601,8 @@ abs :: Int -> Int
 abs x = if x > 0 then x else -x </div>
 </div>
 
-<p><strong>Question:</strong> What is the type of <code>abs</code>? <strong>Question:</strong> What is the verification condition generated?</p>
+<p><strong>Question:</strong> What is the type of <code>abs</code>?</p>
+<p><strong>Question:</strong> What is the verification condition generated?</p>
 <p>Refinement types are <em>branch sensitive</em>, meaning that the type of the result of a branch depends on the condition of the branch.</p>
 <p>The typing rule for branches takes this sensitivity into account:</p>
 <p><span class="math display">\[
