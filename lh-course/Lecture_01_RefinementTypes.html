@@ -127,10 +127,19 @@ MathJax.Hub.Config({
 <ul class='chapter'>
 <li><a href='Lecture_01_RefinementTypes.html'><b>1.</b>Introduction</a></li>
 <ul class='section'>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.1.</b> Well-Typed Programs Do Go Wrong {#gowrong}</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.2.</b> Refinement Types</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.3.</b> Audience</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.4.</b> Getting Started</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.1.</b> Installation</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.2.</b> Basic Refinement Types</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.3.</b> Subtyping</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.4.</b> From Subtyping to Verification Conditions</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.5.</b> Verification Conditions</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.6.</b> Primitive Operations</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.7.</b> Function Types</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.8.</b> Branching and Recursion</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.9.</b> Refined Polymorphism</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
 </ul>
 <li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
 <ul class='section'>
@@ -188,6 +197,7 @@ MathJax.Hub.Config({
 
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
+<p>Refinement types are types refined with logical predicates that enforce a variety of invariants at compile time. In this course, we will learn the refinement type system of Liquid Haskell. Concretely, these lectures are developed using the <code>Liquid Haskell</code> plugin, using the below Haskell language pragma.</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -197,19 +207,15 @@ MathJax.Hub.Config({
   </button>
  
   <div id="program-0" class="programbox">
-{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
+{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+{-@ LIQUID "--no-termination" @-}
 module Lecture_01_RefinementTypes where
 
 main :: IO ()
 main = return ()</div>
 </div>
 
-<p>One of the great things about Haskell is its brainy type system that allows one to enforce a variety of invariants at compile time, thereby nipping in the bud a large swathe of run-time <a href="#getting-started">errors</a>.</p>
-<section id="gowrong" class="level2">
-<h2>Well-Typed Programs Do Go Wrong</h2>
-<p>Alas, well-typed programs <em>do</em> go quite wrong, in a variety of ways.</p>
-<p><br />
-<strong>Division by Zero</strong> This innocuous function computes the average of a list of integers:</p>
+<p>Having activated the <code>Liquid Haskell</code> plugin, compilation will use the <code>Liquid Haskell</code> type checker, for example to check that division by zero is not possible.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -218,119 +224,715 @@ main = return ()</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-1" class="programbox">average    :: [Int] -> Int
-average xs = sum xs `div` 42 -- length xs</div>
+  <div id="program-1" class="programbox">test :: Int -> Int
+test x = 42 `div` 2</div>
 </div>
 
-<p>We get the desired result on a non-empty list of numbers:</p>
-<pre class="ghci"><code>ghci&gt; average [10, 20, 30, 40]
-25</code></pre>
-<p>However, if we call it with an empty list, we get a rather unpleasant crash: <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<pre class="ghci"><code>ghci&gt; average []
+<p>If we call <code>div</code> with zero, directly or even indirectly via the <code>x</code> argument, then at runtime we will get a division by zero error.</p>
+<pre class="ghci"><code>ghci&gt; test 0
 *** Exception: divide by zero</code></pre>
-<p>Associative key-value maps are the new lists; they come “built-in” with modern languages like Go, Python, JavaScript and Lua; and of course, they’re widely used in Haskell too.</p>
-<pre class="ghci"><code>ghci&gt; :m +Data.Map 
-ghci&gt; let m = fromList [ (&quot;haskell&quot;, &quot;lazy&quot;)
-                       , (&quot;ocaml&quot;  , &quot;eager&quot;)]
+<p>Liquid Haskell comes with a refined type for the division operator that specified that the second argument must be non-zero.</p>
+<pre class="spec"><code>div :: Int -&gt; {v:Int | v /= 0} -&gt; Int</code></pre>
+<p>The above type specifies that the second argument must be non-zero and is automatically checked at compile time, using an SMT solver. Today, we will learn how these checks are performed, and how to write and use refined types in Haskell.</p>
+<section id="installation" class="level2">
+<h2>Installation</h2>
+<p>To install Liquid Haskell, you can use <code>cabal</code> or source installation:</p>
+<ul>
+<li><a href="https://ucsd-progsys.github.io/liquidhaskell/install/"><code>cabal install liquidhaskell</code></a> will install the Liquid Haskell plugin that you can use in your Haskell projects.</li>
+<li><a href="https://github.com/ucsd-progsys/liquidhaskell?tab=readme-ov-file#running-the-pluging-on-individual-files">Source installation</a> will let you clone Liquid Haskell from github and install it.</li>
+</ul>
+<p>The source code of these class notes can also be downloaded and executed from <a href="https://github.com/nikivazou/liquidhaskell-course">github</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p><strong>Note:</strong> This is the first time I am giving these lectures, so I would appreciate any feedback you might have, via pull requests or email at <code>niki.vazou@imdea.org</code>.</p>
+</section>
+<section id="basic-refinement-types" class="level2">
+<h2>Basic Refinement Types</h2>
+<p>Did you note that <code>2</code> is a good argument for the division operator? Then, what is the type of <code>2</code>?</p>
+<p>In Haskell <code>2:Int</code>, but the same value can have many different refinement types. A basic refinement type has the form</p>
+<p><span class="math display">\[ \{ v:b \mid p \} \]</span> where <span class="math inline">\(b\)</span> is the base type (e.g., <code>Int</code>, <code>Bool</code>, etc.) and <span class="math inline">\(p\)</span> is a logical predicate.</p>
+<p>For example, the logical predicate that refines the type of <code>2</code> can have many different forms:</p>
+<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
-ghci&gt; m ! &quot;haskell&quot;
-&quot;lazy&quot;</code></pre>
-<p>Alas, maps are another source of vexing errors that are tickled when we try to find the value of an absent key: <a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
-<pre class="ghci"><code>ghci&gt; m ! &quot;javascript&quot;
-&quot;*** Exception: key is not in the map</code></pre>
-<p>Say what? How can one possibly get a segmentation fault with a <em>safe</em> language like Haskell. Well, here’s the thing: every safe language is built on a foundation of machine code, or at the very least, <code>C</code>. Consider the ubiquitous <code>vector</code> library:</p>
-<pre class="ghci"><code>ghci&gt; :m +Data.Vector
-ghci&gt; let v = fromList [&quot;haskell&quot;, &quot;ocaml&quot;]
-ghci&gt; unsafeIndex v 0
-&quot;haskell&quot;</code></pre>
-<p>However, invalid inputs at the safe upper levels can percolate all the way down and stir a mutiny down below: <a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
-<pre class="ghci"><code>ghci&gt; unsafeIndex v 3
-&#39;ghci&#39; terminated by signal SIGSEGV ...</code></pre>
-<p>Finally, for certain kinds of programs, there is a fate worse than death. <code>text</code> is a high-performance string processing library for Haskell, that is used, for example, to build web services.</p>
-<pre class="ghci"><code>ghci&gt; :m +Data.Text Data.Text.Unsafe
-ghci&gt; let t = pack &quot;Voltage&quot;
-ghci&gt; takeWord16 5 t
-&quot;Volta&quot;</code></pre>
-<p>A cunning adversary can use invalid, or rather, <em>well-crafted</em>, inputs that go well outside the size of the given <code>text</code> to read extra bytes and thus <em>extract secrets</em> without anyone being any the wiser.</p>
-<pre class="ghci"><code>ghci&gt; takeWord16 20 t
-&quot;Voltage\1912\3148\SOH\NUL\15928\2486\SOH\NUL&quot;</code></pre>
-<p>The above call returns the bytes residing in memory <em>immediately after</em> the string <code>Voltage</code>. These bytes could be junk, or could be either the name of your favorite TV show, or, more worryingly, your bank account password.</p>
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-2" class="programbox">
+{-@ type Two      = {v:Int | v == 2}  @-}
+{-@ type FortyTwo = {v:Int | v == 42} @-}
+{-@ type NZero    = {v:Int | v /= 0}  @-}
+{-@ type Pos      = {v:Int | v >  0}  @-}
+{-@ type Neg      = {v:Int | v <  0}  @-}
+{-@ type Nat      = {v:Int | 0 <= v}  @-}
+
+
+two :: Int
+two = 2 </div>
+</div>
+
+<p><strong>Question:</strong> What are good types for <code>two</code>?</p>
+<p><strong>Question:</strong> Can you find more types for <code>two</code>?</p>
 </section>
-<section id="refinement-types" class="level2">
-<h2>Refinement Types</h2>
-<p>Refinement types allow us to enrich Haskell’s type system with <em>predicates</em> that precisely describe the sets of <em>valid</em> inputs and outputs of functions, values held inside containers, and so on. These predicates are drawn from special <em>logics</em> for which there are fast <em>decision procedures</em> called SMT solvers.</p>
-<p><br />
-<strong>By combining types with predicates</strong> you can specify <em>contracts</em> which describe valid inputs and outputs of functions. The refinement type system <em>guarantees at compile-time</em> that functions adhere to their contracts. That is, you can rest assured that the above calamities <em>cannot occur at run-time</em>.</p>
-<p><br />
-<strong>LiquidHaskell</strong> is a Refinement Type Checker for Haskell, and in this tutorial we’ll describe how you can use it to make programs better and programming even more fun. <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<section id="subtyping" class="level2">
+<h2>Subtyping</h2>
+<p>So, what is the type of <code>2</code>? In Liquid Haskell, integers and other constants, e.g., booleans, characters, etc., are given a <em>singleton type</em>, meaning a type that has only one value. So, the typing rule for integers is:</p>
+<p><span class="math display">\[ 
+\inferrule{\texttt{T-Int}}{}{\Gamma \vdash i : \{ \texttt{Int} \mid v = i \}}
+\]</span></p>
+<p>In an unrefined system this would be <em>the only</em> type for <code>2</code>. But refinement types have the notion of <em>subtyping</em>, which can give an expression many different types.</p>
+<p>The rule for subtyping is the following:</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-Sub}}
+  {
+  \Gamma \vdash e : \tau_1 \quad 
+  \Gamma \vdash \tau_1 \preceq \tau_2
+  }{
+  \Gamma \vdash e : \tau_2
+  }
+\]</span></p>
+<p>This rule states that in an expression, like <span class="math inline">\(2\)</span>, that has type <span class="math inline">\(\tau_1\)</span> and <span class="math inline">\(\tau_1\)</span> is a subtype of <span class="math inline">\(\tau_2\)</span>, then <span class="math inline">\(2\)</span> can also have type <span class="math inline">\(\tau_2\)</span>.</p>
+<p>So, <span class="math inline">\(2 : \{ \texttt{Int} \mid 0 \leq v \}\)</span>, because <span class="math inline">\(\{ \texttt{Int} \mid 2 = v \} \preceq \{ \texttt{Int} \mid 0 &lt;= v \}\)</span>. But, let’s see how subtyping is decided.</p>
 </section>
-<section id="audience" class="level2">
-<h2>Audience</h2>
-<p>Do you</p>
+<section id="from-subtyping-to-verification-conditions" class="level2">
+<h2>From Subtyping to Verification Conditions</h2>
+<p>The subtyping rule for base types, e.g., integers, booleans, etc., is the following:</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{Sub-Base}}
+  {
+   \Gamma \vdash \forall v:b. p_1 \Rightarrow p_2
+  }{
+  \Gamma \vdash \{ v:\texttt{b} \mid p_1 \} \preceq \{ v:\texttt{b} \mid p_2 \}
+  }
+\]</span></p>
+<p>Meaning that <span class="math inline">\(\{ v:\texttt{b} \mid p_1 \} \preceq \{ v:\texttt{b} \mid p_2 \}\)</span>, if <span class="math inline">\(p_1\)</span> “implies” <span class="math inline">\(p_2\)</span> for all values <span class="math inline">\(v\)</span> of type <span class="math inline">\(\texttt{b}\)</span>. To check implications, we use the below two implication rules that are based on the SMT solver<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{I-Emp}}
+  {
+    \texttt{SmtValid}(c)
+  }{
+    \emptyset \vdash c 
+  }
+\qquad 
+\inferrule
+  {\texttt{I-Ext}}
+  {
+    \Gamma \vdash \forall x.  p \Rightarrow c 
+  }{
+    \Gamma, x:\{ x:\texttt{b} \mid p \} \vdash c 
+  }
+\]</span></p>
+<p><strong>Example:</strong> When we check that <span class="math inline">\(2\)</span> is indeed a natural number, the following derivation takes place</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-Sub}}
+  {
+    \inferrule
+    {\texttt{T-Int}}
+    {}
+    {\emptyset \vdash 2 : \{v: \texttt{Int} \mid 2 = v \}}
+    \quad
+    \inferrule
+    {\texttt{Sub-Base}}
+    { 
+      \inferrule
+      {\texttt{I-Emp}}
+      {\texttt{SmtValid} (\forall v:\texttt{Int}. 2 = v \Rightarrow 0 \leq v)}
+      {
+      \emptyset \vdash \forall v:\texttt{Int}. 2 = v \Rightarrow 0 \leq v
+      }
+    }
+    {\emptyset \vdash \{v: \texttt{Int} \mid 2 = v \} \preceq \{v: \texttt{Int} \mid 0 \leq v \}}
+  }
+  {\emptyset \vdash 2 : \{v: \texttt{Int} \mid 0 \leq v \}}
+\]</span></p>
+<p>So, the type derivation succeeds, because the SMT can indeed decide that the implication <span class="math inline">\(2 = v \Rightarrow 0 \leq v\)</span> is valid.</p>
+<p>In general, we call such implications <em>verification conditions</em> and the main task of a refinement type checker is to reduce the type checking problem to validity of verification conditions.</p>
+</section>
+<section id="verification-conditions" class="level2">
+<h2>Verification Conditions</h2>
+<p>Liquid Haskell takes great care to ensure that type checking is decidable and efficient. To achieve this, it has to be careful to generate verification conditions that are decidable and efficiently checkable by the SMT solver. The rules <span class="math inline">\(\texttt{Sub-Base}\)</span> and <span class="math inline">\(\texttt{I-Ext}\)</span>, presented above, are the main rules that generate verification conditions from the predicates found in the refinement types. Below is the syntax of the predicates and verification conditions:</p>
+<p><span class="math display">\[
+\begin{array}{r r c l l}
+\textbf{Predicates} &amp; p &amp; ::=  &amp; x, y, z &amp; \textit{variables} \\
+                             &amp;   &amp; \mid &amp; \text{true}, \text{false} &amp; \textit{booleans} \\
+                             &amp;   &amp; \mid &amp; 0, -1, 1, \dots           &amp; \textit{numbers} \\
+                             &amp;   &amp; \mid &amp; \lnot p, p_1 \land p_2, p_1 \lor p_2 &amp; \textit{boolean operators} \\
+                             &amp;   &amp; \mid &amp; p_1 = p_2      &amp; \textit{equality} \\
+                             &amp;   &amp; \mid &amp; p_1 + p_2, p_1 - p_2, \dots &amp; \textit{linear arithmetic} \\
+                             &amp;   &amp; \mid &amp; f (p_1, \dots, p_n)            &amp; \textit{uninterp. functions} \\
+                             &amp;   &amp;      &amp; &amp; \\ 
+\textbf{Verification Conditions} &amp; c &amp; ::= &amp; p  &amp; \textit{predicates} \\
+                             &amp;   &amp; \mid &amp; c_1 \land c_2 &amp; \textit{conjunction} \\
+                              &amp;   &amp; \mid &amp; \forall x:b. p \Rightarrow c &amp; \textit{implication} \\
+\end{array}
+\]</span></p>
+<p><em>Verification Conditions</em> can be predicates, as a base case, conjunction, so that many verification conditions can be gathered together, and implications, as generated by the <span class="math inline">\(\texttt{I-Ext}\)</span> rule. Most of the syntax of predicates should be familiar to you.</p>
+<p><strong>Question:</strong> Do we need more boolean operators? Or maybe less?</p>
+<p><em>Uninterpreted functions</em> are essentially logical functions that always return the same value for the same input.</p>
+<p><span class="math display">\[
+\forall x y. x = y \Rightarrow f(x) = f(y)
+\]</span></p>
+<p>They are essential for program verification because 1. they can be used to encode program functions in the logic and 2. they can be used to capture ideas not directly implemented.</p>
+<p>For example, in Liquid Haskell, we use the <code>measure</code> keyword to define uninterpreted functions.</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ measure isPrime :: Int -> Bool @-}</div>
+</div>
+
+<p>Given the property of being a function, Liquid Haskell, via SMT, can prove than on same input, <code>isPrime</code> returns the same output.</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">
+{-@ uninteprCheck :: x:Int -> y:Int 
+                  -> {v:() | x = y => isPrime x = isPrime y } @-}
+
+uninteprCheck :: Int -> Int -> () 
+uninteprCheck _ _ = () </div>
+</div>
+
+</section>
+<section id="primitive-operations" class="level2">
+<h2>Primitive Operations</h2>
+<p>Up to now, we have seen how type checking (of base types) is reduced to checking of verification conditions. We also saw that constants, like integers and booleans, are given singleton types. But, what about other operations, like addition, subtraction, etc.? Remember that the type of <code>div</code> was refined to ensure that the second argument is non-zero. The same happens for other “primitive” operations, like addition, subtraction, etc. They all come with refined types that essentially map their operations to the SMT primitives.</p>
+<p>So, in Liquid Haskell we have the following refined types for the basic operations:</p>
+<pre class="spec"><code>
+(+)  :: Num a =&gt; x:a -&gt; y:a -&gt; {v:a | v = x + y}
+(-)  :: Num a =&gt; x:a -&gt; y:a -&gt; {v:a | v = x - y}
+(&amp;&amp;) :: x:Bool -&gt; y:Bool -&gt; {v:Bool | v = x &amp;&amp; y }
+(||) :: x:Bool -&gt; y:Bool -&gt; {v:Bool | v = x || y }
+(==) :: Eq a =&gt; x:a -&gt; y:a -&gt; {v:Bool | v = (x = y)}
+</code></pre>
+<p>Such specifications of primitive operators come are <em>trusted</em> assumptions, required to connect the primitives of the programming language to the SMT solver. Thus, the refinement rule for such constants is:</p>
+<p><span class="math display">\[
+\inferrule{\texttt{T-Const}}
+  {}
+  {\Gamma \vdash c : \text{tyConst}(c)}
+\]</span></p>
+<p><strong>Question:</strong> What is the verification condition of the problem below?</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">
+{-@ threePlusSix :: {v:Int | 0 <= v} @-}
+threePlusSix :: Int 
+threePlusSix = 3 + 6 </div>
+</div>
+
+<p><strong>Question:</strong> What is the verification condition of the problem below?</p>
+<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-6" class="programbox">
+{-@ plusSix :: x:Int -> {v:Int | x <= v} @-}
+plusSix :: Int -> Int 
+plusSix x = x + 6 </div>
+</div>
+
+<p><strong>Question:</strong> Can you make the above code return only natural numbers?</p>
+</section>
+<section id="function-types" class="level2">
+<h2>Function Types</h2>
+<p>Refinements on function arguments define <em>preconditions</em>, i.e., assumptions about the arguments of the function, while refinements on the return type define <em>postconditions</em>, i.e., guarantees about the return value of the function.</p>
+<p>For example, addition of two odd numbers is guaranteed to be even:</p>
+<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-7" class="programbox">{-@ type Odd = {v:Int | v mod 2 = 1} @-}
+{-@ type Even = {v:Int | v mod 2 = 0} @-}
+
+{-@ addOdds :: x:Odd -> y:Odd -> Even @-}
+addOdds :: Int -> Int -> Int
+addOdds x y = x + y</div>
+</div>
+
+<p>Increasing a positive number is guaranteed to be positive:</p>
+<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-8" class="programbox">
+{-@ incrPos :: x:Pos -> Pos @-}
+incrPos :: Int -> Int 
+incrPos x = x + 1</div>
+</div>
+
+<p><strong>Question:</strong> What is the verification condition of the problem below?</p>
+<p>So, the verification condition generated when checking the output, puts into the typing context the input and then checks the postcondition:</p>
+<p><span class="math display">\[
+\inferrule
+  {\text{T-Fun}}
+  {\Gamma; x:\tau_x \vdash e : \tau}
+  {\Gamma \vdash \lambda x. e : x:\tau_x \rightarrow \tau}
+\]</span></p>
+<p>When type checking function applications, the subtyping rule is used to <em>weaken</em> the type of the argument into the correct type (e.g., make <span class="math inline">\(2\)</span> a natural number).</p>
+<p><span class="math display">\[
+\inferrule
+  {\text{T-App}}
+  { \Gamma \vdash e: (x:\tau_x \rightarrow \tau) \quad 
+    \Gamma \vdash y : \tau_x}
+  {\Gamma \vdash e\ y : x:\tau_x \rightarrow \tau [x / y] }
+\]</span></p>
+<p><strong>Note:</strong> The type of the result can contain the input variable which is substitute. For example, what is a precise type for <code>incr2</code>?</p>
+<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-9" class="programbox">
+incr :: Int -> Int 
+{-@ incr :: x:Int -> {v:Int | v = x + 1} @-}
+incr x = x + 1 
+
+
+incr2 :: Int -> Int 
+incr2 x = incr (incr x)</div>
+</div>
+
+<p><strong>Note:</strong> Refinement types assume that application only happens with variables as arguments. This is not a limitation because internally we can always use a let binding to bind the argument to a variable. E.g., the above definition of <code>incr2</code> is equivalent to:</p>
+<pre class="spec"><code>incr2 x = let y = incr x in incr y</code></pre>
+<p>This transformation is called ANF (administrative normal form). Can you think why it is required?</p>
+<p><em>Subtyping</em> exists also on function types and it gets interesting…</p>
+<p><strong>Question:</strong> Which of the following functions can be applied to <code>higher</code>?</p>
+<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-10" class="programbox">
+fII, fIP, fIN, fPI, fPP, fPN, fNI, fNP, fNN :: Int -> Int 
+higher :: (Int -> Int) -> Int 
+fII = undefined 
+fIP = undefined
+fIN = undefined
+fPI = undefined
+fPP = undefined
+fPN = undefined
+fNI = undefined
+fNP = undefined
+fNN = undefined
+higher = undefined 
+
+
+{-@ fII :: Int -> Int @-}
+{-@ fIP :: Int -> Pos @-}
+{-@ fIN :: Int -> Nat @-}
+{-@ fPI :: Pos -> Int @-}
+{-@ fPP :: Pos -> Pos @-}
+{-@ fPN :: Pos -> Nat @-}
+{-@ fNI :: Nat -> Int @-}
+{-@ fNP :: Nat -> Pos @-}
+{-@ fNN :: Nat -> Nat @-}
+
+
+{-@ higher :: (Nat -> Nat) -> Nat @-}
+
+testhigher = higher fNN</div>
+</div>
+
+<p>As we should have figured out, the rule says that the result type should be a subtype but the argument a subpertype.</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{Sub-Fun}}
+  {
+    \Gamma \vdash \tau_{x2} \preceq \tau_{x1} \quad
+    \Gamma; x_2:\tau_{x2} \vdash \tau_1[x_1/x_2] \preceq \tau_2
+  }{
+    \Gamma \vdash x_1:\tau_{x1} \rightarrow \tau_1 \preceq x_2:\tau_{x2} \rightarrow \tau_2
+  }
+\]</span></p>
+<p>We call the above rule on the argument <em>contravariant</em> and on the result <em>covariant</em>. Also, note that the result is checked under a context that contains the strongest argument!</p>
+</section>
+<section id="branching-and-recursion" class="level2">
+<h2>Branching and Recursion</h2>
+<p>Let’s compute the absolute value of a number.</p>
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-11" class="programbox">
+abs :: Int -> Int 
+abs x = if x > 0 then x else -x </div>
+</div>
+
+<p><strong>Question:</strong> What is the type of <code>abs</code>? <strong>Question:</strong> What is the verification condition generated?</p>
+<p>Refinement types are <em>branch sensitive</em>, meaning that the type of the result of a branch depends on the condition of the branch.</p>
+<p>The typing rule for branches takes this sensitivity into account:</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-If}}
+  {
+    \Gamma \vdash x : \{v:\texttt{bool} \mid p \} \quad 
+    \Gamma; y:\{y:\texttt{bool} \mid  x  \} \vdash e_1 : \tau \quad 
+    \Gamma; y:\{y:\texttt{bool} \mid  \lnot x  \}  \vdash e_2 : \tau
+  }{
+    \Gamma \vdash \text{if } x \text{ then } e_1 \text{ else } e_2 : \tau
+  }
+\]</span></p>
+<p>Note that the branch is also in ANF, so that it can get into the refinements. The typing uses a fresh variable <span class="math inline">\(y\)</span> to capture the condition of the branch.</p>
+<p>Of course, branching makes more sense when accompanied with recursive functions. Let’s confirm that the sum of the first <span class="math inline">\(n\)</span> natural numbers is greater then <span class="math inline">\(n\)</span>:</p>
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">sumN :: Int -> Int 
+sumN n = if n == 0 then 0 else n + sumN (n - 1)</div>
+</div>
+
+<p><strong>Question:</strong> What is the type of <code>sumN</code>?</p>
+<p><strong>Question:</strong> What is the verification condition generated?</p>
+<p>Type checking of recursive functions is itself a recursive process. Meaning, to check the type of <code>sumN</code>, we need to assume that <code>sumN</code> has the correct type!</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-Rec}}
+  {
+    \Gamma; f:\tau_f \vdash e_f : \tau_f \quad 
+    \Gamma; f:\tau_f \vdash e : \tau 
+  }{
+    \Gamma \vdash \text{let rec } f = e_f \text{ in } e : \tau
+  }
+ \]</span></p>
+</section>
+<section id="refined-polymorphism" class="level2">
+<h2>Refined Polymorphism</h2>
+<p>The truth is polymorphism is a difficult topic in the area of programming languages. But, as a first step let’s only see its great points and for refinement types, the great benefit of polymorphism is that any polymorphic function can be instantiated to refined values. For example, the identity function can be instantiated to propagate natural numbers:</p>
+<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-13" class="programbox">
+myid :: a -> a 
+myid x = x 
+
+testPoly :: Int 
+{-@ testPoly :: Nat @-}
+testPoly = higher myid</div>
+</div>
+
+<p>This is extremely powerful because it allows us to write generic code to propagate any application specific refinements! Next, we will see how this takes effect when using generic structures (e.g., arrays or in general data types). But now, for completeness, lets see the rules for polymorphism.</p>
+<p>To get a polymorphic system, we need the ability to abstract and instantiate over type variables:</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-TAbs}}
+  {
+    \Gamma; \alpha \vdash e : \tau
+  } {
+    \Gamma \vdash \Lambda \alpha. e : \forall \alpha. \tau
+  }
+\qquad
+\inferrule
+  {\texttt{T-TInst}}
+  {
+    \Gamma \vdash e : \forall \alpha. \tau 
+  }{
+    \Gamma \vdash e[\tau_\alpha] : \tau[\tau_\alpha/\alpha]
+  }
+\]</span></p>
+<p>Since we allow subtyping, we also need to allow subtyping on polymorphic types. For simplicity, we assume that the type variable is renamed to be the same:</p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{Sub-Abs}}
+  {
+    \Gamma; \alpha \vdash \tau_1 \preceq \tau_2
+  }{
+    \Gamma \vdash \forall \alpha. \tau_1 \preceq \forall \alpha. \tau_2
+  }
+\]</span></p>
+</section>
+<section id="putting-it-all-together-safe-indexing" class="level2">
+<h2>Putting it all together: Safe Indexing</h2>
+<p>The major application of refinement types is to ensure indexing is safe. So, let’s generate structures of arrays and safely index them. Meaning <code>ArrayN a n</code> is an array of <code>n</code> elements of type <code>a</code> and accessing them with an index less than 0 or greater than <code>n</code> is an out of bounds error.</p>
+<div id="program-pane-14" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-14" class="programbox">type Array a = Int -> a 
+{-@ type ArrayN a N = {i:Nat | i < N} -> a @-}
+
+new :: Int -> a -> Array a 
+{-@ new :: n:Nat -> a -> ArrayN a n @-}
+new n x = \i -> if 0 <= i && i < n then x else error "Out of Bounds"
+
+set :: Int -> Int -> a -> Array a  -> Array a 
+{-@ set :: n:Nat -> i:{Nat | i < n} -> a -> ArrayN a n -> ArrayN a n @-}
+set n i x a = \j -> if i == j then x else a j
+
+get :: Int -> Int -> Array a -> a 
+{-@ get :: n:Nat -> i:{Nat | i < n} -> ArrayN a n -> a @-}
+get n i a = a i </div>
+</div>
+
+Let’s create an array with 42 elements:
+<div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-15" class="programbox">
+{-@ arr42 :: ArrayN Int 42 @-}
+arr42 :: Array Int
+arr42 = new 42 0
+
+getElem :: Int 
+{-@ getElem :: Int @-}
+getElem = get 42 10 arr42</div>
+</div>
+
+<p><strong>Question:</strong> What are good indices of <code>arr42</code>?</p>
+<p>To put now <em>all</em> the features we learnt together, let’s assume a function that checks for primality and use it to generate the next prime number.</p>
+<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-16" class="programbox">{-@ type Prime = {v:Int | isPrime v } @-}
+
+isPrime :: Int -> Bool 
+{-@ isPrime :: i:Int -> {v:Bool | v <=> isPrime i } @-}
+isPrime = undefined 
+
+nextPrime :: Int -> Int 
+{-@ nextPrime :: Nat -> Prime  @-}
+nextPrime x = if isPrime x then x else nextPrime (x + 1)</div>
+</div>
+
+<p><strong>Question:</strong> Given <code>nextPrime</code> can you generate an array that contains only prime numbers?</p>
+<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-17" class="programbox">{-@ primes :: n:Nat -> ArrayN Prime n @-}
+primes :: Int -> Array Int
+primes = undefined </div>
+</div>
+
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<p>To sum up the most important features of a refinement type system are:</p>
 <ul>
-<li>know a bit of basic arithmetic and logic?</li>
-<li>know the difference between a <code>nand</code> and an <code>xor</code>?</li>
-<li>know any typed languages e.g. ML, Haskell, Scala, F# or (Typed) Racket?</li>
-<li>know what <code>forall a. a -&gt; a</code> means?</li>
-<li>like it when your code editor politely points out infinite loops?</li>
-<li>like your programs to not have bugs?</li>
+<li><em>implicit subtyping:</em> the type of <span class="math inline">\(2\)</span> turn into a non zero without any user casts!</li>
+<li><em>branch sensitivity:</em> the type of the result of a branch depends on the condition of the branch!</li>
+<li><em>polymorphism:</em> the type of a function can depend on the type of its arguments!</li>
 </ul>
-<p>Then this tutorial is for you!</p>
-</section>
-<section id="getting-started" class="level2">
-<h2>Getting Started</h2>
-<p>As of July 2020, LiquidHaskell, version 0.8.10 onwards, is available as a <a href="https://downloads.haskell.org/~ghc/8.10.1/docs/html/users_guide/extending_ghc.html">GHC plugin</a>.</p>
-<p>This means, roughly, that you need simply</p>
-<ol type="1">
-<li>Add LH to your project dependencies, after which</li>
-<li>GHC produces LH type errors whenever you compile the code, so that you can</li>
-<li>View errors using your favorite editor’s existing Haskell tooling.</li>
-</ol>
-<p><br />
-<strong>LiquidHaskell Requires</strong> (in addition to the cabal dependencies) a binary for an <code>SMTLIB2</code> compatible solver, e.g. one of</p>
+<p>We saw the most important rule of a refinement type system! Next, we will look at the data types (so that we can implement more structured arrays) and we will go into more examples on how to use refinement types. But, for completeness, let’s put here the definition of the language that we have seen and the typing and subtyping rules.</p>
 <ul>
-<li><a href="https://github.com/Z3Prover/z3">Z3</a> (which we recommend)</li>
-<li><a href="https://cvc4.github.io/">CVC4</a></li>
-<li><a href="http://mathsat.fbk.eu/download.html">MathSat</a></li>
+<li>Syntax of the language:</li>
 </ul>
-<p><br />
-<strong>This Tutorial</strong> is written in literate Haskell and the code for it is available <a href="http://github.com/ucsd-progsys/liquidhaskell-tutorial.git">here</a>. Hence, we <em>strongly</em> recommend you grab the code, and follow along, and especially that you do the exercises, via two steps.</p>
-<p><strong>Step 1</strong> Clone the code repository,</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="fu">git</span> clone --recursive https://github.com/ucsd-progsys/liquidhaskell-tutorial.git</span></code></pre></div>
-<p><strong>Step 2:</strong> Try building the code using</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="ex">cabal</span> v2-build</span></code></pre></div>
-<p>or</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="ex">stack</span> build --fast --file-watch</span></code></pre></div>
-<p>If your environment is set up correctly, compilation will stop with a Liquid type error:</p>
-<pre class="spec"><code>src/Tutorial_01_Introduction.lhs:30:27: error:
-    Liquid Type Mismatch
-    .
-    The inferred type
-      VV : {v : GHC.Types.Int | v &gt;= 0
-                                &amp;&amp; v == len xs}
-    .
-    is not a subtype of the required type
-      VV : {VV : GHC.Types.Int | VV /= 0}
-    .
-    in the context
-      xs : {v : [GHC.Types.Int] | len v &gt;= 0}
-   |
-30 | average xs = sum xs `div` length xs
-   |                           ^^^^^^^^^</code></pre>
-<p><strong>Step 3:</strong> Iteratively edit-compile the code in <code>src/</code> until it <em>builds</em> without any liquid type errors.</p>
-<p>The above workflow will let you use whatever GHC/Haskell tooling you use for your favorite editor, to automatically display LH errors as well.</p>
-<p>If you’d like to copy and paste code snippets into the web demo, instead of cloning the repo, note that you may need to pass <code>--no-termination</code> to <code>liquid</code>, or equivalently, add the pragma <code>{-@ LIQUID "--no-termination" @-}</code> to the top of the source file. (By default, <code>liquid</code> tries to ensure that all code it examines will terminate. Some of the code in this tutorial is written in such a way that termination is not immediately obvious to LH.)</p>
-<p><strong>Note:</strong> This tutorial is a <em>work in progress</em>, and we will be <strong>very</strong> grateful for feedback and suggestions, ideally via pull-requests on github.</p>
-<p>Lets begin!</p>
+<p><span class="math display">\[
+\begin{array}{r r c l l}
+\textbf{Basic Types} &amp; \texttt{b} &amp; ::=  &amp; \texttt{Int} \mid \texttt{Bool}, \dots  &amp;  \\
+                             &amp;   &amp;      &amp; &amp; \\ 
+\textbf{Types} &amp; \tau &amp; ::=  &amp; \{ v:\texttt{b} \mid p \} &amp; \textit{base} \\
+                             &amp;   &amp; \mid &amp;x:\tau_{x} \rightarrow \tau &amp; \textit{function} \\
+                             &amp;   &amp; \mid &amp; \forall \alpha. \tau          &amp; \textit{polymorphic} \\
+                             &amp;   &amp;      &amp; &amp; \\ 
+\textbf{Expressions} &amp; e &amp; ::= &amp; x  &amp; \textit{variables} \\
+                             &amp;   &amp; \mid &amp; c &amp; \textit{constants} \\
+                             &amp;   &amp; \mid &amp; \lambda x . e  &amp; \textit{function} \\
+                             &amp;   &amp; \mid &amp; e\ x  &amp; \textit{application} \\
+                             &amp;   &amp; \mid &amp; \text{if } x \text{ then } e \text{ else } e  &amp; \textit{if} \\
+                             &amp;   &amp; \mid &amp; \text{let  } x = e \text{ in } e  &amp; \textit{let} \\
+                             &amp;   &amp; \mid &amp; \text{let rec } f = e \text{ in } e  &amp; \textit{recursion} \\
+                             &amp;   &amp; \mid &amp; \Lambda \alpha. e  &amp; \textit{type abs.} \\
+                             &amp;   &amp; \mid &amp; e[\tau]  &amp; \textit{type appl.} \\
+\end{array}
+\]</span></p>
+<ul>
+<li>Typing rules collected: <span class="math display">\[
+\inferrule
+{\texttt{T-Sub}}
+{
+\Gamma \vdash e : \tau_1 \quad 
+\Gamma \vdash \tau_1 \preceq \tau_2
+}{
+\Gamma \vdash e : \tau_2
+}
+\]</span></li>
+</ul>
+<p><span class="math display">\[
+\inferrule{\texttt{T-Const}}
+  {}
+  {\Gamma \vdash c : \text{tyConst}(c)}
+\quad 
+\inferrule{\texttt{T-Var}}
+  {}
+  {\Gamma \vdash x : \Gamma(x)}
+\]</span> <span class="math display">\[
+\inferrule
+  {\text{T-Fun}}
+  {\Gamma; x:\tau_x \vdash e : \tau}
+  {\Gamma \vdash \lambda x. e : x:\tau_x \rightarrow \tau}
+\quad
+\inferrule
+  {\text{T-App}}
+  { \Gamma \vdash e: (x:\tau_x \rightarrow \tau) \quad 
+    \Gamma \vdash y : \tau_x}
+  {\Gamma \vdash e\ y : x:\tau_x \rightarrow \tau [x / y] }
+\]</span> <span class="math display">\[
+\inferrule
+  {\texttt{T-If}}
+  {
+    \Gamma \vdash x : \{v:\texttt{bool} \mid p \} \quad 
+    \Gamma; y:\{y:\texttt{bool} \mid  x  \} \vdash e_1 : \tau \quad 
+    \Gamma; y:\{y:\texttt{bool} \mid  \lnot x  \}  \vdash e_2 : \tau
+  }{
+    \Gamma \vdash \text{if } x \text{ then } e_1 \text{ else } e_2 : \tau
+  }
+\]</span> <span class="math display">\[
+\inferrule
+  {\texttt{T-Let}}
+  {
+    \Gamma; \vdash e_x : \tau_x \quad 
+    \Gamma; x:\tau_x \vdash e : \tau 
+  }{
+    \Gamma \vdash \text{let } x = e_x \text{ in } e : \tau
+  }
+ \]</span></p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{T-Rec}}
+  {
+    \Gamma; f:\tau_f \vdash e_f : \tau_f \quad 
+    \Gamma; f:\tau_f \vdash e : \tau 
+  }{
+    \Gamma \vdash \text{let rec } f = e_f \text{ in } e : \tau
+  }
+ \]</span> <span class="math display">\[
+\inferrule
+  {\texttt{T-TAbs}}
+  {
+    \Gamma; \alpha \vdash e : \tau
+  } {
+    \Gamma \vdash \Lambda \alpha. e : \forall \alpha. \tau
+  }
+\qquad
+\inferrule
+  {\texttt{T-TInst}}
+  {
+    \Gamma \vdash e : \forall \alpha. \tau 
+  }{
+    \Gamma \vdash e[\tau_\alpha] : \tau[\tau_\alpha/\alpha]
+  }
+\]</span></p>
+<ul>
+<li>Subtyping rules collected:</li>
+</ul>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{Sub-Base}}
+  {
+   \Gamma \vdash \forall v:b. p_1 \Rightarrow p_2
+  }{
+  \Gamma \vdash \{ v:\texttt{b} \mid p_1 \} \preceq \{ v:\texttt{b} \mid p_2 \}
+  }
+\]</span> <span class="math display">\[
+\inferrule
+  {\texttt{Sub-Fun}}
+  {
+    \Gamma \vdash \tau_{x2} \preceq \tau_{x1} \quad
+    \Gamma; x_2:\tau_{x2} \vdash \tau_1[x_1/x_2] \preceq \tau_2
+  }{
+    \Gamma \vdash x_1:\tau_{x1} \rightarrow \tau_1 \preceq x_2:\tau_{x2} \rightarrow \tau_2
+  }
+\]</span></p>
+<p><span class="math display">\[
+\inferrule
+  {\texttt{Sub-Abs}}
+  {
+    \Gamma; \alpha \vdash \tau_1 \preceq \tau_2
+  }{
+    \Gamma \vdash \forall \alpha. \tau_1 \preceq \forall \alpha. \tau_2
+  }
+\]</span></p>
+<p><strong>Note:</strong> The definitions of the rules are syntactic. One subtyping rule exists for each type and one typing rule exists for each expression. The subtyping rule applies to all expressions and <em>in general</em> make the system not algorithmic (meaning, when does this rule apply?) To solve this problem and make the system algorithmic Liquid Haskell uses a <em>bidirectional</em> type checking algorithm. In general, the above rules are simplified in various ways (e.g., well formedness is not discussed).</p>
+</section>
+<section id="further-reading" class="level2">
+<h2>Further Reading</h2>
+<p>These lectures notes are based on the <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">Liquid Haskell Tutorial</a>. For further reading on how to develop a refinement type checker for your own language, you can read the <a href="https://arxiv.org/abs/2010.07763">Refinement Types: A Tutorial</a> and for the theoretical foundations of LiquidHaskell, the publication <a href="https://dl.acm.org/doi/pdf/10.1145/3632912">Mechanizing Refinement Types</a>.</p>
+</section>
+<section id="cheatsheet" class="level2">
+<h2>Cheatsheet</h2>
+<p>Here is the definition of the primes array.</p>
+<pre class="spec"><code>primes :: Int -&gt; Array Int
+primes n = go  1 0  (new n (nextPrime 1))
+  where 
+    go i j a 
+      | i &lt; n     = go (i + 1) (j + 1) (set n j (nextPrime j) a)
+      | otherwise = a</code></pre>
 </section>
 </section>
 <section class="footnotes" role="doc-endnotes">
 <hr />
 <ol>
-<li id="fn1" role="doc-endnote"><p>We could write <code>average</code> more <em>defensively</em>, returning a <code>Maybe</code> or <code>Either</code> value. However, this merely kicks the can down the road. Ultimately, we will want to extract the <code>Int</code> from the <code>Maybe</code> and if the inputs were invalid to start with, then at that point we’d be stuck.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2" role="doc-endnote"><p>Again, one could use a <code>Maybe</code> but it’s just deferring the inevitable.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn3" role="doc-endnote"><p>Why use a function marked <code>unsafe</code>? Because it’s very fast! Furthermore, even if we used the safe variant, we’d get a <em>run-time</em> exception which is only marginally better. Finally, we should remember to thank the developers for carefully marking it unsafe, because in general, given the many layers of abstraction, it is hard to know which functions are indeed safe.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>If you are familiar with the notion of Dependent Types, for example, as in the Coq proof assistant, then Refinement Types can be thought of as restricted class of the former where the logic is restricted, at the cost of expressiveness, but with the reward of a considerable amount of automation.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1" role="doc-endnote"><p> These notes are adjusted from the <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">Liquid Haskell Tutorial</a>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p> SMT stands for Satisfiability Modulo Theories and are automated tools that check the satisfiability of logical formulas. Known SMT solvers are Z3, CVC5, etc. <a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
