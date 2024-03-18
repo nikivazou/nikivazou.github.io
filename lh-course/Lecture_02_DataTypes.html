@@ -738,8 +738,8 @@ dotProd' x (SP _ y) = foldl' body 0 y
 fromList dim elts = undefined
 
 {- test :: SparseIN String 3 @-}
-test     :: Sparse String
-test     = fromJust $ fromList 3 [(0, "cat"), (2, "mouse")]</div>
+test     :: Maybe (Sparse String)
+test     = fromList 3 [(0, "cat"), (2, "mouse")]</div>
 </div>
 
 <div id="Addition" class="hwex">
@@ -944,7 +944,8 @@ prop_map xs = length ys == length xs
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-38" class="programbox">{-@ reverse       :: xs:[a] -> ListX a xs @-}
+  <div id="program-38" class="programbox">{-@ ignore reverse @-}
+{-@ reverse       :: xs:[a] -> ListX a xs @-}
 reverse :: [a] -> [a]
 reverse xs        = go [] xs
   where
@@ -1112,7 +1113,8 @@ take 0 _       = []
 take _ []      = []
 take n (x:xs)  = x : take (n-1) xs
 
-{-@ test5 :: [ListN String 2] @-}
+{-@ ignore test5 @-}
+{- test5 :: [ListN String 2] @-}
 test5 = [ take 2  ["cat", "dog", "mouse"]
         , take 20 ["cow", "goat"]        ]</div>
 </div>
@@ -1189,7 +1191,7 @@ quickSort :: (Ord a) => [a] -> [a]
 quickSort []     = []
 quickSort (x:xs) = undefined
 
-{-@ test10 :: ListN String 2 @-}
+{- test10 :: ListN String 2 @-}
 test10 :: [String]
 test10 = quickSort (drop 1 ["cat", "dog", "mouse"])</div>
 </div>
