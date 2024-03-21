@@ -149,23 +149,38 @@ MathJax.Hub.Config({
 <li><a href='Lecture_02_DataTypes.html#'><b>2.4.</b> Higher-Order Functions</a></li>
 <li><a href='Lecture_02_DataTypes.html#'><b>2.5.</b> Folding (Indexed Lists)</a></li>
 <li><a href='Lecture_02_DataTypes.html#'><b>2.6.</b> Data Invariants: Sparse Vectors</a></li>
-<li><a href='Lecture_02_DataTypes.html#'><b>2.7.</b> Ordered Lists {#orderedlists}</a></li>
-<li><a href='Lecture_02_DataTypes.html#'><b>2.8.</b> The List API</a></li>
-<li><a href='Lecture_02_DataTypes.html#'><b>2.9.</b> Lists: Size Preserving API</a></li>
-<li><a href='Lecture_02_DataTypes.html#'><b>2.10.</b> Lists: Size Reducing API {#listreducing}</a></li>
-<li><a href='Lecture_02_DataTypes.html#'><b>2.11.</b> Summary</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.7.</b> Ordered Lists</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.8.</b> Summary</a></li>
 </ul>
-<li><a href='Lecture_03_CaseStudy_InsertionSort.html'><b>3.</b>Case Study: Insertion Sort</a></li>
+<li><a href='Lecture_03_Sortedness.html'><b>3.</b>Sortedness &amp; Abstract Refinements</a></li>
 <ul class='section'>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.1.</b> Ordered Lists</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.2.</b> Abstraction over Sortedness</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.3.</b> Haskell's Lists</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.4.</b> Dependent Pairs</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.5.</b> Summary</a></li>
 </ul>
-<li><a href='Lecture_04_AbstractRefinementTypes.html'><b>4.</b>Abstract Refinement Types</a></li>
+<li><a href='Lecture_04_Termination.html'><b>4.</b>Termination</a></li>
 <ul class='section'>
+<li><a href='Lecture_04_Termination.html#'><b>4.1.</b> Termination Requires Refinements!</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.2.</b> Termination Metrics</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.3.</b> Lexicographic Termination</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.4.</b> The GCD Example</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.5.</b> Data Types</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.6.</b> User Defined Data Types</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.7.</b> Mutual Recursion</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.8.</b> Summary</a></li>
 </ul>
-<li><a href='Lecture_05_TheoremProving.html'><b>5.</b>Theorem Proving</a></li>
+<li><a href='Lecture_05_Lists.html'><b>5.</b>Lists</a></li>
 <ul class='section'>
+<li><a href='Lecture_05_Lists.html#'><b>5.1.</b> Lists: Size Preserving API</a></li>
+<li><a href='Lecture_05_Lists.html#'><b>5.2.</b> Lists: Size Reducing API</a></li>
 </ul>
-<li><a href='Lecture_06_DataPropositions.html'><b>6.</b>Data Propositions</a></li>
+<li><a href='Task1.html'><b>6.</b>Task 1: Program Verification</a></li>
 <ul class='section'>
+<li><a href='Task1.html#'><b>6.1.</b> 1. Lists</a></li>
+<li><a href='Task1.html#'><b>6.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.html#'><b>6.3.</b> 3. Merge Sort</a></li>
 </ul>
 </ul>
 
@@ -769,7 +784,7 @@ testPlus    = plus vec1 vec2
 </div>
 
 </section>
-<section id="orderedlists" class="level2">
+<section id="ordered-lists" class="level2">
 <h2>Ordered Lists</h2>
 <p>As a second example of refined data types, let’s consider a different problem: representing <em>ordered</em> sequences. Here’s a type for sequences that mimics the classical list:</p>
 <div id="program-pane-30" class="welleditor" style="background:#fff; position:relative">
@@ -879,324 +894,6 @@ insertSort' xs  = foldr f b xs
 
 <p>We will come back to the concept of increasing lists and see how one can provide such a specification for Haskell’s lists. But for now, let’s study easier properties of lists.</p>
 </section>
-<section id="the-list-api" class="level2">
-<h2>The List API</h2>
-<p>Haskell comes with the list type <code>[a]</code> and a rich set of functions. LiquidHaskell comes with the <code>len</code> measure that, silimar to <code>llen</code> that we define, is used to reason about the length of lists.</p>
-<p><br />
-<strong>A ListN</strong> is a list with exactly <code>N</code> elements, and a <code>ListX</code> is a list whose size is the same as another list <code>X</code>. Note that when defining refinement type aliases, we use uppercase variables like <code>N</code> and <code>X</code> to distinguish <em>value</em> parameters from the lowercase <em>type</em> parameters like <code>a</code>.</p>
-<div id="program-pane-36" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-36" class="programbox">{-@ type ListN a N = {v:[a] | len v = N} @-}
-{-@ type ListX a X = ListN a {len X}     @-}</div>
-</div>
-
-</section>
-<section id="lists-size-preserving-api" class="level2">
-<h2>Lists: Size Preserving API</h2>
-<p>With the types and aliases firmly in our pockets, let us write dimension-aware variants of the usual list functions. The implementations are the same as in the standard library i.e. <a href="https://hackage.haskell.org/package/base-4.18.0.0/docs/Data-List.html"><code>Data.List</code></a>, but the specifications are enriched with dimension information.</p>
-<div id="Map" class="hwex">
-<p><br />
-<strong>Exercise: (Map): </strong><br />
-<strong>map</strong> yields a list with the same length as the input. Fix the specification of <code>map</code> so that the <code>prop_map</code> is verified.</p>
-<br />
-<br />
-
-</div>
-<div id="program-pane-37" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-37" class="programbox">{-@ map      :: (a -> b) -> xs:[a] -> [b] @-}
-map :: (a -> b) -> [a] -> [b]
-map _ []     = []
-map f (x:xs) = f x : map f xs
-
-{-@ type TRUE = {v:Bool | v } @-}
-{- prop_map :: [a] -> TRUE @-}
-prop_map xs = length ys == length xs
-  where
-    ys      = map id xs</div>
-</div>
-
-<div id="Reverse" class="hwex">
-<p><br />
-<strong>Exercise: (Reverse): </strong> We can <code>reverse</code> the elements of a list as shown below, using the tail recursive function <code>go</code>. Fix the signature for <code>go</code> so that LiquidHaskell can prove the specification for <code>reverse</code>.</p>
-<br />
-<br />
-
-</div>
-<p><strong>Hint: </strong>How big is the list returned by <code>go</code>?</p>
-<div id="program-pane-38" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-38" class="programbox">{-@ ignore reverse @-}
-{-@ reverse       :: xs:[a] -> ListX a xs @-}
-reverse :: [a] -> [a]
-reverse xs        = go [] xs
-  where
-    go acc []     = acc
-    go acc (x:xs) = go (x:acc) xs</div>
-</div>
-
-<p><br />
-<strong>zipWith</strong> requires both lists to have the <em>same</em> size, and produces a list with that same size. <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
-<div id="program-pane-39" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-39" class="programbox">{-@ zipWith :: (a -> b -> c) -> xs:[a]
-                             -> ListX b xs
-                             -> ListX c xs
-  @-}
-zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-zipWith f (a:as) (b:bs) = f a b : zipWith f as bs
-zipWith _ [] []         = []
-zipWith _ _  _          = error "no other cases"</div>
-</div>
-
-<p><br />
-<strong>unsafeZip</strong> The signature for <code>zipWith</code> is quite severe – it rules out the case where the zipping occurs only up to the shorter input. Here’s a function that actually allows for that case, where the output type is the <em>shorter</em> of the two inputs:</p>
-<div id="program-pane-40" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-40" class="programbox">{-@ zip :: as:[a] -> bs:[b] -> {v:[(a,b)] | Tinier v as bs} @-}
-zip :: [a] -> [b] -> [(a, b)]
-zip (a:as) (b:bs) = (a, b) : zip as bs
-zip [] _          = []
-zip _  []         = []</div>
-</div>
-
-<p>The output type uses the predicate <code>Tinier Xs Ys Zs</code> which defines the length of <code>Xs</code> to be the smaller of that of <code>Ys</code> and <code>Zs</code>.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
-<div id="program-pane-41" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-41" class="programbox">{-@ predicate Tinier X Y Z = Min (len X) (len Y) (len Z) @-}
-{-@ predicate Min X Y Z = (if Y < Z then X = Y else X = Z)  @-}</div>
-</div>
-
-<div id="Zip Unless Empty" class="hwex">
-<p><br />
-<strong>Exercise: (Zip Unless Empty): </strong> In my experience, <code>zip</code> as shown above is far too permissive and lets all sorts of bugs into my code. As middle ground, consider <code>zipOrNull</code> below. Write a specification for <code>zipOrNull</code> such that the code below is verified by LiquidHaskell.</p>
-<br />
-<br />
-
-</div>
-<div id="program-pane-42" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-42" class="programbox">{-@ ignore zipOrNull @-}
-zipOrNull       :: [a] -> [b] -> [(a, b)]
-zipOrNull [] _  = []
-zipOrNull _ []  = []
-zipOrNull xs ys = zipWith (,) xs ys
-
-{- test1 :: {v: _ | len v = 2} @-}
-test1     = zipOrNull [0, 1] [True, False]
-
-{- test2 :: {v: _ | len v = 0} @-}
-test2     = zipOrNull [] [True, False]
-
-{- test3 :: {v: _ | len v = 0} @-}
-test3     = zipOrNull ["cat", "dog"] []</div>
-</div>
-
-<p><strong>Hint: </strong>Yes, the type is rather gross; it uses a bunch of disjunctions <code>||</code> , conjunctions <code>&amp;&amp;</code> and implications <code>=&gt;</code>.</p>
-</section>
-<section id="listreducing" class="level2">
-<h2>Lists: Size Reducing API</h2>
-<p>Next, let’s look at some functions that truncate lists, in one way or another.</p>
-<p><br />
-<strong>Take</strong> lets us grab the first <code>k</code> elements from a list:</p>
-<div id="program-pane-43" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-43" class="programbox">{-@ take'     :: n:Nat -> ListGE a n -> ListN a n @-}
-take' :: Int -> [a] -> [a]
-take' 0 _      = []
-take' n (x:xs) = x : take' (n-1) xs
-take' _ _      = error "won't  happen"</div>
-</div>
-
-<p>The alias <code>ListGE a n</code> denotes lists whose length is at least <code>n</code>:</p>
-<div id="program-pane-44" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-44" class="programbox">{-@ type ListGE a N = {v:[a] | N <= len v} @-}</div>
-</div>
-
-<div id="Drop" class="hwex">
-<p><br />
-<strong>Exercise: (Drop): </strong><code>Drop</code> is the yang to <code>take</code>’s yin: it returns the remainder after extracting the first <code>k</code> elements. Write a suitable specification for it so that the below typechecks.</p>
-<br />
-<br />
-
-</div>
-<div id="program-pane-45" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-45" class="programbox">{-@ ignore drop @-}
-drop :: Int -> [a] -> [a]
-drop 0 xs     = xs
-drop n (_:xs) = drop (n-1) xs
-drop _ _      = error "won't happen"
-
-{- test4 :: ListN String 2 @-}
-test4 = drop 1 ["cat", "dog", "mouse"]</div>
-</div>
-
-<div id="Take it easy" class="hwex">
-<p><br />
-<strong>Exercise: (Take it easy): </strong>The version <code>take'</code> above is too restrictive; it insists that the list actually have at least <code>n</code> elements. Modify the signature for the <em>real</em> <code>take</code> function so that the code below is accepted by LiquidHaskell.</p>
-<br />
-<br />
-
-</div>
-<div id="program-pane-46" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-46" class="programbox">take :: Int -> [a] -> [a]
-take 0 _       = []
-take _ []      = []
-take n (x:xs)  = x : take (n-1) xs
-
-{-@ ignore test5 @-}
-{- test5 :: [ListN String 2] @-}
-test5 = [ take 2  ["cat", "dog", "mouse"]
-        , take 20 ["cow", "goat"]        ]</div>
-</div>
-
-<p><br />
-<strong>The Partition</strong> function breaks a list into two sub-lists of elements that either satisfy or fail a user supplied predicate.</p>
-<div id="program-pane-47" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-47" class="programbox">partition          :: (a -> Bool) -> [a] -> ([a], [a])
-partition _ []     = ([], [])
-partition f (x:xs)
-  | f x            = (x:ys, zs)
-  | otherwise      = (ys, x:zs)
-  where
-    (ys, zs)       = partition f xs</div>
-</div>
-
-<p>We would like to specify that the <em>sum</em> of the output tuple’s dimensions equal the input list’s dimension. Lets write measures to access the elements of the output:</p>
-<pre class="spec"><code>{-@ measure fst @-}
-fst  (x, _) = x
-
-{-@ measure snd @-}
-snd (_, y) = y</code></pre>
-<p>We can now refine the type of <code>partition</code> as:</p>
-<div id="program-pane-48" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-48" class="programbox">{-@ partition :: _ -> xs:_ -> {v:_ | Sum2 v (len xs)} @-}</div>
-</div>
-
-<p>where <code>Sum2 V N</code> holds for a pair of lists dimensions add to <code>N</code>:</p>
-<div id="program-pane-49" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-49" class="programbox">{-@ predicate Sum2 X N = len (fst X) + len (snd X) = N @-}</div>
-</div>
-
-<div id="QuickSort" class="hwex">
-<p><br />
-<strong>Exercise: (QuickSort): </strong>Use <code>partition</code> to implement <code>quickSort</code>.</p>
-<br />
-<br />
-
-</div>
-<div id="program-pane-50" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-50" class="programbox">-- >> quickSort [1,4,3,2]
--- [1,2,3,4]
-
-{-@ quickSort    :: (Ord a) => xs:[a] -> ListX a xs @-}
-quickSort :: (Ord a) => [a] -> [a]
-quickSort []     = []
-quickSort (x:xs) = undefined
-
-{- test10 :: ListN String 2 @-}
-test10 :: [String]
-test10 = quickSort (drop 1 ["cat", "dog", "mouse"])</div>
-</div>
-
-</section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
 <p>Today we saw how refinement interact with data types. Concretely we saw how to define <em>measures</em> to specify properties of user defined data and how to refine the definitions of data types to specify invariants. Finally, we saw how all these features interact with existing Haskell libraries, and concretely how to use LiquidHaskell to reason about Haskell’s lists.</p>
@@ -1208,8 +905,6 @@ test10 = quickSort (drop 1 ["cat", "dog", "mouse"])</div>
 <li id="fn1" role="doc-endnote"><p> In a next lecture we will see how one can use reflection to lift in the logic functions with more than one argument, but then verification is no more automated.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2" role="doc-endnote"><p>The standard approach is to use abstract types and <a href="https://www.haskell.org/haskellwiki/Smart_constructors">smart constructors</a> but even then there is only the informal guarantee that the smart constructor establishes the right invariants.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn3" role="doc-endnote"><p>Note that <em>inside</em> a refined <code>data</code> definition, a field name like <code>spDim</code> refers to the value of the field, but <em>outside</em> it refers to the field selector measure or function.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn4" role="doc-endnote"><p>As made explicit by the call to <code>error</code>, the input type <em>rules out</em> the case where one list is empty and the other is not, as in that case the former’s length is zero while the latter’s is not, and hence, different.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn5" role="doc-endnote"><p>In logic, <code>if p then q else r</code> is the same as <code>p =&gt; q &amp;&amp; not p =&gt; r</code>.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
