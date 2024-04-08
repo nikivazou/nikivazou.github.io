@@ -180,12 +180,14 @@ MathJax.Hub.Config({
 <ul class='section'>
 <li><a href='Lecture_06_ProofsPrograms.html#'><b>6.1.</b> Each Program Proves its type</a></li>
 <li><a href='Lecture_06_ProofsPrograms.html#'><b>6.2.</b> Propositions as Refinement Types</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.3.</b> Theorems about Haskell Functions</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.4.</b> Reusing Proofs, the "because" combinator</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.5.</b> Quantified Proofs</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.6.</b> Monotonicty of the Fibonacci Function</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.7.</b> Generalizing the Monotonicity Proof</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.8.</b> Summary</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.3.</b> Quantified Theorems</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.4.</b> Theorems about Haskell Functions</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.5.</b> Reusing Proofs, the "because" combinator</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.6.</b> Quantified Proofs</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.7.</b> Monotonicity of the Fibonacci Function</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.8.</b> Generalizing the Monotonicity Proof</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.9.</b> Proofs By Natural Induction</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.10.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_07_StructuralInduction.html'><b>7.</b>Structural Induction</a></li>
 <ul class='section'>
@@ -269,7 +271,9 @@ module Lecture_06_ProofsPrograms where
 import Language.Haskell.Liquid.ProofCombinators</div>
 </div>
 
-<p>Each time you write a program, you are actually writing a proof. What are the programs prooving? The <a href="https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence">Curry-Howard correspondence</a>, independently developed by Curry (1934) and Howard (1969), tells us that programs are proofs of theorems. In this and the next lectures we will explore this correspondence in more detail and see how to use it to both write correct programs and prove theorems.</p>
+<p>Each time you write a program, you are actually writing a proof.</p>
+<p>What are the programs prooving? The <a href="https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence">Curry-Howard correspondence</a>, independently developed by Curry (1934) and Howard (1969), tells us that programs are proofs of theorems.</p>
+<p>In this and the next lectures we will explore this correspondence in more detail and see how to use it to both write correct programs and prove theorems.</p>
 <section id="each-program-proves-its-type" class="level2">
 <h2>Each Program Proves its type</h2>
 <p>For example, an identity function on integers, <code>idInt</code>, is a proof that for all integers <code>x</code>, <code>idInt x</code> is also an integer.</p>
@@ -298,6 +302,7 @@ idInt x = x</div>
 id x = x</div>
 </div>
 
+<p>Polymorphism is very commonly used in <em>implicitely</em> proving theorems about the programs, as described in <a href="https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf">theorems for free</a>.</p>
 <p>Let’s now try to to define a function that states that for each integer, there exists an <code>a</code>:</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
@@ -311,6 +316,7 @@ id x = x</div>
 intToA x = error "Define me!"</div>
 </div>
 
+<p><strong>Question:</strong> Can you define the function above?</p>
 <p>The only way to define the above function is via divergence. Thus, note that when a polymorphic type appears only in the result of your function, then most probably your function is not terminating… The property that it is “proving” does not hold.</p>
 <p>Programs as proofs when they are <em>well formed</em> meaning, they are terminating and total.</p>
 </section>
@@ -331,7 +337,7 @@ onePlusOne :: () -> ()
 onePlusOne _ = () </div>
 </div>
 
-<p>The result of the function <code>onePlusOne</code> is just a unit. Thus the function has no computational content. But, its result type is define to state a theorem. The proof of the theorem is performed <em>just</em> by the SMT solver that knows linear arithmetic.</p>
+<p>The result of the function <code>onePlusOne</code> is just a unit. Thus the function has <em>no computational content</em>. But, its result type is define to state a theorem. The proof of the theorem is performed <em>just</em> by the SMT solver that knows linear arithmetic.</p>
 <p>Liquid Haskell come with the <a href="https://hackage.haskell.org/package/liquidhaskell-0.8.0.5/docs/src/Language-Haskell-Liquid-ProofCombinators.html">proof combinators</a> library that allows to make the proofs more readable.</p>
 <p>As a first simplification step, Liquid Haskell allows to abbreviate the type <code>{v:T | p }</code> into just <code>{p}</code>, when <code>v</code> is not used in the type.</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
@@ -348,7 +354,9 @@ onePlusOne1 _ = () </div>
 </div>
 
 <p>As a second simplification, the proof combinators library defines various functions that allow to make the proofs more readable. For example, it define the following proof combinators:</p>
-<pre class=".{spec}"><code>type Proof = () -- Proof is just a unit
+<pre class=".{spec}"><code>-- Defined at Language.Haskell.Liquid.ProofCombinators
+
+type Proof = () -- Proof is just a unit
 
 trivial :: Proof
 trivial = ()
@@ -376,6 +384,7 @@ onePlusOne2 _ = trivial *** QED </div>
 </div>
 
 <p>Thus, using the Proof Combinator library, in Liquid Haskell, we can prove, <em>for free</em> theorems that the SMT knows how to prove.</p>
+<p><strong>Question:</strong> Can you name another trivial theorem that you can prove using Liquid Haskell?</p>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -384,17 +393,16 @@ onePlusOne2 _ = trivial *** QED </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">{-@ propPlusAccum :: x:Int -> y:Int -> { x + y = y + x } @-}
-propPlusAccum :: Int -> Int -> Proof
-propPlusAccum x y = trivial *** QED</div>
+  <div id="program-7" class="programbox">{-@ trivialThm :: () -> { true } @-}
+trivialThm :: () -> Proof 
+trivialThm _ = trivial *** QED </div>
 </div>
 
-<p>Note, function arguments work as universal quantifiers.</p>
 </section>
-<section id="theorems-about-haskell-functions" class="level2">
-<h2>Theorems about Haskell Functions</h2>
-<p>Next, we will see how we can use Liquid Haskell to prove theorems about Haskell functions.</p>
-<p>To do so, first, we need to turn on the <code>reflection</code> flag of Liquid Haskell.</p>
+<section id="quantified-theorems" class="level2">
+<h2>Quantified Theorems</h2>
+<p>Quantified theorems (e.g., <span class="math inline">\(\forall x . \dots\)</span>) can also be expressed in Liquid Haskell, by using functional arguments as the universal quantifiers.</p>
+<p>For example, we can prove that addition is commutative:</p>
 <div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -403,10 +411,17 @@ propPlusAccum x y = trivial *** QED</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">{-@ LIQUID "--reflection" @-}</div>
+  <div id="program-8" class="programbox">{-@ propPlusAccum :: x:Int -> y:Int -> { x + y = y + x } @-}
+propPlusAccum :: Int -> Int -> Proof
+propPlusAccum x y = trivial *** QED</div>
 </div>
 
-<p>This flag let us <code>reflect</code> Haskell functions into the predicate logic of Liquid Haskell. For example, we can reflect the <code>fibonacci</code> function as follows:</p>
+<p>Note, function arguments work as universal quantifiers, and also, due to currin, we use function abstraction to express existential quantifiers.</p>
+</section>
+<section id="theorems-about-haskell-functions" class="level2">
+<h2>Theorems about Haskell Functions</h2>
+<p>Next, we will see how we can use Liquid Haskell to prove theorems about Haskell functions.</p>
+<p>To do so, first, we need to turn on the <code>reflection</code> flag of Liquid Haskell.</p>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -415,7 +430,19 @@ propPlusAccum x y = trivial *** QED</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ reflect fib @-}
+  <div id="program-9" class="programbox">{-@ LIQUID "--reflection" @-}</div>
+</div>
+
+<p>This flag let us <code>reflect</code> Haskell functions into the predicate logic of Liquid Haskell. For example, we can reflect the <code>fibonacci</code> function as follows:</p>
+<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-10" class="programbox">{-@ reflect fib @-}
 {-@ fib :: Nat -> Nat @-}
 fib :: Int -> Int
 fib 0 = 0
@@ -426,38 +453,14 @@ fib n = fib (n-1) + fib (n-2)</div>
 <p>The <code>reflect</code> annotation:</p>
 <ol type="1">
 <li>Generates a logical uninterpreted function <code>fib</code> that can be used in the predicates of Liquid Haskell.</li>
-<li>Gives a signleton refinement type for <code>fib</code> that exactly captures the function definition.</li>
+<li>Gives a singleton refinement type for <code>fib</code> that exactly captures the function definition.</li>
 </ol>
 <pre class=".{spec}"><code>
 {-@ fib :: n:Nat -&gt; {v:Nat | v = fib n &amp;&amp; 
-  v = if n == o then 0 
+  v = if n == 0 then 0 
       else if n == 1 then 1
       else fib (n-1) + fib (n-2) } @-}</code></pre>
 <p>Thus, now we can prove properties about the <code>fib</code> function.</p>
-<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-10" class="programbox">{-@ fibTwo :: () -> { fib 2 = 1 } @-}
-fibTwo :: () -> Proof
-fibTwo _ = fib 2 
-         === fib 1 + fib 0
-         *** QED</div>
-</div>
-
-<p>where <code>===</code> is a proof combinator function used for equational reasoning (in the style of (Dafny’s calculations)[https://link.springer.com/chapter/10.1007/978-3-642-54108-7_9]). It’s type first checks that the first two arguments are equal and then returns the second, to keep working on the proof.</p>
-<pre class=".{spec}"><code>(===) :: x:a -&gt; y:{a| x = y}   -&gt; {v:a | v = y }
-(=&lt;=) :: x:a -&gt; y:{a | x &lt;= y} -&gt; {v:a | v == y} 
-(=&gt;=) :: x:a -&gt; y:{a | x &gt;= y} -&gt; {v:a | v == y}</code></pre>
-<p>Similarly, the <code>=&lt;=</code> and <code>=&gt;=</code> proof combinators are used for inequalities.</p>
-</section>
-<section id="reusing-proofs-the-because-combinator" class="level2">
-<h2>Reusing Proofs, the “because” combinator</h2>
-<p>Let’s now prove that <code>fib 3 = 2</code>:</p>
 <div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -466,7 +469,31 @@ fibTwo _ = fib 2
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-11" class="programbox">{-@ fibThree :: () -> { fib 3 = 2 } @-}
+  <div id="program-11" class="programbox">{-@ fibTwo :: () -> { fib 2 = 1 } @-}
+fibTwo :: () -> Proof
+fibTwo _ =   fib 2 
+         === fib 1 + fib 0
+         *** QED</div>
+</div>
+
+<p>where <code>===</code> is a proof combinator function used for equational reasoning (in the style of <a href="https://link.springer.com/chapter/10.1007/978-3-642-54108-7_9">Dafny’s calculations</a>). It’s type first checks that the first two arguments are equal and then returns the second, to keep working on the proof.</p>
+<pre class=".{spec}"><code>(===) :: x:a -&gt; y:{a| x = y}   -&gt; {v:a | v = y }
+(=&lt;=) :: x:a -&gt; y:{a | x &lt;= y} -&gt; {v:a | v == y} 
+(=&gt;=) :: x:a -&gt; y:{a | x &gt;= y} -&gt; {v:a | v == y}</code></pre>
+<p>Similarly, the <code>=&lt;=</code> and <code>=&gt;=</code> proof combinators are used for inequalities.</p>
+</section>
+<section id="reusing-proofs-the-because-combinator" class="level2">
+<h2>Reusing Proofs, the “because” combinator</h2>
+<p>Let’s now prove that <code>fib 3 = 2</code>:</p>
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">{-@ fibThree :: () -> { fib 3 = 2 } @-}
 fibThree :: () -> Proof
 fibThree _ = undefined </div>
 </div>
@@ -481,7 +508,7 @@ x ? _ = x </code></pre>
 <section id="quantified-proofs" class="level2">
 <h2>Quantified Proofs</h2>
 <p>Now that we have introduced all the vocabulary of the proof combinators library, let’s prove a more interesting theorem about the <code>fib</code> function. Let’s prove that <code>fib</code> is increasing.</p>
-<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -489,16 +516,16 @@ x ? _ = x </code></pre>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-12" class="programbox">{-@ fibUp :: n:Nat -> { fib n <= fib (n+1) } @-}
+  <div id="program-13" class="programbox">{-@ fibUp :: n:Nat -> { fib n <= fib (n+1) } @-}
 fibUp :: Int -> Proof
-fibUp 0 = fib 0 
+fibUp 0 =   fib 0 
         =<= fib 1
         *** QED
-fibUp 1 = fib 1 
+fibUp 1 =   fib 1 
         =<= fib 1 + fib 0
         =<= fib 2
         *** QED
-fibUp n = fib n 
+fibUp n =   fib n 
         === fib (n-1) + fib (n-2)
         =<= fib n + fib (n-2) ? fibUp (n-1)
         =<= fib n + fib (n-2) 
@@ -510,21 +537,6 @@ fibUp n = fib n
 <p><strong>Question:</strong> Can you complete the proof above?</p>
 <p>To simplify proofs, Liquid Haskell has a tactic, called <code>ple</code> (Proof by Logical Equivalence) that automates most equational reasoning steps, but still requires the case splitting and the lemma invocations.</p>
 Thus, turning on the <code>ple</code> flag, we can simplify the proof of <code>fibUp</code>.
-<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-13" class="programbox">{- LIQUID "--ple" @-}</div>
-</div>
-
-</section>
-<section id="monotonicty-of-the-fibonacci-function" class="level2">
-<h2>Monotonicty of the Fibonacci Function</h2>
-<p>Let’s now prove that the Fibonacci function is monotonic:</p>
 <div id="program-pane-14" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -533,7 +545,23 @@ Thus, turning on the <code>ple</code> flag, we can simplify the proof of <code>f
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-14" class="programbox">{-@ fibMonotonic :: x:Nat -> y:{Nat | x < y } -> {fib x <= fib y} @-}
+  <div id="program-14" class="programbox">{- LIQUID "--ple" @-}</div>
+</div>
+
+</section>
+<section id="monotonicity-of-the-fibonacci-function" class="level2">
+<h2>Monotonicity of the Fibonacci Function</h2>
+<p>Let’s now prove that the Fibonacci function is monotonic:</p>
+<div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-15" class="programbox">{-@ fibMonotonic :: x:Nat -> y:{Nat | x < y } 
+                 -> {fib x <= fib y} @-}
 fibMonotonic :: Int -> Int -> Proof
 fibMonotonic x y
   | y == x + 1
@@ -552,8 +580,8 @@ fibMonotonic x y
 </section>
 <section id="generalizing-the-monotonicity-proof" class="level2">
 <h2>Generalizing the Monotonicity Proof</h2>
-<p>Looking for closely at the monotonicty proof of the Fibonacci function, we can see that the proof is not actually using the definition of the Fibonacci function, but only the fact that it is increasing. Thus, we can turn the proof into a generic proof of the monotonicity of any function <code>f</code> that is increasing.</p>
-<div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
+<p>Looking for closely at the monotonicity proof of the Fibonacci function, we can see that the proof is not actually using the definition of the Fibonacci function, but only the fact that it is increasing. Thus, we can turn the proof into a generic proof of the monotonicity of any function <code>f</code> that is increasing.</p>
+<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -561,7 +589,8 @@ fibMonotonic x y
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-15" class="programbox">{-@ fMonotonic :: f:(Nat -> Int) -> fUp:(z:Nat -> {f z <= f (z+1)})
+  <div id="program-16" class="programbox">{-@ fMonotonic :: f:(Nat -> Int) 
+               -> fUp:(z:Nat -> {f z <= f (z+1)})
                -> x:Nat -> y:{Nat | x < y } -> {f x <= f y} / [y] @-}
 fMonotonic :: (Int -> Int) -> (Int -> ()) -> Int -> Int -> Proof
 fMonotonic f fUp x y
@@ -579,7 +608,7 @@ fMonotonic f fUp x y
 
 <p><strong>Question:</strong> Can you complete the proof above?</p>
 <p>Once we have the general (a.k.a. higher-order) proof that increasing functions are monotonic, we can use it to prove the monotonicity of the Fibonacci function.</p>
-<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -587,11 +616,46 @@ fMonotonic f fUp x y
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-16" class="programbox">{-@ fibMono  :: x:Nat -> y:{Nat | x < y } -> {fib x <= fib y} @-}
+  <div id="program-17" class="programbox">{-@ fibMono  :: x:Nat -> y:{Nat | x < y } -> {fib x <= fib y} @-}
 fibMono :: Int -> Int -> Proof
 fibMono = fMonotonic fib fibUp</div>
 </div>
 
+</section>
+<section id="proofs-by-natural-induction" class="level2">
+<h2>Proofs By Natural Induction</h2>
+<p>The proofs we did so far are essentially proofs by natural induction. Let’s prove the textbook theorem that the sum of the first <code>n</code> natural numbers is <code>n*(n+1)/2</code>.</p>
+<p>For that, we first define the <code>sumTo</code> function that computes the sum of the first <code>n</code> natural numbers.</p>
+<div id="program-pane-18" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-18" class="programbox">{-@ reflect sumTo @-}
+{-@ sumTo :: lo:Nat -> hi:{Nat | lo <= hi} -> Nat / [hi]@-}
+sumTo :: Int -> Int -> Int 
+sumTo lo hi = if lo == hi then 0 else hi + sumTo lo (hi-1) </div>
+</div>
+
+<p>Next, we prove that the <code>sumTo</code> function is computing the sum of the first <code>n</code> natural numbers.</p>
+<div id="program-pane-19" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-19" class="programbox">{-@ sumToN :: n:Nat -> { sumTo n = n * (n + 1) / 2 } @-}
+sumToN :: Int -> Proof
+sumToN = undefined </div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above? Hint, the Haskell function <code>div</code> is the integer division.</p>
+<p>Next, we will see how the concept of natural induction can be generalized to prove properties of data types as structural induction.</p>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>

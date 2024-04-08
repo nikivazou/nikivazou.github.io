@@ -180,12 +180,14 @@ MathJax.Hub.Config({
 <ul class='section'>
 <li><a href='Lecture_06_ProofsPrograms.html#'><b>6.1.</b> Each Program Proves its type</a></li>
 <li><a href='Lecture_06_ProofsPrograms.html#'><b>6.2.</b> Propositions as Refinement Types</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.3.</b> Theorems about Haskell Functions</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.4.</b> Reusing Proofs, the "because" combinator</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.5.</b> Quantified Proofs</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.6.</b> Monotonicty of the Fibonacci Function</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.7.</b> Generalizing the Monotonicity Proof</a></li>
-<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.8.</b> Summary</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.3.</b> Quantified Theorems</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.4.</b> Theorems about Haskell Functions</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.5.</b> Reusing Proofs, the "because" combinator</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.6.</b> Quantified Proofs</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.7.</b> Monotonicity of the Fibonacci Function</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.8.</b> Generalizing the Monotonicity Proof</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.9.</b> Proofs By Natural Induction</a></li>
+<li><a href='Lecture_06_ProofsPrograms.html#'><b>6.10.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_07_StructuralInduction.html'><b>7.</b>Structural Induction</a></li>
 <ul class='section'>
@@ -322,9 +324,13 @@ idMap (x:xs)
   *** QED</div>
 </div>
 
-<p>The proof goes by <em>structural induction</em> on the list the list <code>xs</code>. The base case is when <code>xs</code> is <code>[]</code>, which goes by rewriting. The inductive case is when <code>xs</code> is <code>x:xs</code>, which goes by rewriting and the induction hypothesis. Note that Liquid Haskell checks both<br />
-that both cases are defined (by totality) and that the inductive call is well-founded (by termination).</p>
-<p>As before, ple can be used to automate the proof. We essentially need to keep the case splitting and the induction hypothesis.</p>
+<p>The proof goes by <em>structural induction</em> on the list the list <code>xs</code>.</p>
+<ul>
+<li>The <em>base case</em> is when <code>xs</code> is <code>[]</code>, which goes by rewriting.</li>
+<li>The <em>inductive case</em> is when <code>xs</code> is <code>x:xs</code>, which goes by rewriting and the induction hypothesis.</li>
+</ul>
+<p>Note that Liquid Haskell checks both that both cases are defined (by totality) and that the inductive call is well-founded (by termination).</p>
+<p>As before, <code>ple</code> can be used to automate the proof. We essentially need to keep the case splitting and the induction hypothesis.</p>
 </section>
 <section id="map-fusion" class="level2">
 <h2>Map Fusion</h2>
@@ -448,7 +454,7 @@ reverse []     = []
 reverse (x:xs) = reverse xs ++ [x]</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove distributivity. Hint, you can use the proved lemmas <code>emptyLeftIdentity</code> and <code>appendAssoc</code>.</p>
+<p><strong>Question:</strong> Let’s prove distributivity. Hint, you can use the proved lemmas <code>emptyRightIdentity</code> and <code>appendAssoc</code>.</p>
 <div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -464,7 +470,7 @@ distributivity = undefined </div>
 </div>
 
 <p>Liquid Haskell has a (beta) tactic that allows the proof to get automated using existing equations proved in lemmas. Thus the proof can be automated as follows:</p>
-<pre class=".{spec}"><code>{-@ rewriteWith distributivity [assoc, rightId] @-}</code></pre>
+<pre class=".{spec}"><code>{-@ rewriteWith distributivity [appendAssoc, emptyRightIdentity] @-}</code></pre>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
