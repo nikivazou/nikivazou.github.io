@@ -649,7 +649,7 @@ sumTo lo hi = if lo == hi then 0 else hi + sumTo lo (hi-1) </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-19" class="programbox">{-@ sumToN :: n:Nat -> { sumTo n = n * (n + 1) / 2 } @-}
+  <div id="program-19" class="programbox">{-@ sumToN :: n:Nat -> { sumTo 0 n = n * (n + 1) / 2 } @-}
 sumToN :: Int -> Proof
 sumToN = undefined </div>
 </div>
