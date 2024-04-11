@@ -384,7 +384,7 @@ fact2 = ()</div>
 <tr class="odd">
 <td style="text-align: right;">Native Terms</td>
 <td style="text-align: center;"><span class="math inline">\(e\)</span></td>
-<td style="text-align: center;"><code>{e}</code></td>
+<td style="text-align: center;"><span class="math inline">\(\{e\}\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">Conjunction</td>
@@ -466,6 +466,7 @@ conj ϕ1 ϕ2 = (ϕ1,ϕ2)</div>
   }
 \]</span></p>
 <p>If we ignore the expressions above we take exactly the conjuction rules of natural deduction.</p>
+<p>** You can generate Haskell terms that provide evidence for the natural deduction rules!**</p>
 <p>As an example, consider the natural deduction devation below</p>
 <p><span class="math display">\[
 \inferrule
@@ -476,7 +477,7 @@ conj ϕ1 ϕ2 = (ϕ1,ϕ2)</div>
     {
       \phi_1,\phi_2\land\phi_3 \vdash  \phi_2\land\phi_3
     }{
-      \phi_1,\phi_2\land\phi_3 \vdash  \phi_2
+      \phi_1,\phi_2\land\phi_3 \vdash  \phi_3
     }
   }{
     \phi_1, \phi_2\land\phi_3 \vdash  \phi_1\land \phi_3
@@ -492,10 +493,10 @@ conj ϕ1 ϕ2 = (ϕ1,ϕ2)</div>
     {
       x_1:\phi_1,x_{23}:\phi_2\land\phi_3 \vdash x_{23}: \phi_2\land\phi_3
     }{
-      x_1:\phi_1,x_{23}:\phi_2\land\phi_3 \vdash \text{case } x_{23} \text{ of } (x_2, x_3) \Rightarrow x3: \phi_2
+      x_1:\phi_1,x_{23}:\phi_2\land\phi_3 \vdash \text{case } x_{23} \text{ of } (x_2, x_3) \rightarrow x_3: \phi_3
     }
   }{
-    x_1:\phi_1,x_{23}: \phi_2\land\phi_3 \vdash (x_1, \text{case } x_{23} \text{ of } (x_2, x_3) \Rightarrow x3): \phi_1\land \phi_3
+    x_1:\phi_1,x_{23}: \phi_2\land\phi_3 \vdash (x_1, \text{case } x_{23} \text{ of } (x_2, x_3) \rightarrow x_3): \phi_1\land \phi_3
   }
 \]</span></p>
 <p>Let’s encode this proof in Liquid Haskell!</p>
@@ -677,10 +678,10 @@ disj ϕ1 ϕ2 p = if ϕ1 then Left p else Right p</div>
 \inferrule
   {\Rightarrow\text{-E}}
   {
-    \Gamma \vdash e : \phi_x \rightarrow \phi \\
+    \Gamma \vdash e : \phi_x \rightarrow \phi \quad
     \Gamma \vdash e_x : \phi_x
   }{
-    \Gamma \vdash e\ e_2 : \phi
+    \Gamma \vdash e\ e_x : \phi
   }
 \]</span></p>
 <p>The Implication Elimination Rule for natural deduction is also known as the <em>modus ponens</em> rule.</p>
@@ -929,7 +930,7 @@ neg _ _ = \_ -> ()</div>
 <tr class="odd">
 <td style="text-align: right;">Exists</td>
 <td style="text-align: center;"><span class="math inline">\(\exists x. \phi\)</span></td>
-<td style="text-align: center;"><span class="math inline">\((x:\tau, \phi_x)\)</span></td>
+<td style="text-align: center;"><span class="math inline">\((x:\tau, \phi)\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -938,7 +939,7 @@ neg _ _ = \_ -> ()</div>
 <section id="example-1-existsall" class="level2">
 <h2>Example 1: existsAll</h2>
 <p>The first example is a proof that if there exists an <span class="math inline">\(x\)</span> that satisfies a property forall <span class="math inline">\(y\)</span>, then forall <span class="math inline">\(y\)</span> there exists an <span class="math inline">\(x\)</span> that satisfies the property.</p>
-<p><span class="math display">\[ \phi = \exists x. \forall y. p\ x \ y  \Rightarrow \forall y. \exists x. p \x \y \]</span></p>
+<p><span class="math display">\[ \phi = \exists x. \forall y. p\ x \ y  \Rightarrow \forall y. \exists x. p \ x \ y \]</span></p>
 <p>Let’s prove this propery in Liquid Haskell!</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 

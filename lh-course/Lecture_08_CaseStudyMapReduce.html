@@ -348,17 +348,12 @@ map f (x:xs) = f x : map f xs</div>
   </button>
  
   <div id="program-2" class="programbox">{-@ reflect drop @-}
-{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == len xs - i } @-}
+{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } 
+         -> {v:[a] | len v == len xs - i } @-}
 drop :: Int -> [a] -> [a]
-drop i x = x 
-
-{-@ reflect take @-}
-{-@ take :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == i} @-}
-take :: Int -> [a] -> [a]
-take i x = x  </div>
+drop i x = x </div>
 </div>
 
-<p><strong>Question:</strong> Define the <code>chunk</code> function below that splits a list into chunks of size <code>n</code>.</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -367,15 +362,14 @@ take i x = x  </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-3" class="programbox">{-@ reflect chunk @-}
-chunk :: Int -> [a] -> [[a]]
-chunk i x = [x] </div>
+  <div id="program-3" class="programbox">{-@ reflect take @-}
+{-@ take :: i:Nat -> xs:{[a] | i <= len xs } 
+         -> {v:[a] | len v == i} @-}
+take :: Int -> [a] -> [a]
+take i x = x  </div>
 </div>
 
-</section>
-<section id="map-reduce-client-functions-summing-a-list" class="level2">
-<h2>Map Reduce “Client” Functions: Summing a List</h2>
-<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
+<p><strong>Question:</strong> Define the <code>chunk</code> function below that splits a list into chunks of size <code>n</code>.</p>
 <div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -384,7 +378,24 @@ chunk i x = [x] </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">-- Standard List Sum
+  <div id="program-4" class="programbox">{-@ reflect chunk @-}
+chunk :: Int -> [a] -> [[a]]
+chunk i x = [x] </div>
+</div>
+
+</section>
+<section id="map-reduce-client-functions-summing-a-list" class="level2">
+<h2>Map Reduce “Client” Functions: Summing a List</h2>
+<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">-- Standard List Sum
 {-@ reflect sum @-}
 sum :: [Int] -> Int
 sum []     = 0
@@ -406,7 +417,7 @@ plus x y = x + y</div>
 <section id="proving-code-equivalence-sum-and-psum" class="level2">
 <h2>Proving Code Equivalence: <code>sum</code> and <code>psum</code></h2>
 <p>The equivalence proof is an instance of the higher order theorem <code>mRTheorem</code>:</p>
-<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -414,7 +425,7 @@ plus x y = x + y</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
+  <div id="program-6" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
 sumEq n is = mRTheorem   n           -- chunk size
                          sum         -- function to map-reduce
                          plus        -- reduction operator
@@ -430,29 +441,6 @@ sumEq n is = mRTheorem   n           -- chunk size
 <blockquote>
 <p>If <code>f</code> is right identity and <code>op</code> is distributive, then <code>mapReduce</code> is equivalent to sequential.</p>
 </blockquote>
-<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-6" class="programbox">{-@ mRTheorem :: n:Int -> f:([a] -> b) -> op:(b -> b -> b)
-     -> rightId:(xs:[a] -> {op (f xs) (f []) == f xs } )
-     -> distrib:(xs:[a] -> ys:[a] -> {f (xs ++ ys) == op (f xs) (f ys)} )
-     -> is:[a]
-     -> { mapReduce n f op is == f is }
-     / [len is]
-  @-}
-mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> Proof) -> ([a] -> [a] -> Proof) -> [a] -> Proof
-mRTheorem = undefined </div>
-</div>
-
-<p><strong>Question:</strong> What is the proof of <code>mRTheorem</code>?</p>
-</section>
-<section id="lemmata-for-mrtheorem-on-plus" class="level2">
-<h2>Lemmata for <code>mRTheorem</code> on plus</h2>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -461,13 +449,21 @@ mRTheorem = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">plusRightId :: [Int] -> Proof
-{-@ plusRightId :: xs:[Int] 
-                -> {plus (sum xs) (sum []) == sum xs} @-}
-plusRightId = undefined </div>
+  <div id="program-7" class="programbox">{-@ mRTheorem :: n:Int -> f:([a] -> b) -> op:(b -> b -> b)
+     -> rightId:(xs:[a] -> {op (f xs) (f []) == f xs } )
+     -> distrib:(xs:[a] -> ys:[a] -> {f (xs ++ ys) == op (f xs) (f ys)} )
+     -> is:[a]
+     -> { mapReduce n f op is == f is }
+     / [len is]
+  @-}
+mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> Proof) -> ([a] -> [a] -> Proof) -> [a] -> Proof
+mRTheorem n f op rightId distrib is = undefined </div>
 </div>
 
-<p><strong>Question:</strong> What is the proof of <code>plusRightId</code>?</p>
+<p><strong>Question:</strong> What is the proof of <code>mRTheorem</code>?</p>
+</section>
+<section id="lemmata-for-mrtheorem-on-plus" class="level2">
+<h2>Lemmata for <code>mRTheorem</code> on plus</h2>
 <div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -476,7 +472,22 @@ plusRightId = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">sumDistr :: [Int] -> [Int] -> Proof
+  <div id="program-8" class="programbox">plusRightId :: [Int] -> Proof
+{-@ plusRightId :: xs:[Int] 
+                -> {plus (sum xs) (sum []) == sum xs} @-}
+plusRightId = undefined </div>
+</div>
+
+<p><strong>Question:</strong> What is the proof of <code>plusRightId</code>?</p>
+<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-9" class="programbox">sumDistr :: [Int] -> [Int] -> Proof
 {-@ sumDistr :: xs:[Int] -> ys:[Int] 
              -> {sum (xs ++ ys) == plus (sum xs) (sum ys)} @-}
 sumDistr xs = undefined </div>
@@ -491,7 +502,7 @@ sumDistr xs = undefined </div>
 <section id="appendix-list-manipulation-functions" class="level2">
 <h2>Appendix: List Manipulation Functions</h2>
 We define the list manipulation functions <code>++</code> and <code>length</code> below.
-<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -499,7 +510,7 @@ We define the list manipulation functions <code>++</code> and <code>length</code
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ reflect ++ @-}
+  <div id="program-10" class="programbox">{-@ reflect ++ @-}
 (++) :: [a] -> [a] -> [a]
 []     ++ ys = ys
 (x:xs) ++ ys = x:(xs ++ ys)
