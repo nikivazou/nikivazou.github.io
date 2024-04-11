@@ -203,17 +203,34 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.2.</b> Map Reduce "Library" Functions:</a></li>
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.3.</b> Map Reduce "Client" Functions: Summing a List</a></li>
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.5.</b> Summary</a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.6.</b> Appendix I: Proof of <code>mRTheorem</code></a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.7.</b> Appendix II: List Manipulation Functions</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.5.</b> Higher Order Theorem: <code>mRTheorem</code></a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.6.</b> Lemmata for <code>mRTheorem</code> on plus</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.7.</b> Summary</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.8.</b> Appendix: List Manipulation Functions</a></li>
 </ul>
-<li><a href='Task1.html'><b>9.</b>Task 1: Program Verification</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html'><b>9.</b>Natural Deduction</a></li>
 <ul class='section'>
-<li><a href='Task1.html#'><b>9.1.</b> 1. Lists</a></li>
-<li><a href='Task1.html#'><b>9.2.</b> 2. Insertion Sort</a></li>
-<li><a href='Task1.html#'><b>9.3.</b> 3. Merge Sort</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.1.</b> Logical Properties</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.2.</b> Native Terms</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.3.</b> Conjunction</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.4.</b> Disjunction</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.5.</b> Implication</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.6.</b> Negation</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.7.</b> Forall</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.8.</b> Exists</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.9.</b> Example 1: existsAll</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.10.</b> Example 2: Distributing Qualifiers</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.11.</b> Example 3: List Properties</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.12.</b> Example 4: Natural Induction</a></li>
+<li><a href='Lecture_09_NaturalDeduction.html#'><b>9.13.</b> Summary</a></li>
 </ul>
-<li><a href='Task1All.html'><b>10.</b>Task 1: Program Verification</a></li>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.html#'><b>10.1.</b> 1. Lists</a></li>
+<li><a href='Task1.html#'><b>10.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.html#'><b>10.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>11.</b>Task 1: Program Verification</a></li>
 <ul class='section'>
 </ul>
 </ul>
@@ -294,7 +311,7 @@ import Prelude hiding (map, take, drop, sum, (++), length)</div>
 </section>
 <section id="map-reduce-library-functions" class="level2">
 <h2>Map Reduce “Library” Functions:</h2>
-<p>The Haskell definitions of mapReduce functions, reflected:</p>
+<p>The Haskell definitions of <code>mapReduce</code> functions, reflected:</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -316,16 +333,12 @@ reduce op b (x:xs) = op x (reduce op b xs)
 {-@ map :: (a -> b) -> xs:[a] -> {v:[b] | len v == len xs } @-}
 map :: (a -> b) -> [a] -> [b]
 map _  []    = [] 
-map f (x:xs) = f x : map f xs
-
-{-@ reflect chunk @-}
-chunk :: Int -> [a] -> [[a]]</div>
+map f (x:xs) = f x : map f xs</div>
 </div>
 
-</section>
-<section id="map-reduce-client-functions-summing-a-list" class="level2">
-<h2>Map Reduce “Client” Functions: Summing a List</h2>
-<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
+<p>Of course, for <code>mapReduce</code> to be efficient the <code>map</code> function should be parallelized, e.g., using <a href="https://hackage.haskell.org/package/parallel-3.2.2.0/docs/Control-Parallel-Strategies.html"><code>parMap</code></a>.</p>
+<p>Let’s now define the <code>chunk</code> function that splits a list into chunks of size <code>n</code>.</p>
+<p><strong>Question:</strong> Define the <code>take</code> and <code>drop</code> functions below that satisfy the following specifications:</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -334,7 +347,44 @@ chunk :: Int -> [a] -> [[a]]</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">-- Standard List Sum
+  <div id="program-2" class="programbox">{-@ reflect drop @-}
+{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == len xs - i } @-}
+drop :: Int -> [a] -> [a]
+drop i x = x 
+
+{-@ reflect take @-}
+{-@ take :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == i} @-}
+take :: Int -> [a] -> [a]
+take i x = x  </div>
+</div>
+
+<p><strong>Question:</strong> Define the <code>chunk</code> function below that splits a list into chunks of size <code>n</code>.</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ reflect chunk @-}
+chunk :: Int -> [a] -> [[a]]
+chunk i x = [x] </div>
+</div>
+
+</section>
+<section id="map-reduce-client-functions-summing-a-list" class="level2">
+<h2>Map Reduce “Client” Functions: Summing a List</h2>
+<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">-- Standard List Sum
 {-@ reflect sum @-}
 sum :: [Int] -> Int
 sum []     = 0
@@ -356,46 +406,6 @@ plus x y = x + y</div>
 <section id="proving-code-equivalence-sum-and-psum" class="level2">
 <h2>Proving Code Equivalence: <code>sum</code> and <code>psum</code></h2>
 <p>The equivalence proof is an instance of the higher order theorem <code>mRTheorem</code>:</p>
-<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-3" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
-sumEq n is = mRTheorem   n           -- chunk size
-                         sum         -- function to map-reduce
-                         plus        -- reduction operator
-                         plusRightId -- plus has "right-identity"
-                         sumDistr    -- sum is "distributive"
-                         is          -- input list</div>
-</div>
-
-<p>The higher order theorem <code>mRTheorem</code> states that:</p>
-<blockquote>
-<p>If <code>f</code> is right identity and <code>op</code> is distributive, then <code>mapReduce</code> is equivalent to sequential.</p>
-</blockquote>
-<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-4" class="programbox">{-@ mRTheorem :: n:Int -> f:([a] -> b) -> op:(b -> b -> b)
-     -> rightId:(xs:[a] -> {op (f xs) (f []) == f xs } )
-     -> distrib:(xs:[a] -> ys:[a] -> {f (xs ++ ys) == op (f xs) (f ys)} )
-     -> is:[a]
-     -> { mapReduce n f op is == f is }
-     / [len is]
-  @-}
-mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> Proof) -> ([a] -> [a] -> Proof) -> [a] -> Proof</div>
-</div>
-
-<p>Proof is by induction on the list and can be found in the appendix. Here, let’s prove the two helper lemmas <code>plusRightId</code> and <code>sumDistr</code>.</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -404,13 +414,22 @@ mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> Proof) -> ([a] -> [a]
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">plusRightId :: [Int] -> Proof
-{-@ plusRightId :: xs:[Int] 
-                -> {plus (sum xs) (sum []) == sum xs} @-}
-plusRightId = undefined </div>
+  <div id="program-5" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
+sumEq n is = mRTheorem   n           -- chunk size
+                         sum         -- function to map-reduce
+                         plus        -- reduction operator
+                         plusRightId -- plus has "right-identity"
+                         sumDistr    -- sum is "distributive"
+                         is          -- input list</div>
 </div>
 
-<p><strong>Question:</strong> What is the proof of <code>plusRightId</code>?</p>
+</section>
+<section id="higher-order-theorem-mrtheorem" class="level2">
+<h2>Higher Order Theorem: <code>mRTheorem</code></h2>
+<p>The higher order theorem <code>mRTheorem</code> states that:</p>
+<blockquote>
+<p>If <code>f</code> is right identity and <code>op</code> is distributive, then <code>mapReduce</code> is equivalent to sequential.</p>
+</blockquote>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -419,7 +438,45 @@ plusRightId = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">sumDistr :: [Int] -> [Int] -> Proof
+  <div id="program-6" class="programbox">{-@ mRTheorem :: n:Int -> f:([a] -> b) -> op:(b -> b -> b)
+     -> rightId:(xs:[a] -> {op (f xs) (f []) == f xs } )
+     -> distrib:(xs:[a] -> ys:[a] -> {f (xs ++ ys) == op (f xs) (f ys)} )
+     -> is:[a]
+     -> { mapReduce n f op is == f is }
+     / [len is]
+  @-}
+mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> Proof) -> ([a] -> [a] -> Proof) -> [a] -> Proof
+mRTheorem = undefined </div>
+</div>
+
+<p><strong>Question:</strong> What is the proof of <code>mRTheorem</code>?</p>
+</section>
+<section id="lemmata-for-mrtheorem-on-plus" class="level2">
+<h2>Lemmata for <code>mRTheorem</code> on plus</h2>
+<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-7" class="programbox">plusRightId :: [Int] -> Proof
+{-@ plusRightId :: xs:[Int] 
+                -> {plus (sum xs) (sum []) == sum xs} @-}
+plusRightId = undefined </div>
+</div>
+
+<p><strong>Question:</strong> What is the proof of <code>plusRightId</code>?</p>
+<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-8" class="programbox">sumDistr :: [Int] -> [Int] -> Proof
 {-@ sumDistr :: xs:[Int] -> ys:[Int] 
              -> {sum (xs ++ ys) == plus (sum xs) (sum ys)} @-}
 sumDistr xs = undefined </div>
@@ -431,52 +488,9 @@ sumDistr xs = undefined </div>
 <h2>Summary</h2>
 <p>We saw a case study in which map reduce is used to parallelize the sum of a list. Using Liquid Haskell, we can prove that the parallel sum is equivalent to the sequential sum.</p>
 </section>
-<section id="appendix-i-proof-of-mrtheorem" class="level2">
-<h2>Appendix I: Proof of <code>mRTheorem</code></h2>
-<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-7" class="programbox">mRTheorem n f op rightId _ [] =  rightId []
-mRTheorem n f op rightId distr is@(i:_) 
-  | n <= 1 || length is <= n 
-  = mapReduce n f op is
-  === reduce op (f []) (map f (chunk n is))
-  === reduce op (f []) (map f [is])
-  === reduce op (f []) [f is]
-  === op (f is) (f []) ? rightId is
-  === f is
-  *** QED
-
-mRTheorem n f op rightId distr is
-  = mRTheorem n f op rightId distr (drop n is)
-  ? distr (take n is) (drop n is)
-  ? appendTakeDrop n is </div>
-</div>
-
-<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-8" class="programbox">{-@ appendTakeDrop :: n:Int -> xs:[a] -> {take n xs ++ drop n xs == xs} @-}
-appendTakeDrop :: Int -> [a] -> Proof
-appendTakeDrop n [] = () 
-appendTakeDrop n (x:xs)
-  | n == 0 =  () 
-  | otherwise = appendTakeDrop (n-1) xs</div>
-</div>
-
-</section>
-<section id="appendix-ii-list-manipulation-functions" class="level2">
-<h2>Appendix II: List Manipulation Functions</h2>
+<section id="appendix-list-manipulation-functions" class="level2">
+<h2>Appendix: List Manipulation Functions</h2>
+We define the list manipulation functions <code>++</code> and <code>length</code> below.
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -485,39 +499,7 @@ appendTakeDrop n (x:xs)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ chunk :: i:Int -> xs:[a]
-          -> {v:[[a]] | if (i <= 1 || len xs <= i) then (len v == 1) else (len v < len xs) }
-          / [len xs] @-}
-chunk _ [] = [[]]
-chunk i xs
-  | i <= 1
-  = [xs]
-  | length xs <= i
-  = [xs]
-  | otherwise
-  = take i xs:chunk i (drop i xs)
-
-{-@ reflect drop @-}
-{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == len xs - i } @-}
-drop :: Int -> [a] -> [a]
-drop i [] = [] 
-drop i (x:xs)
-  | i == 0
-  = x:xs
-  | otherwise
-  = drop (i-1) xs
-
-{-@ reflect take @-}
-{-@ take :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == i} @-}
-take :: Int -> [a] -> [a]
-take i [] = []
-take i (x:xs)
-  | i == 0
-  = []
-  | otherwise
-  = x:(take (i-1) xs)
-
-{-@ reflect ++ @-}
+  <div id="program-9" class="programbox">{-@ reflect ++ @-}
 (++) :: [a] -> [a] -> [a]
 []     ++ ys = ys
 (x:xs) ++ ys = x:(xs ++ ys)
