@@ -203,10 +203,11 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.2.</b> Map Reduce "Library" Functions:</a></li>
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.3.</b> Map Reduce "Client" Functions: Summing a List</a></li>
 <li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.5.</b> Higher Order Theorem: <code>mRTheorem</code></a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.6.</b> Lemmata for <code>mRTheorem</code> on plus</a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.7.</b> Summary</a></li>
-<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.8.</b> Appendix: List Manipulation Functions</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.5.</b> Chunk Definition:</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.6.</b> Higher Order Theorem: <code>mRTheorem</code></a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.7.</b> Lemmata for <code>mRTheorem</code> on plus</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.8.</b> Summary</a></li>
+<li><a href='Lecture_08_CaseStudyMapReduce.html#'><b>8.9.</b> Appendix: List Manipulation Functions</a></li>
 </ul>
 <li><a href='Lecture_09_NaturalDeduction.html'><b>9.</b>Natural Deduction</a></li>
 <ul class='section'>
@@ -333,12 +334,16 @@ reduce op b (x:xs) = op x (reduce op b xs)
 {-@ map :: (a -> b) -> xs:[a] -> {v:[b] | len v == len xs } @-}
 map :: (a -> b) -> [a] -> [b]
 map _  []    = [] 
-map f (x:xs) = f x : map f xs</div>
+map f (x:xs) = f x : map f xs
+
+-- chunk :: Int -> [a] -> [[a]]</div>
 </div>
 
 <p>Of course, for <code>mapReduce</code> to be efficient the <code>map</code> function should be parallelized, e.g., using <a href="https://hackage.haskell.org/package/parallel-3.2.2.0/docs/Control-Parallel-Strategies.html"><code>parMap</code></a>.</p>
-<p>Let’s now define the <code>chunk</code> function that splits a list into chunks of size <code>n</code>.</p>
-<p><strong>Question:</strong> Define the <code>take</code> and <code>drop</code> functions below that satisfy the following specifications:</p>
+</section>
+<section id="map-reduce-client-functions-summing-a-list" class="level2">
+<h2>Map Reduce “Client” Functions: Summing a List</h2>
+<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -347,55 +352,7 @@ map f (x:xs) = f x : map f xs</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">{-@ reflect drop @-}
-{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } 
-         -> {v:[a] | len v == len xs - i } @-}
-drop :: Int -> [a] -> [a]
-drop i x = x </div>
-</div>
-
-<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-3" class="programbox">{-@ reflect take @-}
-{-@ take :: i:Nat -> xs:{[a] | i <= len xs } 
-         -> {v:[a] | len v == i} @-}
-take :: Int -> [a] -> [a]
-take i x = x  </div>
-</div>
-
-<p><strong>Question:</strong> Define the <code>chunk</code> function below that splits a list into chunks of size <code>n</code>.</p>
-<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-4" class="programbox">{-@ reflect chunk @-}
-chunk :: Int -> [a] -> [[a]]
-chunk i x = [x] </div>
-</div>
-
-</section>
-<section id="map-reduce-client-functions-summing-a-list" class="level2">
-<h2>Map Reduce “Client” Functions: Summing a List</h2>
-<p>Let’s assume that <code>sum</code> is the standard list summing and <code>psum</code> is the mapReduce parallel summing.</p>
-<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-5" class="programbox">-- Standard List Sum
+  <div id="program-2" class="programbox">-- Standard List Sum
 {-@ reflect sum @-}
 sum :: [Int] -> Int
 sum []     = 0
@@ -417,6 +374,59 @@ plus x y = x + y</div>
 <section id="proving-code-equivalence-sum-and-psum" class="level2">
 <h2>Proving Code Equivalence: <code>sum</code> and <code>psum</code></h2>
 <p>The equivalence proof is an instance of the higher order theorem <code>mRTheorem</code>:</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
+sumEq n is = mRTheorem   n           -- chunk size
+                         sum         -- function to map-reduce
+                         plus        -- reduction operator
+                         plusRightId -- plus has "right-identity"
+                         sumDistr    -- sum is "distributive"
+                         is          -- input list</div>
+</div>
+
+</section>
+<section id="chunk-definition" class="level2">
+<h2>Chunk Definition:</h2>
+<p>First, let’s define the <code>chunk</code> function that splits a list into chunks of size <code>n</code>.</p>
+<p><strong>Question:</strong> Define the <code>take</code> and <code>drop</code> functions below that satisfy the following specifications:</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">{-@ reflect drop @-}
+{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } 
+         -> {v:[a] | len v == len xs - i } @-}
+drop :: Int -> [a] -> [a]
+drop i x = x </div>
+</div>
+
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">{-@ reflect take @-}
+{-@ take :: i:Nat -> xs:{[a] | i <= len xs } 
+         -> {v:[a] | len v == i} @-}
+take :: Int -> [a] -> [a]
+take i x = x  </div>
+</div>
+
+<p><strong>Question:</strong> Define the <code>chunk</code> function below that splits a list into chunks of size <code>n</code>.</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -425,13 +435,9 @@ plus x y = x + y</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
-sumEq n is = mRTheorem   n           -- chunk size
-                         sum         -- function to map-reduce
-                         plus        -- reduction operator
-                         plusRightId -- plus has "right-identity"
-                         sumDistr    -- sum is "distributive"
-                         is          -- input list</div>
+  <div id="program-6" class="programbox">{-@ reflect chunk @-}
+chunk :: Int -> [a] -> [[a]]
+chunk i x = [x] </div>
 </div>
 
 </section>
