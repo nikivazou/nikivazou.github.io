@@ -347,8 +347,8 @@ MathJax.Hub.Config({
 <div id='page-wrapper'>
 <div id='page'>
 
-<section id="structural-induction" class="level1">
-<h1>Structural Induction</h1>
+<section id="task-2-proving-theorems" class="level1">
+<h1>Task 2: Proving Theorems</h1>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -357,21 +357,23 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
-module Lecture_07_StructuralInduction where
+  <div id="program-0" class="programbox">
+{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+module Task2 where
 
-import Language.Haskell.Liquid.ProofCombinators
-import Prelude hiding (map, id, length, return, (++), reverse)
 {-@ LIQUID "--reflection" @-}
 {-@ LIQUID "--ple"        @-}
-{-@ infixr ++ @-}</div>
+{-@ infix : @-}
+import Prelude  hiding (foldr, map)
+import Language.Haskell.Liquid.ProofCombinators
+
+{-@ type TRUE = {v:Bool | v} @-}</div>
 </div>
 
-<p>We already saw how to prove properties on integers using induction on natural numbers. Next, we will see how to prove properties on algebraic data types using structural induction.</p>
-<p>As expected, we will prove properties of functions that manipulate the most common algebraic data type, lists.</p>
-<section id="structural-induction-on-lists" class="level2">
-<h2>Structural Induction on Lists</h2>
-<p>Next, we define and reflect two functions, <code>map</code> and <code>id</code>, that we will use to illustrate structural induction on lists.</p>
+<section id="fusions" class="level2">
+<h2>1. Fusions</h2>
+<p>1.1 <strong>Map Fusion:</strong> Map fusion states that for any two functions <code>f</code> and <code>g</code>, and any list <code>xs</code>, instead of applying <code>f</code> and <code>g</code> to <code>xs</code> separately, we can apply the composition of <code>f</code> and <code>g</code> to <code>xs</code> once. It is an optimization property since it allows traversing the list <code>xs</code> only once!</p>
+<p>Let’s first define and reflect the <code>map</code> and <code>compose</code> functions.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -383,15 +385,14 @@ import Prelude hiding (map, id, length, return, (++), reverse)
   <div id="program-1" class="programbox">{-@ reflect map @-}
 map :: (a -> b) -> [a] -> [b]
 map f []     = []
-map f (x:xs) = f x:map f xs
+map f (x:xs) = f x : map f xs
 
-{-@ reflect id @-}
-id :: a -> a
-id x = x</div>
+{-@ reflect compose @-}
+compose :: (b -> c) -> (a -> b) ->  a -> c
+compose f g x = f (g x)</div>
 </div>
 
-<p>The first property we will prove is that mapping the identity function over a list is the same as the identity over the list.</p>
-<p>This property can be used as an optimization pass, in the right hand side, the list is not traversed by map!</p>
+<p>And now, using the equational reasoning operators <code>===</code>, <code>***</code>, <code>QED</code>, and <code>?</code>, prove the map fusion property.</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -400,34 +401,13 @@ id x = x</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">{-@ idMap :: xs:[a] -> {map id xs == id xs} @-}
-idMap :: [a] -> Proof
-idMap []
-  =  map id []
-  === []
-  === id []
-  *** QED 
-idMap (x:xs) 
-  =   map id (x:xs)
-  === id x:map id xs ? idMap xs
-  === x:id xs
-  === x:xs   
-  === id (x:xs)
-  *** QED</div>
+  <div id="program-2" class="programbox">{-@ mapFusion :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
+              -> {map (compose f g) xs == (map f) (map g xs)} @-}
+mapFusion :: (b -> c) -> (a -> b) -> [a] -> Proof
+mapFusion f g xs = undefined </div>
 </div>
 
-<p>The proof goes by <em>structural induction</em> on the list the list <code>xs</code>.</p>
-<ul>
-<li>The <em>base case</em> is when <code>xs</code> is <code>[]</code>, which goes by rewriting.</li>
-<li>The <em>inductive case</em> is when <code>xs</code> is <code>x:xs</code>, which goes by rewriting and the induction hypothesis.</li>
-</ul>
-<p>Note that Liquid Haskell checks both that both cases are defined (by totality) and that the inductive call is well-founded (by termination).</p>
-<p>As before, <code>ple</code> can be used to automate the proof. We essentially need to keep the case splitting and the induction hypothesis.</p>
-</section>
-<section id="map-fusion" class="level2">
-<h2>Map Fusion</h2>
-<p>Next, we will prove that mapping two functions over a list is the same as mapping the composition of the functions over the list.</p>
-<p>For this we define the composition of two functions.</p>
+<p>1.2 <strong>PLE Automation:</strong> Now, using the <code>PLE</code> tactic, which is already activated in this module, write a shorter version of your proof.</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -436,12 +416,15 @@ idMap (x:xs)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-3" class="programbox">{-@ reflect comp @-}
-comp :: (b -> c) -> (a -> b) -> a -> c
-comp f g x = f (g x)</div>
+  <div id="program-3" class="programbox">{-@ mapFusionShorter :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
+              -> {map (compose f g) xs == (map f) (map g xs)} @-}
+mapFusionShorter :: (b -> c) -> (a -> b) -> [a] -> Proof
+mapFusionShorter f g xs = undefined </div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove map fusion.</p>
+<p>1.3 <strong>Fold Fusion:</strong></p>
+<p>Folds also have a fusion property.</p>
+<p>Let’s first define and reflect the <code>foldr</code> function.</p>
 <div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -450,16 +433,13 @@ comp f g x = f (g x)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">{-@ mapFusion :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
-              -> {map (comp f g) xs == (map f) (map g xs)} @-}
-mapFusion :: (b -> c) -> (a -> b) -> [a] -> Proof
-mapFusion f g xs = undefined </div>
+  <div id="program-4" class="programbox">{-@ reflect foldr @-}
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f b (x:xs) = f x (foldr f b xs)
+foldr f b []      = b</div>
 </div>
 
-</section>
-<section id="monoid-laws-for-lists" class="level2">
-<h2>Monoid Laws for Lists</h2>
-<p>Lists form a monoid structure, in that they have an associative binary operation (list append) and a neutral element (empty list):</p>
+<p>The fusion property for <code>foldr</code> states that the composition of a function <code>h</code> with the fold <code>foldr f e</code> is equivalent to folding a different function <code>g</code> over the list <code>xs</code>. Prove the fold fusion property:</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -468,20 +448,20 @@ mapFusion f g xs = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">{-@ reflect ++ @-}
-(++) :: [a] -> [a] -> [a]
-[]     ++ ys = ys 
-(x:xs) ++ ys = x:(xs++ys)
-
-{-@ reflect empty @-}
-empty :: [a]
-empty = []</div>
+  <div id="program-5" class="programbox">{-@ foldrFusion :: h:(b -> c) -> f:(a -> b -> b) -> g:(a -> c -> c) -> e:b -> ys:[a]
+                -> fuse:(x:a -> y:b -> {h (f x y) == g x (h y)})
+                -> { (compose h (foldr f e)) (ys) == foldr g (h e) ys }
+  @-}
+foldrFusion :: (b -> c) -> (a -> b -> b) -> (a -> c -> c) -> b -> [a]
+             -> (a -> b -> Proof)
+             -> Proof
+foldrFusion h f g e _  fuse = undefined</div>
 </div>
 
-<p>Monoid structures have three laws: associativity, left identity and right identity. So, let’s prove these laws for lists.</p>
-<ul>
-<li>Left Identity: <code>empty</code> is the left identity for <code>append</code>.</li>
-</ul>
+</section>
+<section id="higher-order-properties" class="level2">
+<h2>2. Higher Order Properties</h2>
+<p>2.1 <strong>Universal Fold Property:</strong> Fold has a (universal property)[https://www.cs.nott.ac.uk/~pszgmh/fold.pdf] that states that folding a function <code>f</code> over a list is equivalent to applying a function <code>h</code> to the list, as long as the two functions satisfy two conditions, encoded as <code>base</code> and <code>step</code>, below. Prove the universal fold property.</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -490,14 +470,22 @@ empty = []</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">emptyLeftIdentity :: [a] -> Proof 
-{-@ emptyLeftIdentity :: xs:[a] -> {[] ++ xs == xs} @-}
-emptyLeftIdentity xs = undefined</div>
+  <div id="program-6" class="programbox">{-@ foldrUniversal
+      :: f:(a -> b -> b)
+      -> h:([a] -> b)
+      -> e:b
+      -> ys:[a]
+      -> base:{h [] == e }
+      -> step: (x:a -> xs:[a] -> {h (x:xs) == f x (h xs)})
+      -> { h ys == foldr f e ys }
+  @-}
+foldrUniversal :: (a -> b -> b) -> ([a] -> b) -> b
+               -> [a] -> () -> (a -> [a] -> ()) -> ()
+foldrUniversal f h e _ base step = undefined</div>
 </div>
 
-<ul>
-<li>Right Identity: <code>empty</code> is the right identity for <code>append</code>.</li>
-</ul>
+<p>2.2 <strong>Fusion via Universality:</strong> The universal property provides a powerful way to prove fusion properties.</p>
+<p>Prove, again the <code>foldrFusion</code> property, but this time using the <code>foldrUniversal</code> property. That is, the proof should call <code>foldrUniversal</code> with the appropriate arguments. As the <code>base</code> and <code>step</code> conditions, you can use the provided helper functions <code>fuse_base</code> and <code>fuse_step</code>, given in task <code>2.3</code>.</p>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -506,14 +494,19 @@ emptyLeftIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">emptyRightIdentity :: [a] -> Proof 
-{-@ emptyRightIdentity :: xs:[a] -> {xs ++ [] == xs} @-}
-emptyRightIdentity xs = undefined</div>
+  <div id="program-7" class="programbox">{-@ foldrFusionUniv :: h:(b -> c) -> f:(a -> b -> b) -> g:(a -> c -> c) -> e:b -> ys:[a]
+            -> fuse:(x:a -> y:b -> {h (f x y) == g x (h y)})
+            -> { (compose h (foldr f e)) (ys) == foldr g (h e) ys }
+  @-}
+foldrFusionUniv :: (b -> c) -> (a -> b -> b) -> (a -> c -> c) -> b -> [a]
+                -> (a -> b -> ())
+                -> ()
+foldrFusionUniv h f g e ys fuse
+  = undefined </div>
 </div>
 
-<ul>
-<li>Associativity: <code>append</code> is associative.</li>
-</ul>
+<p>2.3 <strong>Completing the Proof:</strong></p>
+<p>To complete the proof, we need to provide the helper functions <code>fuse_base</code> and <code>fuse_step</code>. <em>Hint:</em> The step goes by case splitting on the list while the base case is trivial.</p>
 <div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -522,16 +515,17 @@ emptyRightIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">appendAssoc :: [a] -> [a] -> [a] -> Proof 
-{-@ appendAssoc :: xs:[a] -> ys:[a]-> zs:[a] 
-                 -> {xs ++ (ys ++ zs) == (xs ++ ys) ++ zs} @-}
-appendAssoc xs ys zs = undefined</div>
+  <div id="program-8" class="programbox">fuse_step :: (b -> c) -> (a -> b -> b) -> b -> (a -> c -> c)
+         -> (a -> b -> ())
+         -> a -> [a] -> ()
+{-@ fuse_step :: h:(b -> c) -> f:(a -> b -> b) -> e:b -> g:(a -> c -> c)
+         -> thm:(x:a -> y:b -> { h (f x y) == g x (h y)})
+         -> x:a -> xs:[a]
+         -> {(compose h (foldr f e)) (x:xs) == g x ((compose h (foldr f e)) (xs))}
+  @-}
+fuse_step h f e g thm x _ = undefined </div>
 </div>
 
-</section>
-<section id="using-proved-lemma" class="level2">
-<h2>Using Proved Lemma</h2>
-<p>As a final example, let’s define list reversing and prove that reverse distributes over append.</p>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -540,13 +534,18 @@ appendAssoc xs ys zs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ reflect reverse @-}
-reverse :: [a] -> [a]
-reverse []     = []
-reverse (x:xs) = reverse xs ++ [x]</div>
+  <div id="program-9" class="programbox">fuse_base :: (b -> c) -> (a -> b -> b) -> b -> ()
+{-@ fuse_base :: h:(b -> c) -> f:(a -> b -> b) -> e:b
+              -> { compose h (foldr f e) [] == h e } @-}
+fuse_base h f e = undefined</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove distributivity. Hint, you can use the proved lemmas <code>emptyRightIdentity</code> and <code>appendAssoc</code>.</p>
+</section>
+<section id="encoding-of-logical-properties" class="level2">
+<h2>3. Encoding of Logical Properties</h2>
+<p>The following three logical properties are encoded as refinement types, using the encoding presented in the <a href="https://nikivazou.github.io/lh-course/Lecture_08_NaturalDeduction.html">class</a>.</p>
+<p>Prove these properties, by defining the Haskell function definitions for <code>lp1</code>, <code>lp2</code>, and <code>lp3</code>:</p>
+<p>3.1 <strong>Distributivity of <code>And</code> over <code>Or</code>:</strong> <span class="math display">\[ lp_1  \doteq (p \land (q \lor r)) \Rightarrow ((p \land q) \lor (p \land r)) \]</span></p>
 <div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -555,18 +554,50 @@ reverse (x:xs) = reverse xs ++ [x]</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-10" class="programbox">distributivity :: [a] -> [a] -> () 
-{-@ distributivity :: xs:[a] -> ys:[a] 
-                   -> { reverse (xs ++ ys) == reverse ys ++ reverse xs }  @-}
-distributivity = undefined </div>
+  <div id="program-10" class="programbox">{-@ lp1 :: p:Bool -> q:Bool -> r:Bool 
+       -> ({v:() | p}, Either {v:() | q} {v:() | r})
+       -> Either ({v:() | p}, {v:() | q}) ({v:() | p}, {v:() | r})
+   @-}
+lp1 :: Bool -> Bool -> Bool -> (() , Either () ()) 
+    -> Either (() , ()) (() , ())
+lp1 _ _ _ _ = undefined</div>
 </div>
 
-<p>Liquid Haskell has a (beta) tactic that allows the proof to get automated using existing equations proved in lemmas. Thus the proof can be automated as follows:</p>
-<pre class=".{spec}"><code>{-@ rewriteWith distributivity [appendAssoc, emptyRightIdentity] @-}</code></pre>
-</section>
-<section id="summary" class="level2">
-<h2>Summary</h2>
-<p>We saw how to use Liquid Haskell to encode proofs of structural induction on lists. We proved the functor and monoid laws for lists and distributivity of reverse over append, using the two Liquid Haskell tactics of <code>ple</code> and <code>rewriteWith</code>.</p>
+<p>3.2 <strong>Contraposition:</strong></p>
+<p><span class="math display">\[ lp_2 \doteq (p \Rightarrow q) \Rightarrow \neg q \Rightarrow \neg p \]</span></p>
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-11" class="programbox">{-@ lp2 :: p:Bool -> q:Bool 
+        -> ({v:() | p} -> {v:() | q})
+        -> ({v:() | q} -> {v:() | false})
+        -> ({v:() | p} -> {v:() | false}) @-}
+lp2 :: Bool -> Bool -> (() -> ()) -> (() -> ()) -> (() -> ())
+lp2 _ _ _ _ _ = undefined</div>
+</div>
+
+<p>3.3 <strong>Existential Introduction:</strong></p>
+<p><span class="math display">\[ lp_3 \doteq ((\forall x. p\ x \Rightarrow q) \land \exists x.  p\ x) \Rightarrow q \]</span></p>
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">{-@ lp3 :: p:(a -> Bool) -> q:Bool 
+       -> ((x:a -> {v:() | p x} -> {v:() | q}), (x::a, {v:() | p x}))
+       -> (x::a, {v:() | q}) @-}
+lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> (a, ())
+lp3 _ _ _ = undefined</div>
+</div>
+
 </section>
 </section>
 

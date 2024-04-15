@@ -347,8 +347,8 @@ MathJax.Hub.Config({
 <div id='page-wrapper'>
 <div id='page'>
 
-<section id="structural-induction" class="level1">
-<h1>Structural Induction</h1>
+<section id="data-propositions" class="level1">
+<h1>Data Propositions</h1>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -358,20 +358,24 @@ MathJax.Hub.Config({
   </button>
  
   <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
-module Lecture_07_StructuralInduction where
+{-# LANGUAGE GADTs                    #-}
 
-import Language.Haskell.Liquid.ProofCombinators
-import Prelude hiding (map, id, length, return, (++), reverse)
+module Lecture_09_DataPropositions where
+
 {-@ LIQUID "--reflection" @-}
 {-@ LIQUID "--ple"        @-}
-{-@ infixr ++ @-}</div>
+import Language.Haskell.Liquid.ProofCombinators
+import Data.Set </div>
 </div>
 
-<p>We already saw how to prove properties on integers using induction on natural numbers. Next, we will see how to prove properties on algebraic data types using structural induction.</p>
-<p>As expected, we will prove properties of functions that manipulate the most common algebraic data type, lists.</p>
-<section id="structural-induction-on-lists" class="level2">
-<h2>Structural Induction on Lists</h2>
-<p>Next, we define and reflect two functions, <code>map</code> and <code>id</code>, that we will use to illustrate structural induction on lists.</p>
+<p>We saw that using the refinement types of Liquid Haskell, we can encode any predicate in higher order logic (using functions and dependent pairs, respectively for universal and existential quantification). Further using reflection we saw that we can encode in the refinement logic any terminating Haskell function.</p>
+<p>Thus, the only thing that remains to encode is no terminating functions.</p>
+<p>In this lecture, we will see how to encode such functions, using data propositions.</p>
+<section id="even-numbers" class="level2">
+<h2>Even Numbers</h2>
+<p>Data propositions essentially axiomatize the behavior of predicates in the data type definitions, without actually giving a Haskell definition.</p>
+<p>They are very similar to Coq’s <a href="http://adam.chlipala.net/cpdt/html/Predicates.html">inductive predicates</a>. Thus, let’s look at the using the textbook example of even numbers.</p>
+<p>First, we define the data type of natural numbers.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -380,18 +384,10 @@ import Prelude hiding (map, id, length, return, (++), reverse)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-1" class="programbox">{-@ reflect map @-}
-map :: (a -> b) -> [a] -> [b]
-map f []     = []
-map f (x:xs) = f x:map f xs
-
-{-@ reflect id @-}
-id :: a -> a
-id x = x</div>
+  <div id="program-1" class="programbox">data N = Z | S N </div>
 </div>
 
-<p>The first property we will prove is that mapping the identity function over a list is the same as the identity over the list.</p>
-<p>This property can be used as an optimization pass, in the right hand side, the list is not traversed by map!</p>
+<p>Then, we <em>axiomatize</em> the proposition that a number is even.</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -400,34 +396,17 @@ id x = x</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">{-@ idMap :: xs:[a] -> {map id xs == id xs} @-}
-idMap :: [a] -> Proof
-idMap []
-  =  map id []
-  === []
-  === id []
-  *** QED 
-idMap (x:xs) 
-  =   map id (x:xs)
-  === id x:map id xs ? idMap xs
-  === x:id xs
-  === x:xs   
-  === id (x:xs)
-  *** QED</div>
+  <div id="program-2" class="programbox">data EVEN where 
+  E0 :: EVEN 
+  E2 :: N -> EVEN -> EVEN
+
+{-@ data EVEN where 
+     E0 :: Prop (EVEN Z)
+     E2 :: n:N -> Prop (EVEN n) -> Prop (EVEN (S (S n))) @-}
+
+data Eveness = EVEN N </div>
 </div>
 
-<p>The proof goes by <em>structural induction</em> on the list the list <code>xs</code>.</p>
-<ul>
-<li>The <em>base case</em> is when <code>xs</code> is <code>[]</code>, which goes by rewriting.</li>
-<li>The <em>inductive case</em> is when <code>xs</code> is <code>x:xs</code>, which goes by rewriting and the induction hypothesis.</li>
-</ul>
-<p>Note that Liquid Haskell checks both that both cases are defined (by totality) and that the inductive call is well-founded (by termination).</p>
-<p>As before, <code>ple</code> can be used to automate the proof. We essentially need to keep the case splitting and the induction hypothesis.</p>
-</section>
-<section id="map-fusion" class="level2">
-<h2>Map Fusion</h2>
-<p>Next, we will prove that mapping two functions over a list is the same as mapping the composition of the functions over the list.</p>
-<p>For this we define the composition of two functions.</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -436,12 +415,51 @@ idMap (x:xs)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-3" class="programbox">{-@ reflect comp @-}
-comp :: (b -> c) -> (a -> b) -> a -> c
-comp f g x = f (g x)</div>
+  <div id="program-3" class="programbox">even0, even2, even4 :: EVEN
+{-@ even0 :: Prop (EVEN Z) @-}
+even0 = E0 
+
+{-@ even2 :: Prop (EVEN  (S (S Z))) @-}
+even2 = E2 Z even0
+
+{-@ even4 :: Prop (EVEN  (S (S (S (S Z))))) @-}
+even4 = E2 (S (S Z)) even2
+
+
+even1_false :: EVEN -> () 
+{-@ even1_false :: Prop (EVEN (S Z)) -> {v:() | false} @-}
+even1_false (E2 _ _) = ()
+
+
+
+even_plus_2 :: N -> EVEN -> (N,()) 
+{-@ even_plus_2 :: n:{N | n /= Z} -> Prop (EVEN n) -> (m::N, {v:() | n == S (S m)}) @-}
+even_plus_2 n E0       = error "impossible"
+even_plus_2 n (E2 m e) = (m, ())
+
+-- n:N -> Prop (EVEN n) -> Prop (EVEN (S (S n)))
+
+
+even_plus :: N -> N -> EVEN -> EVEN -> EVEN 
+{-@ even_plus :: n:N -> m:N -> Prop (EVEN n) -> Prop (EVEN m) -> Prop (EVEN (plus n m)) @-}
+even_plus _ _ E0     e = e 
+even_plus n m (E2 _ e) e' 
+  = case n of 
+       S (S n') -> E2 (plus n' m) (even_plus n' m e e')
+
+{-@ reflect plus @-}
+plus :: N -> N -> N
+plus Z     m = m
+plus (S n) m = S (plus n m)</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove map fusion.</p>
+</section>
+<section id="metatheory-of-programming-languages" class="level2">
+<h2>Metatheory of Programming Languages</h2>
+<p>In the theory of programming languages, we often use theorem provers, like Liquid Haskell or Coq, to mechanize the proof of properties of programs.</p>
+<p>Such proofs usually talk about <em>program evaluation</em>.</p>
+<p>Due to the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a> we cannot prove, in general that program evaluation terminates, thus such concepts are encoded as data propositions (or inductive predicates).</p>
+<p>As a simplification, let’s consider the simply typed lambda calculus, with integers and functions.</p>
 <div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -450,16 +468,19 @@ comp f g x = f (g x)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">{-@ mapFusion :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
-              -> {map (comp f g) xs == (map f) (map g xs)} @-}
-mapFusion :: (b -> c) -> (a -> b) -> [a] -> Proof
-mapFusion f g xs = undefined </div>
+  <div id="program-4" class="programbox">data Expr = EApp  Expr Expr 
+          | ELam  Type Expr 
+          | EBVar BVar | EFVar Var 
+          | EInt  Int 
+
+data Type =  TInt | TFun Type Type 
+  deriving Eq </div>
 </div>
 
 </section>
-<section id="monoid-laws-for-lists" class="level2">
-<h2>Monoid Laws for Lists</h2>
-<p>Lists form a monoid structure, in that they have an associative binary operation (list append) and a neutral element (empty list):</p>
+<section id="evaluation-of-expressions" class="level2">
+<h2>Evaluation of Expressions</h2>
+<p>We use data proposition to axiomatize the step relation of the language. That is, <code>Step e e'</code> defines the relation <code>e -&gt; e'</code>.</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -468,20 +489,20 @@ mapFusion f g xs = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">{-@ reflect ++ @-}
-(++) :: [a] -> [a] -> [a]
-[]     ++ ys = ys 
-(x:xs) ++ ys = x:(xs++ys)
-
-{-@ reflect empty @-}
-empty :: [a]
-empty = []</div>
+  <div id="program-5" class="programbox">{-@ 
+data Step where 
+  SAppPL :: e1:Expr -> e1':Expr -> e2:Expr 
+         -> Prop (Step e1 e1')          
+         -> Prop (Step (EApp e1 e2) (EApp e1' e2)) 
+  SAppPR :: e1:Expr -> e2:Expr -> e2':Expr 
+         -> Prop (Step e2 e2')
+         -> Prop (Step (EApp e1 e2) (EApp e1 e2')) 
+  SAppE  :: e:Expr -> ex:Expr -> tx:Type 
+         -> Prop (Step (EApp (ELam tx e) ex) (subst e ex)) 
+  @-}</div>
 </div>
 
-<p>Monoid structures have three laws: associativity, left identity and right identity. So, let’s prove these laws for lists.</p>
-<ul>
-<li>Left Identity: <code>empty</code> is the left identity for <code>append</code>.</li>
-</ul>
+<p>Evaluation of an expression is defined as the transitive closure of the step relation. That is <code>Evals e e'</code> defines the relation <code>e -&gt;* e'</code>, which, in general is not terminating.</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -490,14 +511,20 @@ empty = []</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">emptyLeftIdentity :: [a] -> Proof 
-{-@ emptyLeftIdentity :: xs:[a] -> {[] ++ xs == xs} @-}
-emptyLeftIdentity xs = undefined</div>
+  <div id="program-6" class="programbox">{-@ 
+data Evals where 
+  ERefl :: e:Expr -> Prop {Evals e e}
+  EStep :: e1:{Expr | lc e1 } -> e2:{Expr | lc e2} -> e3:Expr
+        -> Prop (Step  e1 e2)
+        -> Prop (Evals e2 e3) 
+        -> Prop (Evals e1 e3)  
+  @-}</div>
 </div>
 
-<ul>
-<li>Right Identity: <code>empty</code> is the right identity for <code>append</code>.</li>
-</ul>
+</section>
+<section id="typing-of-expressions" class="level2">
+<h2>Typing of Expressions</h2>
+<p>We use data propositions to axiomatize the typing relation of the language. That is, <code>HasType g e t</code> defines the relation <span class="math inline">\(\Gamma \vdash e : \tau\)</span>, where <span class="math inline">\(\Gamma\)</span> is the typing environment, <span class="math inline">\(e\)</span> is the expression and <span class="math inline">\(\tau\)</span> is the type.</p>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -506,14 +533,27 @@ emptyLeftIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">emptyRightIdentity :: [a] -> Proof 
-{-@ emptyRightIdentity :: xs:[a] -> {xs ++ [] == xs} @-}
-emptyRightIdentity xs = undefined</div>
+  <div id="program-7" class="programbox">{-@ data HasType where 
+     TApp :: g:Env -> e:Expr -> ex:Expr -> t:Type -> tx:Type 
+          -> Prop (HasType g e (TFun tx t)) 
+          -> Prop (HasType g ex tx)
+          -> Prop (HasType g (EApp e ex) t) 
+     TLam :: g:Env -> e:Expr -> tx:Type -> t:Type 
+          -> x:{Var | not (member x (dom g)) && not (member x (freeVars e))} 
+          -> Prop (HasType (EBind x tx g) (subst e (EFVar x)) t) 
+          -> Prop (HasType g (ELam tx e) (TFun tx t)) 
+     TVar :: g:Env -> x:{Var | member x (dom g)} 
+          -> Prop (HasType g (EFVar x) (lookupEnv g x))
+     TTInt :: g:Env -> i:Int
+          -> Prop (HasType g (EInt i) TInt)
+ @-}</div>
 </div>
 
-<ul>
-<li>Associativity: <code>append</code> is associative.</li>
-</ul>
+</section>
+<section id="soundness-progress-preservation" class="level2">
+<h2>Soundness = Progress + Preservation</h2>
+<p>Having defined both the typing and evaluation relations, we can connect them to show that our type system is sound. To show soundness, following the <a href="https://www.cis.upenn.edu/~bcpierce/tapl/index.html">tradition of programming languages</a>, we prove the progress and preservation properties.</p>
+<p><strong>Progress</strong> states that a well-typed expression is either a value or can take a step:</p>
 <div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -522,16 +562,12 @@ emptyRightIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">appendAssoc :: [a] -> [a] -> [a] -> Proof 
-{-@ appendAssoc :: xs:[a] -> ys:[a]-> zs:[a] 
-                 -> {xs ++ (ys ++ zs) == (xs ++ ys) ++ zs} @-}
-appendAssoc xs ys zs = undefined</div>
+  <div id="program-8" class="programbox">{-@ progress :: e:Expr -> t:Type -> ht:Prop (HasType EEmp e t) 
+                 -> Either {v:() | isValue e} (Expr, Step)<{\e' p -> prop p = Step e e'}> 
+                 / [hasTypeSize ht] @-}</div>
 </div>
 
-</section>
-<section id="using-proved-lemma" class="level2">
-<h2>Using Proved Lemma</h2>
-<p>As a final example, let’s define list reversing and prove that reverse distributes over append.</p>
+<p><strong>Preservation</strong> states that if an expression takes a step, then the resulting expression is also well-typed:</p>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -540,13 +576,13 @@ appendAssoc xs ys zs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ reflect reverse @-}
-reverse :: [a] -> [a]
-reverse []     = []
-reverse (x:xs) = reverse xs ++ [x]</div>
+  <div id="program-9" class="programbox">{-@ preservation :: e:{Expr | lc e} -> t:Type -> hs:Prop (HasType EEmp e t) 
+                 -> e':Expr -> Prop (Step e e') 
+                 -> Prop (HasType EEmp e' t) 
+                 /  [hasTypeSize hs] @-}</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove distributivity. Hint, you can use the proved lemmas <code>emptyRightIdentity</code> and <code>appendAssoc</code>.</p>
+<p>Soundness combines progress and preservation to inductively show that a well-typed expression evaluates to some expression that is either a value or can take a step.</p>
 <div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -555,18 +591,223 @@ reverse (x:xs) = reverse xs ++ [x]</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-10" class="programbox">distributivity :: [a] -> [a] -> () 
-{-@ distributivity :: xs:[a] -> ys:[a] 
-                   -> { reverse (xs ++ ys) == reverse ys ++ reverse xs }  @-}
-distributivity = undefined </div>
+  <div id="program-10" class="programbox">soundness :: Expr -> Type -> Expr -> HasType -> Evals -> Either () (Expr, Step) 
+{-@ soundness :: eo:{Expr | lc eo } -> t:Type -> e:Expr
+              -> Prop (HasType EEmp eo t) 
+              -> Prop (Evals eo e)
+              -> Either {v:() | isValue e} (Expr, Step)<{\e' p -> prop p = Step e e'}> @-}
+soundness eo t e eo_has_t eo_evals_e = case eo_evals_e of 
+    ERefl _ -> progress eo t eo_has_t 
+    EStep _eo e1 _e eo_step_e1 e1_eval_e -> 
+        soundness e1 t e (preservation eo t eo_has_t e1 eo_step_e1) e1_eval_e</div>
 </div>
 
-<p>Liquid Haskell has a (beta) tactic that allows the proof to get automated using existing equations proved in lemmas. Thus the proof can be automated as follows:</p>
-<pre class=".{spec}"><code>{-@ rewriteWith distributivity [appendAssoc, emptyRightIdentity] @-}</code></pre>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
-<p>We saw how to use Liquid Haskell to encode proofs of structural induction on lists. We proved the functor and monoid laws for lists and distributivity of reverse over append, using the two Liquid Haskell tactics of <code>ple</code> and <code>rewriteWith</code>.</p>
+<p>In this lecture, we saw data propositions, which are used to axiomatize the behavior of predicates in the data type definitions. Data propositions have two major uses. First, they are used to encode non-terminating functions, like the evaluation function of a programming language. Second, they construct proof objects, whose inspection can facilitate proof developments. These two features allow the mechanization of sophisticated proofs, like metatheory of programming languages, in theorem provers like Liquid Haskell.</p>
+</section>
+<section id="appendix-missing-code" class="level2">
+<h2>Appendix: Missing Code</h2>
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-11" class="programbox">preservation :: Expr -> Type -> HasType -> Expr -> Step -> HasType 
+preservation _ _ _ _ _ = undefined
+progress :: Expr -> Type -> HasType -> Either () (Expr, Step)  
+progress _ _ _ = undefined
+
+{-@ data Env = EEmp 
+             | EBind { eVar  :: Var
+                     , eType :: Type
+                     , eTail :: {g:Env | not (member eVar (dom g)) } 
+                     } @-}
+
+{-@ measure dom @-}
+dom :: Env -> Set Var 
+dom (EBind x _ g) = singleton x `union` dom g 
+dom EEmp          = empty 
+
+
+{-@ reflect lookupEnv @-}
+lookupEnv :: Env -> Var -> Type 
+{-@ lookupEnv :: g:Env -> {x:Var | member x (dom g)} -> Type  @-} 
+lookupEnv (EBind x t g) y
+  | x == y    = t 
+  | otherwise = lookupEnv g y 
+
+
+{-@ reflect eAppend @-}
+{-@ eAppend :: g1:Env -> g2:{Env | disjoined (dom g1) (dom g2) } 
+            -> {g:Env | dom g == union (dom g1) (dom g2) } @-}
+eAppend :: Env -> Env -> Env 
+eAppend EEmp            g2 = g2 
+eAppend (EBind x tx g1) g2 = EBind x tx (eAppend g1 g2)
+
+
+{-@ inline disjoined @-}
+disjoined :: Ord a => Set a -> Set a -> Bool 
+disjoined g1 g2 = intersection g1 g2 == empty
+
+-- Define Proposition as the predicates you want to reason about.  
+
+data Proposition 
+  = HasType Env  Expr Type -- g |- e :: t 
+  | Step    Expr Expr      -- e ->  e'
+  | Evals   Expr Expr      -- e ->* e'
+
+
+
+-- | Hastype Axiomatization (typing rules). 
+-- | Prop (HasType g e t) defines g |- e : t
+
+
+
+
+-- Proof Debugging 
+
+{-@ assertProp :: p:Proposition  -> Prop p -> Prop p @-}
+assertProp :: Proposition -> a -> a 
+assertProp _ x = x 
+
+
+-- | Measure for termination proofs 
+
+hasTypeSize :: HasType -> Int  
+{-@ hasTypeSize :: HasType -> {v:Int | 0 < v } @-}
+{-@ measure hasTypeSize @-}
+hasTypeSize (TTInt _ _)              = 1 
+hasTypeSize (TVar _ _)               = 1 
+hasTypeSize (TLam _ _ _ _ _ ht)      = hasTypeSize ht  + 1 
+hasTypeSize (TApp _ _ _ _ _ ht1 ht2) = hasTypeSize ht1 + hasTypeSize ht2 + 1 
+
+
+-- Haskell Definitions 
+
+data Step where 
+  SAppPL :: Expr  -> Expr -> Expr -> Step -> Step 
+  SAppPR :: Expr  -> Expr -> Expr -> Step -> Step 
+  SAppE  :: Expr  -> Expr -> Type -> Step 
+  
+  
+
+
+data HasType where 
+     TApp  :: Env -> Expr -> Expr -> Type -> Type -> HasType -> HasType -> HasType
+     TLam  :: Env -> Expr -> Type -> Type -> Var -> HasType -> HasType
+     TVar  :: Env -> Var ->  HasType
+     TTInt :: Env -> Int -> HasType 
+
+
+
+
+
+
+
+data Evals where 
+  ERefl :: Expr -> Evals 
+  EStep :: Expr -> Expr -> Expr -> Step -> Evals -> Evals  </div>
+</div>
+
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">
+{-@ measure isValue @-}
+isValue :: Expr -> Bool 
+isValue (EApp _ _) = False 
+isValue (ELam _ _) = True 
+isValue (EBVar _)  = False 
+isValue (EFVar _)  = False 
+isValue (EInt  _)  = True 
+
+
+{-@ measure freeVars @-}
+freeVars :: Expr -> Set Var  
+freeVars (EApp e1 e2) = freeVars e1 `union` freeVars e2 
+freeVars (ELam _ e)   = freeVars e
+freeVars (EFVar x)    = singleton x 
+freeVars (EBVar x)    = empty
+freeVars (EInt  _)    = empty
+
+
+{-@ measure boundVars @-}
+boundVars :: Expr -> Set Var 
+boundVars (EApp e1 e2) = boundVars e1 `union` boundVars e2
+boundVars (ELam _ e)   = boundVars e 
+boundVars (EBVar x)    = singleton x 
+boundVars (EFVar _)    = empty 
+boundVars (EInt  _)    = empty
+ 
+
+{-@ reflect subst @-}
+{-@ subst :: e:Expr -> ex:Expr 
+         -> {s:Expr | freeVars s = freeVars e || freeVars s = union (freeVars e) (freeVars ex) } @-} 
+subst :: Expr -> Expr -> Expr 
+subst e u = substBound e 0 u 
+
+{-@ reflect substBound @-}
+{-@ substBound :: e:Expr -> BVar -> ex:Expr 
+               -> {s:Expr | freeVars s = freeVars e || freeVars s = union (freeVars e) (freeVars ex)} @-} 
+substBound :: Expr -> BVar -> Expr -> Expr 
+substBound (EApp e1 e2) x ex 
+  = EApp (substBound e1 x ex) (substBound e2 x ex)
+substBound (ELam t e) x ex 
+  = ELam t (substBound e (x+1) ex)
+substBound (EFVar y) _ _   
+  =  EFVar y   
+substBound (EInt i) _ _   
+  =  EInt i    
+substBound (EBVar y) x ex 
+  | x == y    = ex 
+  | otherwise = EBVar y  
+
+
+{-@ reflect lc @-}
+lc :: Expr -> Bool
+lc e = lc_at 0 e 
+
+{-@ reflect lc_at @-}
+lc_at :: BVar -> Expr -> Bool 
+lc_at k (EBVar i)    = i < k 
+lc_at k (EFVar _)    = True 
+lc_at k (EInt  _)    = True 
+lc_at k (EApp e1 e2) = lc_at k e1 && lc_at k e2 
+lc_at k (ELam _ e)   = lc_at (k+1) e 
+
+
+
+type  Var = Int 
+type BVar = Int 
+
+{-@ type BVar = {i:Int | 0 <= i} @-} 
+  
+
+{-@ measure isTFun @-}
+isTFun :: Type -> Bool 
+isTFun (TFun _ _) = True 
+isTFun _          = False 
+
+{-@ typeSize :: Type -> Nat @-}
+{-@ measure typeSize @-}
+typeSize :: Type -> Int 
+typeSize TInt        = 1
+typeSize (TFun tx t) = 1 + typeSize tx + typeSize t 
+
+data Env = EEmp | EBind Var Type Env
+  deriving Eq</div>
+</div>
+
 </section>
 </section>
 

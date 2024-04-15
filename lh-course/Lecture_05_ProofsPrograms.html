@@ -347,8 +347,8 @@ MathJax.Hub.Config({
 <div id='page-wrapper'>
 <div id='page'>
 
-<section id="structural-induction" class="level1">
-<h1>Structural Induction</h1>
+<section id="programs-are-proofs" class="level1">
+<h1>Programs are Proofs</h1>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -358,20 +358,17 @@ MathJax.Hub.Config({
   </button>
  
   <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
-module Lecture_07_StructuralInduction where
+module Lecture_05_ProofsPrograms where
 
-import Language.Haskell.Liquid.ProofCombinators
-import Prelude hiding (map, id, length, return, (++), reverse)
-{-@ LIQUID "--reflection" @-}
-{-@ LIQUID "--ple"        @-}
-{-@ infixr ++ @-}</div>
+import Language.Haskell.Liquid.ProofCombinators</div>
 </div>
 
-<p>We already saw how to prove properties on integers using induction on natural numbers. Next, we will see how to prove properties on algebraic data types using structural induction.</p>
-<p>As expected, we will prove properties of functions that manipulate the most common algebraic data type, lists.</p>
-<section id="structural-induction-on-lists" class="level2">
-<h2>Structural Induction on Lists</h2>
-<p>Next, we define and reflect two functions, <code>map</code> and <code>id</code>, that we will use to illustrate structural induction on lists.</p>
+<p>Each time you write a program, you are actually writing a proof.</p>
+<p>What are the programs prooving? The <a href="https://en.wikipedia.org/wiki/Curry%E2%80%93Howard_correspondence">Curry-Howard correspondence</a>, independently developed by Curry (1934) and Howard (1969), tells us that programs are proofs of theorems.</p>
+<p>In this and the next lectures we will explore this correspondence in more detail and see how to use it to both write correct programs and prove theorems.</p>
+<section id="each-program-proves-its-type" class="level2">
+<h2>Each Program Proves its type</h2>
+<p>For example, an identity function on integers, <code>idInt</code>, is a proof that for all integers <code>x</code>, <code>idInt x</code> is also an integer.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -380,18 +377,11 @@ import Prelude hiding (map, id, length, return, (++), reverse)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-1" class="programbox">{-@ reflect map @-}
-map :: (a -> b) -> [a] -> [b]
-map f []     = []
-map f (x:xs) = f x:map f xs
-
-{-@ reflect id @-}
-id :: a -> a
-id x = x</div>
+  <div id="program-1" class="programbox">idInt :: Int -> Int
+idInt x = x</div>
 </div>
 
-<p>The first property we will prove is that mapping the identity function over a list is the same as the identity over the list.</p>
-<p>This property can be used as an optimization pass, in the right hand side, the list is not traversed by map!</p>
+<p>The standard identity polymorphic function, <code>id</code>, is a proof that for all types <code>a</code>, <code>id x</code> is also of type <code>a</code>.</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -400,34 +390,12 @@ id x = x</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">{-@ idMap :: xs:[a] -> {map id xs == id xs} @-}
-idMap :: [a] -> Proof
-idMap []
-  =  map id []
-  === []
-  === id []
-  *** QED 
-idMap (x:xs) 
-  =   map id (x:xs)
-  === id x:map id xs ? idMap xs
-  === x:id xs
-  === x:xs   
-  === id (x:xs)
-  *** QED</div>
+  <div id="program-2" class="programbox">id :: a -> a
+id x = x</div>
 </div>
 
-<p>The proof goes by <em>structural induction</em> on the list the list <code>xs</code>.</p>
-<ul>
-<li>The <em>base case</em> is when <code>xs</code> is <code>[]</code>, which goes by rewriting.</li>
-<li>The <em>inductive case</em> is when <code>xs</code> is <code>x:xs</code>, which goes by rewriting and the induction hypothesis.</li>
-</ul>
-<p>Note that Liquid Haskell checks both that both cases are defined (by totality) and that the inductive call is well-founded (by termination).</p>
-<p>As before, <code>ple</code> can be used to automate the proof. We essentially need to keep the case splitting and the induction hypothesis.</p>
-</section>
-<section id="map-fusion" class="level2">
-<h2>Map Fusion</h2>
-<p>Next, we will prove that mapping two functions over a list is the same as mapping the composition of the functions over the list.</p>
-<p>For this we define the composition of two functions.</p>
+<p>Polymorphism is very commonly used in <em>implicitely</em> proving theorems about the programs, as described in <a href="https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf">theorems for free</a>.</p>
+<p>Let’s now try to to define a function that states that for each integer, there exists an <code>a</code>:</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -436,12 +404,18 @@ idMap (x:xs)
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-3" class="programbox">{-@ reflect comp @-}
-comp :: (b -> c) -> (a -> b) -> a -> c
-comp f g x = f (g x)</div>
+  <div id="program-3" class="programbox">intToA :: Int -> a
+intToA x = error "Define me!"</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove map fusion.</p>
+<p><strong>Question:</strong> Can you define the function above?</p>
+<p>The only way to define the above function is via divergence. Thus, note that when a polymorphic type appears only in the result of your function, then most probably your function is not terminating… The property that it is “proving” does not hold.</p>
+<p>Programs as proofs when they are <em>well formed</em> meaning, they are terminating and total.</p>
+</section>
+<section id="propositions-as-refinement-types" class="level2">
+<h2>Propositions as Refinement Types</h2>
+<p>In Liquid Haskell, we can write propositions as refinement types. Concretely, we use refinement types to express theorems and define their Haskell functions as proofs of these theorems.</p>
+<p>For example, below we prove that <code>1 + 1 = 2</code> by defining a function <code>onePlusOne</code></p>
 <div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -450,16 +424,14 @@ comp f g x = f (g x)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">{-@ mapFusion :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
-              -> {map (comp f g) xs == (map f) (map g xs)} @-}
-mapFusion :: (b -> c) -> (a -> b) -> [a] -> Proof
-mapFusion f g xs = undefined </div>
+  <div id="program-4" class="programbox">{-@ onePlusOne :: () -> {v:() | 1 + 1 = 2 } @-}
+onePlusOne :: () -> ()
+onePlusOne _ = () </div>
 </div>
 
-</section>
-<section id="monoid-laws-for-lists" class="level2">
-<h2>Monoid Laws for Lists</h2>
-<p>Lists form a monoid structure, in that they have an associative binary operation (list append) and a neutral element (empty list):</p>
+<p>The result of the function <code>onePlusOne</code> is just a unit. Thus the function has <em>no computational content</em>. But, its result type is define to state a theorem. The proof of the theorem is performed <em>just</em> by the SMT solver that knows linear arithmetic.</p>
+<p>Liquid Haskell come with the <a href="https://hackage.haskell.org/package/liquidhaskell-0.8.0.5/docs/src/Language-Haskell-Liquid-ProofCombinators.html">proof combinators</a> library that allows to make the proofs more readable.</p>
+<p>As a first simplification step, Liquid Haskell allows to abbreviate the type <code>{v:T | p }</code> into just <code>{p}</code>, when <code>v</code> is not used in the type.</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -468,20 +440,28 @@ mapFusion f g xs = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">{-@ reflect ++ @-}
-(++) :: [a] -> [a] -> [a]
-[]     ++ ys = ys 
-(x:xs) ++ ys = x:(xs++ys)
-
-{-@ reflect empty @-}
-empty :: [a]
-empty = []</div>
+  <div id="program-5" class="programbox">{-@ onePlusOne1 :: () -> { 1 + 1 = 2 } @-}
+onePlusOne1 :: () -> ()
+onePlusOne1 _ = () </div>
 </div>
 
-<p>Monoid structures have three laws: associativity, left identity and right identity. So, let’s prove these laws for lists.</p>
-<ul>
-<li>Left Identity: <code>empty</code> is the left identity for <code>append</code>.</li>
-</ul>
+<p>As a second simplification, the proof combinators library defines various functions that allow to make the proofs more readable. For example, it define the following proof combinators:</p>
+<pre class=".{spec}"><code>-- Defined at Language.Haskell.Liquid.ProofCombinators
+
+type Proof = () -- Proof is just a unit
+
+trivial :: Proof
+trivial = ()
+
+data QED = QED
+
+(***) :: a -&gt; QED -&gt; Proof
+_ *** _ = ()</code></pre>
+<p>With these, we can put the famous</p>
+<blockquote>
+<p><code>QED</code>: quod erat demonstrandum (which was to be demonstrated)</p>
+</blockquote>
+<p>at the end of the proof.</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -490,14 +470,13 @@ empty = []</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">emptyLeftIdentity :: [a] -> Proof 
-{-@ emptyLeftIdentity :: xs:[a] -> {[] ++ xs == xs} @-}
-emptyLeftIdentity xs = undefined</div>
+  <div id="program-6" class="programbox">{-@ onePlusOne2 :: () -> { 1 + 1 = 2 } @-}
+onePlusOne2 :: () -> Proof 
+onePlusOne2 _ = trivial *** QED </div>
 </div>
 
-<ul>
-<li>Right Identity: <code>empty</code> is the right identity for <code>append</code>.</li>
-</ul>
+<p>Thus, using the Proof Combinator library, in Liquid Haskell, we can prove, <em>for free</em> theorems that the SMT knows how to prove.</p>
+<p><strong>Question:</strong> Can you name another trivial theorem that you can prove using Liquid Haskell?</p>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -506,14 +485,16 @@ emptyLeftIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">emptyRightIdentity :: [a] -> Proof 
-{-@ emptyRightIdentity :: xs:[a] -> {xs ++ [] == xs} @-}
-emptyRightIdentity xs = undefined</div>
+  <div id="program-7" class="programbox">{-@ trivialThm :: () -> { true } @-}
+trivialThm :: () -> Proof 
+trivialThm _ = trivial *** QED </div>
 </div>
 
-<ul>
-<li>Associativity: <code>append</code> is associative.</li>
-</ul>
+</section>
+<section id="quantified-theorems" class="level2">
+<h2>Quantified Theorems</h2>
+<p>Quantified theorems (e.g., <span class="math inline">\(\forall x . \dots\)</span>) can also be expressed in Liquid Haskell, by using functional arguments as the universal quantifiers.</p>
+<p>For example, we can prove that addition is commutative:</p>
 <div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -522,16 +503,17 @@ emptyRightIdentity xs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">appendAssoc :: [a] -> [a] -> [a] -> Proof 
-{-@ appendAssoc :: xs:[a] -> ys:[a]-> zs:[a] 
-                 -> {xs ++ (ys ++ zs) == (xs ++ ys) ++ zs} @-}
-appendAssoc xs ys zs = undefined</div>
+  <div id="program-8" class="programbox">{-@ propPlusAccum :: x:Int -> y:Int -> { x + y = y + x } @-}
+propPlusAccum :: Int -> Int -> Proof
+propPlusAccum x y = trivial *** QED</div>
 </div>
 
+<p>Note, function arguments work as universal quantifiers, and also, due to currin, we use function abstraction to express existential quantifiers.</p>
 </section>
-<section id="using-proved-lemma" class="level2">
-<h2>Using Proved Lemma</h2>
-<p>As a final example, let’s define list reversing and prove that reverse distributes over append.</p>
+<section id="theorems-about-haskell-functions" class="level2">
+<h2>Theorems about Haskell Functions</h2>
+<p>Next, we will see how we can use Liquid Haskell to prove theorems about Haskell functions.</p>
+<p>To do so, first, we need to turn on the <code>reflection</code> flag of Liquid Haskell.</p>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -540,13 +522,10 @@ appendAssoc xs ys zs = undefined</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">{-@ reflect reverse @-}
-reverse :: [a] -> [a]
-reverse []     = []
-reverse (x:xs) = reverse xs ++ [x]</div>
+  <div id="program-9" class="programbox">{-@ LIQUID "--reflection" @-}</div>
 </div>
 
-<p><strong>Question:</strong> Let’s prove distributivity. Hint, you can use the proved lemmas <code>emptyRightIdentity</code> and <code>appendAssoc</code>.</p>
+<p>This flag let us <code>reflect</code> Haskell functions into the predicate logic of Liquid Haskell. For example, we can reflect the <code>fibonacci</code> function as follows:</p>
 <div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -555,18 +534,224 @@ reverse (x:xs) = reverse xs ++ [x]</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-10" class="programbox">distributivity :: [a] -> [a] -> () 
-{-@ distributivity :: xs:[a] -> ys:[a] 
-                   -> { reverse (xs ++ ys) == reverse ys ++ reverse xs }  @-}
-distributivity = undefined </div>
+  <div id="program-10" class="programbox">{-@ reflect fib @-}
+{-@ fib :: Nat -> Nat @-}
+fib :: Int -> Int
+fib 0 = 0
+fib 1 = 1
+fib n = fib (n-1) + fib (n-2)</div>
 </div>
 
-<p>Liquid Haskell has a (beta) tactic that allows the proof to get automated using existing equations proved in lemmas. Thus the proof can be automated as follows:</p>
-<pre class=".{spec}"><code>{-@ rewriteWith distributivity [appendAssoc, emptyRightIdentity] @-}</code></pre>
+<p>The <code>reflect</code> annotation:</p>
+<ol type="1">
+<li>Generates a logical uninterpreted function <code>fib</code> that can be used in the predicates of Liquid Haskell.</li>
+<li>Gives a singleton refinement type for <code>fib</code> that exactly captures the function definition.</li>
+</ol>
+<pre class=".{spec}"><code>
+{-@ fib :: n:Nat -&gt; {v:Nat | v = fib n &amp;&amp; 
+  v = if n == 0 then 0 
+      else if n == 1 then 1
+      else fib (n-1) + fib (n-2) } @-}</code></pre>
+<p>Thus, now we can prove properties about the <code>fib</code> function.</p>
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-11" class="programbox">{-@ fibTwo :: () -> { fib 2 = 1 } @-}
+fibTwo :: () -> Proof
+fibTwo _ =   fib 2 
+         === fib 1 + fib 0
+         *** QED</div>
+</div>
+
+<p>where <code>===</code> is a proof combinator function used for equational reasoning (in the style of <a href="https://link.springer.com/chapter/10.1007/978-3-642-54108-7_9">Dafny’s calculations</a>). It’s type first checks that the first two arguments are equal and then returns the second, to keep working on the proof.</p>
+<pre class=".{spec}"><code>(===) :: x:a -&gt; y:{a| x = y}   -&gt; {v:a | v = y }
+(=&lt;=) :: x:a -&gt; y:{a | x &lt;= y} -&gt; {v:a | v == y} 
+(=&gt;=) :: x:a -&gt; y:{a | x &gt;= y} -&gt; {v:a | v == y}</code></pre>
+<p>Similarly, the <code>=&lt;=</code> and <code>=&gt;=</code> proof combinators are used for inequalities.</p>
+</section>
+<section id="reusing-proofs-the-because-combinator" class="level2">
+<h2>Reusing Proofs, the “because” combinator</h2>
+<p>Let’s now prove that <code>fib 3 = 2</code>:</p>
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">{-@ fibThree :: () -> { fib 3 = 2 } @-}
+fibThree :: () -> Proof
+fibThree _ = undefined </div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above?</p>
+<p>If you have completed the proof you might have duplicated the proof of <code>fibTwo</code>. In Liquid Haskell, we can reuse proofs by using the <code>because</code> combinator. The proof combinators library defines the <code>because</code> combinator as follows:</p>
+<pre class=".{spec}"><code>(?) :: a -&gt; b -&gt; a
+x ? _ = x </code></pre>
+<p>Thus, essentially introducing the it’s second argument as a <em>fact</em> in the proof.</p>
+<p><strong>Question:</strong> Let’s now complete the proof of <code>fibThree</code> using the <code>because</code> combinator.</p>
+</section>
+<section id="quantified-proofs" class="level2">
+<h2>Quantified Proofs</h2>
+<p>Now that we have introduced all the vocabulary of the proof combinators library, let’s prove a more interesting theorem about the <code>fib</code> function. Let’s prove that <code>fib</code> is increasing.</p>
+<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-13" class="programbox">{-@ fibUp :: n:Nat -> { fib n <= fib (n+1) } @-}
+fibUp :: Int -> Proof
+fibUp 0 =   fib 0 
+        =<= fib 1
+        *** QED
+fibUp 1 =   fib 1 
+        =<= fib 1 + fib 0
+        =<= fib 2
+        *** QED
+fibUp n =   fib n 
+        === fib (n-1) + fib (n-2)
+        =<= fib n + fib (n-2) ? fibUp (n-1)
+        =<= fib n + fib (n-2) 
+        -- Complete the missing steps here
+        =<= fib (n+1)
+        *** QED</div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above?</p>
+<p>To simplify proofs, Liquid Haskell has a tactic, called <code>ple</code> (Proof by Logical Equivalence) that automates most equational reasoning steps, but still requires the case splitting and the lemma invocations.</p>
+Thus, turning on the <code>ple</code> flag, we can simplify the proof of <code>fibUp</code>.
+<div id="program-pane-14" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-14" class="programbox">{- LIQUID "--ple" @-}</div>
+</div>
+
+</section>
+<section id="monotonicity-of-the-fibonacci-function" class="level2">
+<h2>Monotonicity of the Fibonacci Function</h2>
+<p>Let’s now prove that the Fibonacci function is monotonic:</p>
+<div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-15" class="programbox">{-@ fibMonotonic :: x:Nat -> y:{Nat | x < y } 
+                 -> {fib x <= fib y} @-}
+fibMonotonic :: Int -> Int -> Proof
+fibMonotonic x y
+  | y == x + 1
+  =   fib x     ? () {- Call to the fibUp lemma goes here   -}
+  =<= fib (x+1) 
+  =<= fib y
+  *** QED
+  | x < y - 1
+  =   fib x     ? () {- Inductive Hypothesis call goes here -}
+  =<= fib (y-1) ? () {- Call to the fibUp lemma goes here   -}
+  =<= fib y     
+  *** QED</div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above? Concretely, complete the missing calls to the <code>fibUp</code> lemma and the inductive hypothesis and the termination metric of the proof.</p>
+</section>
+<section id="generalizing-the-monotonicity-proof" class="level2">
+<h2>Generalizing the Monotonicity Proof</h2>
+<p>Looking for closely at the monotonicity proof of the Fibonacci function, we can see that the proof is not actually using the definition of the Fibonacci function, but only the fact that it is increasing. Thus, we can turn the proof into a generic proof of the monotonicity of any function <code>f</code> that is increasing.</p>
+<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-16" class="programbox">{-@ fMonotonic :: f:(Nat -> Int) 
+               -> fUp:(z:Nat -> {f z <= f (z+1)})
+               -> x:Nat -> y:{Nat | x < y } -> {f x <= f y} / [y] @-}
+fMonotonic :: (Int -> Int) -> (Int -> ()) -> Int -> Int -> Proof
+fMonotonic f fUp x y
+  | y == x + 1
+  =   fib x     ? fibUp x
+  =<= fib (x+1) 
+  =<= fib y
+  *** QED
+  | x < y - 1
+  =   fib x     ? fMonotonic f fUp x (y-1)
+  =<= fib (y-1) ? fibUp (y-1)
+  =<= fib y     
+  *** QED</div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above?</p>
+<p>Once we have the general (a.k.a. higher-order) proof that increasing functions are monotonic, we can use it to prove the monotonicity of the Fibonacci function.</p>
+<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-17" class="programbox">{-@ fibMono  :: x:Nat -> y:{Nat | x < y } -> {fib x <= fib y} @-}
+fibMono :: Int -> Int -> Proof
+fibMono = fMonotonic fib fibUp</div>
+</div>
+
+</section>
+<section id="proofs-by-natural-induction" class="level2">
+<h2>Proofs By Natural Induction</h2>
+<p>The proofs we did so far are essentially proofs by natural induction. Let’s prove the textbook theorem that the sum of the first <code>n</code> natural numbers is <code>n*(n+1)/2</code>.</p>
+<p>For that, we first define the <code>sumTo</code> function that computes the sum of the first <code>n</code> natural numbers.</p>
+<div id="program-pane-18" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-18" class="programbox">{-@ reflect sumTo @-}
+{-@ sumTo :: lo:Nat -> hi:{Nat | lo <= hi} -> Nat / [hi]@-}
+sumTo :: Int -> Int -> Int 
+sumTo lo hi = if lo == hi then 0 else hi + sumTo lo (hi-1) </div>
+</div>
+
+<p>Next, we prove that the <code>sumTo</code> function is computing the sum of the first <code>n</code> natural numbers.</p>
+<div id="program-pane-19" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-19" class="programbox">{-@ sumToN :: n:Nat -> { sumTo 0 n = n * (n + 1) / 2 } @-}
+sumToN :: Int -> Proof
+sumToN = undefined </div>
+</div>
+
+<p><strong>Question:</strong> Can you complete the proof above? Hint, the Haskell function <code>div</code> is the integer division.</p>
+<p>Next, we will see how the concept of natural induction can be generalized to prove properties of data types as structural induction.</p>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
-<p>We saw how to use Liquid Haskell to encode proofs of structural induction on lists. We proved the functor and monoid laws for lists and distributivity of reverse over append, using the two Liquid Haskell tactics of <code>ple</code> and <code>rewriteWith</code>.</p>
+<p>In this lecture we have seen how to use Liquid Haskell to prove theorems about Haskell functions. We have seen how to use the proof combinators library to make the proofs more readable, by expressing equational reasoning steps and the because operator. We saw that using the <code>reflection</code> flag we can turn Haskell functions into predicates of Liquid Haskell and the <code>ple</code> flag we can simplify proofs. Finally, we saw that proofs are higher-order functions that can be reused to prove other theorems.</p>
 </section>
 </section>
 
