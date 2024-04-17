@@ -514,8 +514,8 @@ $$ lp_3 \doteq ((\forall x. p\ x \Rightarrow q) \land \exists x.  p\ x) \Rightar
 
 {-@ lp3 :: p:(a -> Bool) -> q:Bool 
        -> ((x:a -> {v:() | p x} -> {v:() | q}), (x::a, {v:() | p x}))
-       -> (x::a, {v:() | q}) @-}
-lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> (a, ())
+       -> {v:() | q} @-}
+lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> ()
 lp3 _ _ _ = undefined</div>
 </div>
 

@@ -534,8 +534,8 @@ lp2 _ _ _ _ _ = undefined</div>
  
   <div id="program-12" class="programbox">{-@ lp3 :: p:(a -> Bool) -> q:Bool 
        -> ((x:a -> {v:() | p x} -> {v:() | q}), (x::a, {v:() | p x}))
-       -> (x::a, {v:() | q}) @-}
-lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> (a, ())
+       -> {v:() | q} @-}
+lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> ()
 lp3 _ _ _ = undefined</div>
 </div>
 

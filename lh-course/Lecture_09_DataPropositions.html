@@ -371,10 +371,10 @@ data Eveness = EVEN N
 {-@ even0 :: Prop (EVEN Z) @-}
 even0 = undefined 
 
-{-@ even2 :: Prop (EVEN  (S (S Z))) @-}
+{-@ even2 :: Prop (EVEN (S (S Z))) @-}
 even2 = undefined
 
-{-@ even4 :: Prop (EVEN  (S (S (S (S Z))))) @-}
+{-@ even4 :: Prop (EVEN (S (S (S (S Z))))) @-}
 even4 = undefined</div>
 </div>
 
@@ -439,7 +439,9 @@ plus (S n) m = S (plus n m)</div>
   </button>
  
   <div id="program-7" class="programbox">even_plus :: N -> N -> EVEN -> EVEN -> EVEN 
-{-@ even_plus :: n:N -> m:N -> Prop (EVEN n) -> Prop (EVEN m) -> Prop (EVEN (plus n m)) @-}
+{-@ even_plus :: n:N -> m:N 
+              -> Prop (EVEN n) -> Prop (EVEN m) 
+              -> Prop (EVEN (plus n m)) @-}
 even_plus _ _ _ _ = undefined </div>
 </div>
 
