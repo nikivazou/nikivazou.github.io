@@ -175,10 +175,8 @@ MathJax.Hub.Config({
 <div id='page-wrapper'>
 <div id='page'>
 
-<section id="liquid-haskell-verification-with-refinement-types" class="level1">
-<h1>Liquid Haskell: Verification with Refinement Types</h1>
-<section id="niki-vazou-imdea-software-institute" class="level2">
-<h2>Niki Vazou, IMDEA Software Institute</h2>
+<section id="deep-verification" class="level1">
+<h1>Deep Verification</h1>
 <p>Liquid Haskell is a refinement type checker for Haskell! You can run it</p>
 <ul>
 <li>in the browser (e.g., using this link),</li>
@@ -196,7 +194,7 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">module HaskellMeetup where
+  <div id="program-0" class="programbox">module Deep where
 
 {-@ LIQUID "--reflection" @-}
 {-@ LIQUID "--ple"        @-}
@@ -205,96 +203,6 @@ import Language.Haskell.Liquid.ProofCombinators
 import Prelude hiding (take, drop)</div>
 </div>
 
-</section>
-<section id="refinement-types" class="level2">
-<h2>Refinement Types</h2>
-<p>Liquid Haskell comes with refinement types for various built in Haskell functions. For example, division by zero is not allowed:</p>
-<pre class="spec"><code>div :: Integral a =&gt; x:a -&gt; {v:a | v != 0} -&gt; a </code></pre>
-<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em>.</p>
-<p>Each call to <code>div</code> will check that the second argument is not zero.</p>
-<div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-1" class="programbox">
-test0 :: Int -> Int 
-test0 x = 42 `div` 2</div>
-</div>
-
-<p>Note, the check is <em>automatically</em> performed by an external SMT solver (Z3 by default).</p>
-<p>TODO: Subtyping and SMT</p>
-</section>
-<section id="pre--and-post-conditions" class="level2">
-<h2>Pre- and Post-Conditions</h2>
-<pre class="spec"><code>{-@ take :: i:Nat -&gt; xs:{[a] | i &lt; len xs}
-         -&gt; {v:[a] | len v = i} @-}</code></pre>
-<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-2" class="programbox">{-@ test1 :: [{v:Int | v /= 0 }] -> Int -> Maybe [Int] @-}
-test1 :: [Int] -> Int -> Maybe [Int]
-test1 xs i = if 0 <= i && i < length xs then Just (map (42 `div`) (take i xs)) else Nothing </div>
-</div>
-
-<p>Verification with Liquid Haskell is</p>
-<ul>
-<li>path sensitive,</li>
-<li>type based,</li>
-<li>SMT automated!</li>
-</ul>
-</section>
-<section id="recursive-functions" class="level2">
-<h2>Recursive Functions</h2>
-<p>Let’s now define the <code>take</code> function.</p>
-<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-3" class="programbox">{-@ take :: i:Nat -> xs:{[a] | i < len xs}
-         -> {v:[a] | len v = i} @-}
-take :: Int -> [a] -> [a]
-take 0 _      = []
-take _ []     = []
-take n (x:xs) = x : take (n-1) xs</div>
-</div>
-
-<p>When defining a function, Liquid Haskell requires both the refined and unrefined types. (GHC does not see the refinement types, which are provided as comments.) But, for each function Liquid Haskell checks that is <em>terminating</em> and <em>total</em> (which can be deactivated with the <code>--no-termination</code> and <code>--no-totality</code> flags).</p>
-<p>Dually, let’s define the <code>drop</code> function.</p>
-<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs}
-         -> {v:[a] | len v = len xs - i} @-}
-drop :: Int -> [a] -> [a]
-drop 0 xs     = xs
-drop _ []     = []
-drop n (_:xs) = drop (n-1) xs</div>
-</div>
-
-<p>Can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list? Yes, using <a href="">deep verification</a>!</p>
-</section>
-<section id="summary" class="level2">
-<h2>Summary</h2>
-<p>To prove light properties, Liquid Haskell is automatic!</p>
-</section>
 </section>
 
 </div>
