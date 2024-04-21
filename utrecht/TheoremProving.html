@@ -134,6 +134,13 @@ MathJax.Hub.Config({
 </ul>
 <li><a href='TheoremProving.html'><b>2.</b>Deep Verification</a></li>
 <ul class='section'>
+<li><a href='TheoremProving.html#'><b>2.1.</b> Equational Proofs</a></li>
+<li><a href='TheoremProving.html#'><b>2.2.</b> MapReduce Definition</a></li>
+<li><a href='TheoremProving.html#'><b>2.3.</b> Map Reduce Example Client:</a></li>
+<li><a href='TheoremProving.html#'><b>2.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
+<li><a href='TheoremProving.html#'><b>2.5.</b> Higher Order Map Reduce Theorem</a></li>
+<li><a href='TheoremProving.html#'><b>2.6.</b> Summary</a></li>
+<li><a href='TheoremProving.html#'><b>2.7.</b> Missing Code</a></li>
 </ul>
 </ul>
 
@@ -176,15 +183,7 @@ MathJax.Hub.Config({
 
 <section id="deep-verification" class="level1">
 <h1>Deep Verification</h1>
-<p>Liquid Haskell is a refinement type checker for Haskell! You can run it</p>
-<ul>
-<li>in the browser (e.g., using this link),</li>
-<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a>) or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>,</li>
-<li>or as a GHC plugin (<code>-fplugin=LiquidHaskell</code>).</li>
-</ul>
-<p>You can use it to <em>automatically</em> prove light program properties (e.g., no division by zero) or to <em>manually</em> prove deep program properties (e.g., correctness of mapRecude).</p>
-<p>Let’s how it works!</p>
-<p>This is a Haskell module that you can run in your browser:</p>
+<p>Let’s now use Liquid Haskell to prove theorems about Haskell functions! To do so, we need to activate two flags: <code>--reflection</code> and <code>--ple</code>.</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -193,15 +192,255 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">module Deep where
+  <div id="program-0" class="programbox">module TheoremProving where
 
 {-@ LIQUID "--reflection" @-}
 {-@ LIQUID "--ple"        @-}
+{-@ infix ++ @-}
 import Language.Haskell.Liquid.ProofCombinators
 
-import Prelude hiding (take, drop)</div>
+import Prelude hiding (take, drop, (++), map, sum, length)</div>
 </div>
 
+<section id="equational-proofs" class="level2">
+<h2>Equational Proofs</h2>
+<p>The <code>--reflection</code> flag allows us to reflect Haskell functions into logic, that is we can then use them in refinements.</p>
+<div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-1" class="programbox">{-@ reflect ++ @-}
+(++) :: [a] -> [a] -> [a]
+[]     ++ ys = ys
+(x:xs) ++ ys = x : (xs ++ ys)</div>
+</div>
+
+<p>Now that <code>++</code> is reflected, we can use it in the refinements and prove theorems about append!</p>
+<p>Let’s prove right identity:</p>
+<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-2" class="programbox">{-@ rightId :: xs:[a] -> {v:() | xs ++ [] == xs } @-}
+rightId :: [a] -> () 
+rightId = undefined </div>
+</div>
+
+<p>The theorem is a unit type (i.e., has no computational content) but it is refined to curry the proof statement. We can simplify the statement by removing the unit type and the value <code>v</code>, when they are not required.</p>
+<p>The proof is an inhabitant of the theorem and is implemented using functions from the <a href="https://hackage.haskell.org/package/liquidhaskell-0.8.0.5/docs/src/Language-Haskell-Liquid-ProofCombinators.html">proof combinators</a> library.</p>
+<p>Most of the equational steps can be simplified by PLE (<a href="https://dl.acm.org/doi/10.1145/3158141">Proof by Logical Evaluation</a>)!</p>
+<p>Let’s now prove the take-drop reconstruction property (<code>take</code> and <code>drop</code> are defined as before, but now reflected!)</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ appendTakeDrop :: i:Nat -> xs:{[a] | i <= len xs} ->
+     {xs == (take i xs) ++ (drop i xs) }  @-}
+appendTakeDrop :: Int -> [a] -> () 
+appendTakeDrop = undefined</div>
+</div>
+
+</section>
+<section id="mapreduce-definition" class="level2">
+<h2>MapReduce Definition</h2>
+<p>As a bigger example, let’s look into the <code>mapReduce</code> function.</p>
+<p>The goal is to apply a function <code>f</code> to a list of elements. But instead of applying it directly, we first chunk the list into smaller lists of size <code>n</code>, then apply <code>f</code> to each chunk, and finally reduce the results using an operator <code>op</code>.</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">{-@ reflect mapReduce @-}
+mapReduce :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b 
+mapReduce n f op is = reduce op (f []) (map f (chunk n is))
+
+{-@ reflect reduce @-}
+reduce :: (a -> a -> a) -> a -> [a] -> a 
+reduce op b []        = b 
+reduce op b (x:xs) = op x (reduce op b xs) 
+
+{-@ reflect map @-}
+map :: (a -> b) -> [a] -> [b]
+map _  []    = []
+map f (x:xs) = f x:map f xs 
+
+{-@ reflect chunk @-}
+chunk :: Int -> [a] -> [[a]]</div>
+</div>
+
+</section>
+<section id="map-reduce-example-client" class="level2">
+<h2>Map Reduce Example Client:</h2>
+<p>As an example, we can use <code>mapReduce</code> to define a function <code>psum</code> that “in parallel” computes the sum of a list of integers.</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">{-@ reflect sum @-}
+sum  :: [Int] -> Int 
+sum []        = 0 
+sum (x:xs) = x `plus` sum xs
+
+{-@ reflect plus @-}
+plus :: Int -> Int -> Int 
+plus x y = x + y 
+
+{-@ reflect psum @-}
+psum :: Int -> [Int] -> Int 
+psum n is = mapReduce n sum plus is </div>
+</div>
+
+<blockquote>
+<p>Question: Is <code>psum</code> equivalent to <code>sum</code>?</p>
+</blockquote>
+</section>
+<section id="proving-code-equivalence-sum-and-psum" class="level2">
+<h2>Proving Code Equivalence: <code>sum</code> and <code>psum</code></h2>
+<p>The equivalence proof is an instance of the higher order theorem <code>mRTheorem</code>:</p>
+<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-6" class="programbox">{-@ sumEq :: n:Int -> is:[Int] -> { sum is == psum n is } @-}
+sumEq :: Int -> [Int] -> ()
+sumEq n is = mRTheorem   n           -- chunk size
+                         sum         -- function to map-reduce
+                         plus        -- reduction operator
+                         plusRightId -- plus has "right-identity"
+                         sumDistr    -- sum is "distributive"
+                         is          -- input list</div>
+</div>
+
+<p>where <code>plusRightId</code> and <code>sumDistr</code> are the right-identity and distributive properties of <code>plus</code> and <code>sum</code> respectively and are proved by induction.</p>
+<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-7" class="programbox">{-@ plusRightId :: xs:[Int] -> { plus (sum xs) (sum []) == sum xs } @-}
+plusRightId :: [Int] -> ()
+plusRightId []     = ()
+plusRightId (x:xs) = plusRightId xs
+
+{-@ sumDistr :: xs:[Int] -> ys:[Int] -> { sum (xs ++ ys) == plus (sum xs) (sum ys) } @-}
+sumDistr :: [Int] -> [Int] -> ()
+sumDistr []     _  = ()
+sumDistr (x:xs) ys = sumDistr xs ys</div>
+</div>
+
+</section>
+<section id="higher-order-map-reduce-theorem" class="level2">
+<h2>Higher Order Map Reduce Theorem</h2>
+<p>The higher order mapReduce theorem is also proved by induction calling the take-drop reconstruction property in the inductive case:</p>
+<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-8" class="programbox">{-@ mRTheorem :: n:Int -> f:([a] -> b) -> op:(b -> b -> b)
+     -> rightId:(xs:[a] -> {op (f xs) (f []) == f xs } ) 
+     -> distrib:(xs:[a] -> ys:[a] 
+                        -> {f (xs ++ ys) == op (f xs) (f ys)} )
+     -> is:[a]
+     -> { mapReduce n f op is == f is }
+     / [len is]
+  @-}
+mRTheorem :: Int -> ([a] -> b) -> (b -> b -> b) -> ([a] -> ()) -> ([a] -> [a] -> ()) -> [a] -> ()
+mRTheorem n f op rightId _ []
+  = rightId []
+
+mRTheorem n f op rightId _ is@(_:_)
+  | n <= 1 || length is <= n 
+  = rightId is
+
+mRTheorem n f op rightId distrib is 
+  = mRTheorem n f op rightId distrib (drop n is)
+  ? distrib (take n is) (drop n is)
+  ? appendTakeDrop n is </div>
+</div>
+
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<p>Liquid Haskell can be used to prove theorems about Haskell functions. The theorems are expressed as refinements of the unit type and the proofs are Haskell functions that inhabit the theorems. Even though the proofs are not automatic, they can be simplified using PLE and the proof combinators library.</p>
+</section>
+<section id="missing-code" class="level2">
+<h2>Missing Code</h2>
+<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-9" class="programbox">{-@ chunk :: i:Int -> xs:[a] 
+          -> [[a]] 
+           / [len xs] @-}
+chunk i xs 
+  | i <= 1 || length xs <= i 
+  = [xs] 
+  | otherwise
+  = take i xs:chunk i (drop i xs)
+
+
+{-@ reflect length @-}
+{-@ length :: xs:[a] -> {v:Nat | v == len xs} @-}
+length :: [a] -> Int 
+length []     = 0
+length (_:xs) = 1 + length xs
+
+{-@ reflect drop @-}
+{-@ drop :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == len xs - i } @-}
+drop :: Int -> [a] -> [a]
+drop i [] = []
+drop i (x:xs)
+  | i == 0 
+  = x:xs  
+  | otherwise 
+  = drop (i-1) xs 
+
+{-@ reflect take @-}
+{-@ take :: i:Nat -> xs:{[a] | i <= len xs } -> {v:[a] | len v == i} @-} 
+take :: Int -> [a] -> [a]
+take i [] = []
+take i (x:xs)
+  | i == 0 
+  = []
+  | otherwise 
+  = x:take (i-1) xs</div>
+</div>
+
+</section>
 </section>
 
 </div>

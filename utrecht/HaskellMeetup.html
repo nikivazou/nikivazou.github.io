@@ -134,6 +134,13 @@ MathJax.Hub.Config({
 </ul>
 <li><a href='TheoremProving.html'><b>2.</b>Deep Verification</a></li>
 <ul class='section'>
+<li><a href='TheoremProving.html#'><b>2.1.</b> Equational Proofs</a></li>
+<li><a href='TheoremProving.html#'><b>2.2.</b> MapReduce Definition</a></li>
+<li><a href='TheoremProving.html#'><b>2.3.</b> Map Reduce Example Client:</a></li>
+<li><a href='TheoremProving.html#'><b>2.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
+<li><a href='TheoremProving.html#'><b>2.5.</b> Higher Order Map Reduce Theorem</a></li>
+<li><a href='TheoremProving.html#'><b>2.6.</b> Summary</a></li>
+<li><a href='TheoremProving.html#'><b>2.7.</b> Missing Code</a></li>
 </ul>
 </ul>
 
@@ -179,10 +186,10 @@ MathJax.Hub.Config({
 <p>Liquid Haskell is a refinement type checker for Haskell! You can run it</p>
 <ul>
 <li>in the browser (e.g., using this link),</li>
-<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a>) or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>,</li>
+<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a> or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>),</li>
 <li>or as a GHC plugin (<code>-fplugin=LiquidHaskell</code>).</li>
 </ul>
-<p>You can use it to <em>automatically</em> prove light program properties (e.g., no division by zero) or to <em>manually</em> prove deep program properties (e.g., correctness of mapRecude).</p>
+<p>You can use it to <em>automatically</em> prove light program properties (e.g., no division by zero) or to <em>manually</em> prove deep program properties (e.g., correctness of `mapReduce``).</p>
 <p>Let’s how it works!</p>
 <p>This is a Haskell module that you can run in your browser:</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
@@ -195,18 +202,15 @@ MathJax.Hub.Config({
  
   <div id="program-0" class="programbox">module HaskellMeetup where
 
-{-@ LIQUID "--reflection" @-}
-{-@ LIQUID "--ple"        @-}
-import Language.Haskell.Liquid.ProofCombinators
-
 import Prelude hiding (take, drop)</div>
 </div>
 
 <section id="refinement-types" class="level2">
 <h2>Refinement Types</h2>
 <p>Liquid Haskell comes with refinement types for various built in Haskell functions. For example, division by zero is not allowed:</p>
-<pre class="spec"><code>div :: Integral a =&gt; x:a -&gt; {v:a | v != 0} -&gt; a </code></pre>
-<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em>.</p>
+<pre class="spec"><code>{-@ div :: Integral a =&gt; x:a -&gt; {v:a | v != 0} -&gt; a @-}</code></pre>
+<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em> (over booleans, linear arithmetic, uninterpreted functions, etc).</p>
+<p><em>Notation:</em> We use the <code>{-@ ... @-}</code> special comments for <em>refinement type annotations</em>. (These comments are parsed by Liquid Haskell.)</p>
 <p>Each call to <code>div</code> will check that the second argument is not zero.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
 
@@ -218,16 +222,34 @@ import Prelude hiding (take, drop)</div>
  
   <div id="program-1" class="programbox">
 test0 :: Int -> Int 
-test0 x = 42 `div` 2</div>
+test0 x = 42 `div` 0</div>
 </div>
 
 <p>Note, the check is <em>automatically</em> performed by an external SMT solver (Z3 by default).</p>
-<p>TODO: Subtyping and SMT</p>
+<p>Concretely, refinement types are using the SMT to check subtyping. For the <code>0</code> case, the subtyping check is:</p>
+<pre class="spec"><code>        forall v. v = 0 =&gt; v != 0
+    --------------------------------
+  {v:Int | v = 0 } &lt;: {v:Int | v != 0}    0:{v:Int | v = 0 }
+ -------------------------------------------------------------
+                0 :: {v:Int | v != 0} </code></pre>
+<p>The SMT rejects the implication, thus type checking fails!</p>
+<p>For the <code>2</code> case, the subtyping succeeds:</p>
+<pre class="spec"><code>        forall v. v = 2 =&gt; v != 0
+    --------------------------------
+  {v:Int | v = 2 } &lt;: {v:Int | v != 0}    0:{v:Int | v = 2 }
+ -------------------------------------------------------------
+                2 :: {v:Int | v != 0} </code></pre>
 </section>
 <section id="pre--and-post-conditions" class="level2">
 <h2>Pre- and Post-Conditions</h2>
-<pre class="spec"><code>{-@ take :: i:Nat -&gt; xs:{[a] | i &lt; len xs}
-         -&gt; {v:[a] | len v = i} @-}</code></pre>
+<p>Refinement types are used to specify function’s requirements, i.e., <em>preconditions</em> and guarantees, i.e., <em>postconditions</em>.</p>
+<p>For example, we can give <code>take</code> a type that says that</p>
+<ul>
+<li>if the index <code>i</code> is in bounds,</li>
+<li>then the result is a list of length <code>i</code>.</li>
+</ul>
+<pre class="spec"><code>{-@ take :: i:Nat -&gt; xs:{[a] | i &lt; len xs} -&gt; {v:[a] | len v = i} @-}</code></pre>
+<p>Now let’s use <code>take</code>:</p>
 <div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -236,17 +258,18 @@ test0 x = 42 `div` 2</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-2" class="programbox">{-@ test1 :: [{v:Int | v /= 0 }] -> Int -> Maybe [Int] @-}
+  <div id="program-2" class="programbox">
 test1 :: [Int] -> Int -> Maybe [Int]
-test1 xs i = if 0 <= i && i < length xs then Just (map (42 `div`) (take i xs)) else Nothing </div>
+test1 xs i = take i xs</div>
 </div>
 
-<p>Verification with Liquid Haskell is</p>
-<ul>
-<li>path sensitive,</li>
-<li>type based,</li>
-<li>SMT automated!</li>
-</ul>
+<p>The type error here is telling us what is wrong. Let’s first use a runtime check to fix it! Next, let’s replace the runtime check with a Liquid Haskell refinement type. Finally, let’s strengthen the refinement type to allow us to divide <code>42</code> with all the elements we took.</p>
+<p>This example revealed many unique features of verification with Liquid Haskell. It is:</p>
+<ol type="1">
+<li><em>path sensitive</em>, i.e., runtime checks can be used to guide the verification,</li>
+<li><em>type based</em>, i.e., we can specify behaviors of collection of data, and</li>
+<li><em>SMT automated</em>, i.e., there is no need for user explicit proofs.</li>
+</ol>
 </section>
 <section id="recursive-functions" class="level2">
 <h2>Recursive Functions</h2>
@@ -262,12 +285,10 @@ test1 xs i = if 0 <= i && i < length xs then Just (map (42 `div`) (take i xs)) e
   <div id="program-3" class="programbox">{-@ take :: i:Nat -> xs:{[a] | i < len xs}
          -> {v:[a] | len v = i} @-}
 take :: Int -> [a] -> [a]
-take 0 _      = []
-take _ []     = []
-take n (x:xs) = x : take (n-1) xs</div>
+take = undefined </div>
 </div>
 
-<p>When defining a function, Liquid Haskell requires both the refined and unrefined types. (GHC does not see the refinement types, which are provided as comments.) But, for each function Liquid Haskell checks that is <em>terminating</em> and <em>total</em> (which can be deactivated with the <code>--no-termination</code> and <code>--no-totality</code> flags).</p>
+<p>When defining a function, Liquid Haskell requires both the refined and unrefined types. (GHC does not see the refinement types, which are provided as comments.) But, for each function Liquid Haskell checks that is <em>total</em> (i.e., all cases are covered) and <em>terminating</em> (i.e., recursive call is on a smaller input) (which can be deactivated with the <code>--no-totality</code> and <code>--no-termination</code> flags respectively).</p>
 <p>Dually, let’s define the <code>drop</code> function.</p>
 <div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
 
@@ -277,19 +298,37 @@ take n (x:xs) = x : take (n-1) xs</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs}
-         -> {v:[a] | len v = len xs - i} @-}
+  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs} -> [a] @-}
 drop :: Int -> [a] -> [a]
-drop 0 xs     = xs
-drop _ []     = []
-drop n (_:xs) = drop (n-1) xs</div>
+drop = undefined </div>
 </div>
 
-<p>Can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list? Yes, using <a href="">deep verification</a>!</p>
+<p>Using <code>take</code> and <code>drop</code> we can now define the <code>chunk</code> function that splits a list into chunks of size <code>i</code>.</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">
+chunk :: Int -> [a] -> [[a]]
+chunk i xs | length xs <= i || i <= 1 
+  = [xs]
+chunk i xs 
+  = take i xs : chunk i (drop i xs)</div>
+</div>
+
+<p>Liquid Haskell gives a termination error! Does <code>chunk</code> terminate?</p>
+<p>To show termination we need to 1. define a <em>termination metric</em> and 2. refine the postcondition of <code>drop</code>!</p>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
-<p>To prove light properties, Liquid Haskell is automatic!</p>
+<p>We saw how to use Liquid Haskell to <em>automatically</em> prove light program properties, i.e., division by zero and safe indexing. Such verification is <em>path sensitive</em>, <em>type based</em>, and <em>SMT automated</em>. For more information, check out the Liquid Haskell <a href="https://ucsd-progsys.github.io/liquidhaskell/">documentation</a>, <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">tutorial</a>, and <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>.</p>
+<p>Next, we will see how Liquid Haskell can be used to manually prove properties about Haskell functions. For example, can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list?</p>
+<pre class="spec"><code>forall i. xs.  xs == take i xs ++ drop i xs </code></pre>
+<p>Yes, using <a href="https://nikivazou.github.io/utrecht/TheoremProving.html">deep verification</a>!</p>
 </section>
 </section>
 
