@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106754474-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments)};
+  gtag('js', new Date());
+
+  gtag('config', 'UA-106754474-1');
+</script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <title>Lectures on Liquid Haskell</title>
+
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="./css/bootstrap-theme.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./css/rust-book.css">
+    <link rel="stylesheet" type="text/css" href="./css/editor.css">
+
+   
+    <style type="text/css">code{white-space: pre;}
+
+      .dropdown-menu {
+          min-width: 0px;
+      }
+      
+      #checker-status {
+          width: 30;
+          height: 20;
+          padding-top: 2px;
+          padding-right: 10px;
+          position: absolute;
+          top: 0;
+          right: 0;
+          z-index:99;
+      }
+    </style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+
+
+<!-- <script type="text/javascript" src="js/jquery/jquery-1.7.1.min.js"></script> -->
+<script type="text/javascript" src="./js/jquery/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="./js/angular/angular.js"></script>
+<script type="text/javascript" src="./js/bootstrap/bootstrap.js"></script>
+
+<!-- MATHJAX TEMPLATES GO HERE -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    extensions: ["color.js"],
+    Macros: {
+      True: "\\mathit{True}",
+      RR:   "{\\bf R}",
+      Int:  "\\mathtt{Int}",
+      Nat:  "\\mathtt{Nat}",
+      Zero: "\\mathtt{Zero}",
+      foo:   ["{\\bf Jhala FOO #1}", 1],
+      kvar:  ["{\\color[rgb]{1,0,0}{K_{#1}({#2})}}", 2],
+      bindx: ["{{#1}\\!:\\!{#2}}", 2],
+      reft:  ["\\{\\bindx{#1}{#2} \\mid {#3}\\}", 3],
+      ereft: ["\\bindx{#1}{\\{#2 \\mid #3\\}}", 3],
+      reftx: ["\\{{#1}\\mid{#2}\\}", 2],
+      inferrule: ["\\frac{#2}{#3}\\;{#1}", 3],
+      tcap:  ["(\\mathtt{intersection}\\ #1\\ #2)", 2],
+      tcup:  ["(\\mathtt{union}\\ #1\\ #2)", 2],
+      tsng:  ["(\\mathtt{singleton}\\ #1)", 1]
+  }
+  }
+});
+</script>
+
+<!-- GITHUB -->
+<script
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  type="text/javascript"></script>
+  
+<!-- LOCAL 
+
+  <script src="js/MathJax-2.6.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    type="text/javascript"></script>
+    
+  -->
+  
+
+
+
+
+
+
+
+</head>
+<body class="rustdoc" data-spy="scroll" data-target=".bs-docs-sidebar" ng-app="liquidDemo" ng-controller="LiquidDemoCtrl">
+
+    <div id="nav">
+       <button id="toggle-nav" class="toggle-nav">
+         <span class="sr-only">Toggle navigation</span>
+         <span class="bar"></span>
+         <span class="bar"></span>
+         <span class="bar"></span>
+       </button>
+    </div>
+
+<div id='toc' class='mobile-hidden'>
+<ul class='chapter'>
+<li><a href='Lecture_01_RefinementTypes.html'><b>1.</b>Refinement Types</a></li>
+<ul class='section'>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.1.</b> Installation</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.2.</b> Basic Refinement Types</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.3.</b> Subtyping</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.4.</b> From Subtyping to Verification Conditions</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.5.</b> Verification Conditions</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.6.</b> Primitive Operations</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.7.</b> Function Types</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.8.</b> Branching and Recursion</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.9.</b> Refined Polymorphism</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
+<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
+</ul>
+<li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
+<ul class='section'>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.1.</b> Measures</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.2.</b> Multiple Measures</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.3.</b> Recursive Functions</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.4.</b> Higher-Order Functions</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.5.</b> Folding (Indexed Lists)</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.6.</b> Data Invariants: Sparse Vectors</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.7.</b> Ordered Lists</a></li>
+<li><a href='Lecture_02_DataTypes.html#'><b>2.8.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_03_Sortedness.html'><b>3.</b>Sortedness &amp; Abstract Refinements</a></li>
+<ul class='section'>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.1.</b> Ordered Lists</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.2.</b> Abstraction over Sortedness</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.3.</b> Haskell's Lists</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.4.</b> Dependent Pairs</a></li>
+<li><a href='Lecture_03_Sortedness.html#'><b>3.5.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_04_Termination.html'><b>4.</b>Termination</a></li>
+<ul class='section'>
+<li><a href='Lecture_04_Termination.html#'><b>4.1.</b> Termination Requires Refinements!</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.2.</b> Termination Metrics</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.3.</b> Lexicographic Termination</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.4.</b> The GCD Example</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.5.</b> Data Types</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.6.</b> User Defined Data Types</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.7.</b> Mutual Recursion</a></li>
+<li><a href='Lecture_04_Termination.html#'><b>4.8.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_05_ProofsPrograms.html'><b>5.</b>Programs are Proofs</a></li>
+<ul class='section'>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.1.</b> Each Program Proves its type</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.2.</b> Propositions as Refinement Types</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.3.</b> Quantified Theorems</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.4.</b> Theorems about Haskell Functions</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.5.</b> Reusing Proofs, the "because" combinator</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.6.</b> Quantified Proofs</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.7.</b> Monotonicity of the Fibonacci Function</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.8.</b> Generalizing the Monotonicity Proof</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.9.</b> Proofs By Natural Induction</a></li>
+<li><a href='Lecture_05_ProofsPrograms.html#'><b>5.10.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_06_StructuralInduction.html'><b>6.</b>Structural Induction</a></li>
+<ul class='section'>
+<li><a href='Lecture_06_StructuralInduction.html#'><b>6.1.</b> Structural Induction on Lists</a></li>
+<li><a href='Lecture_06_StructuralInduction.html#'><b>6.2.</b> Map Fusion</a></li>
+<li><a href='Lecture_06_StructuralInduction.html#'><b>6.3.</b> Monoid Laws for Lists</a></li>
+<li><a href='Lecture_06_StructuralInduction.html#'><b>6.4.</b> Using Proved Lemma</a></li>
+<li><a href='Lecture_06_StructuralInduction.html#'><b>6.5.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_07_CaseStudyMapReduce.html'><b>7.</b>Case Study: Map Reduce</a></li>
+<ul class='section'>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.1.</b> Map Reduce Explained</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.2.</b> Map Reduce "Library" Functions:</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.3.</b> Map Reduce "Client" Functions: Summing a List</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.5.</b> Chunk Definition:</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.6.</b> Higher Order Theorem: <code>mRTheorem</code></a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.7.</b> Lemmata for <code>mRTheorem</code> on plus</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.8.</b> Summary</a></li>
+<li><a href='Lecture_07_CaseStudyMapReduce.html#'><b>7.9.</b> Appendix: List Manipulation Functions</a></li>
+</ul>
+<li><a href='Lecture_08_NaturalDeduction.html'><b>8.</b>Natural Deduction</a></li>
+<ul class='section'>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.1.</b> Logical Properties</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.2.</b> Native Terms</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.3.</b> Conjunction</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.4.</b> Disjunction</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Negation</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Forall</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Exists</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.9.</b> Example 1: existsAll</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.10.</b> Example 2: Distributing Qualifiers</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.11.</b> Example 3: List Properties</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.12.</b> Example 4: Natural Induction</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.13.</b> Summary</a></li>
+</ul>
+<li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
+<ul class='section'>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.1.</b> Even Numbers</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.2.</b> Metatheory of Programming Languages</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.3.</b> Evaluation of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.4.</b> Typing of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.5.</b> Soundness = Progress + Preservation</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.6.</b> Summary</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Appendix: Missing Code</a></li>
+</ul>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.html#'><b>10.1.</b> 1. Lists</a></li>
+<li><a href='Task1.html#'><b>10.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.html#'><b>10.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>11.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task2.html'><b>12.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.html#'><b>12.1.</b> 1. Fusions</a></li>
+<li><a href='Task2.html#'><b>12.2.</b> 2. Higher Order Properties</a></li>
+<li><a href='Task2.html#'><b>12.3.</b> 3. Encoding of Logical Properties</a></li>
+</ul>
+<li><a href='Task2All.html'><b>13.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2All.html#'><b>13.1.</b> 1. Fusions</a></li>
+</ul>
+</ul>
+
+</div>
+      
+       <div id="checker-status">
+         <!-- Verifying ... -->
+         <button class="btn btn-xs btn-link actbutton" type="button" style="font-size:30px; z-index:1"
+                ng-show="isChecking" ng-click="verifySource()">
+          <span class="glyphicon glyphicon-hourglass"></span>
+         </button>
+
+        
+         <!-- Safe -->
+         <button class="btn btn-xs btn-link actbutton" type="button" style="font-size:30px; color:green; z-index:1"
+                 ng-show="isSafe">
+           <span class="glyphicon glyphicon-ok"></span>
+         </button>
+
+         <div class="dropdown" ng-show="isBad">
+             <button class="btn btn-xs btn-link dropdown-toggle"
+                     type="button"
+                     id="errorblockdropdown"
+                     data-toggle="dropdown"
+                     style="font-size:30px; color:red; z-index:1">
+               <span class="glyphicon glyphicon-remove" style="vertical-align:middle"></span><font size="4">{{errorBlocks.length}}</font>
+               </span>
+             </button>
+             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+               <li ng-repeat="err in errorBlocks">
+                 <a tabindex="-1" ng-href="#program-{{err.data}}">{{err.index}}</a>
+               </li>
+             </ul>
+         </div>
+       </div>
+       
+
+<div id='page-wrapper'>
+<div id='page'>
+
+<section id="task-2-proving-theorems" class="level1">
+<h1>Task 2: Proving Theorems</h1>
+<div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-0" class="programbox">
+{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+module Task2 where
+
+{-@ LIQUID "--reflection" @-}
+{-@ LIQUID "--ple"        @-}
+{-@ infix : @-}
+import Prelude  hiding (foldr, map)
+import Language.Haskell.Liquid.ProofCombinators
+
+{-@ type TRUE = {v:Bool | v} @-}</div>
+</div>
+
+<section id="fusions" class="level2">
+<h2>1. Fusions</h2>
+<p>1.1 <strong>Map Fusion:</strong> Map fusion states that for any two functions <code>f</code> and <code>g</code>, and any list <code>xs</code>, instead of applying <code>f</code> and <code>g</code> to <code>xs</code> separately, we can apply the composition of <code>f</code> and <code>g</code> to <code>xs</code> once. It is an optimization property since it allows traversing the list <code>xs</code> only once!</p>
+<p>Let’s first define and reflect the <code>map</code> and <code>compose</code> functions.</p>
+<div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-1" class="programbox">{-@ reflect map @-}
+map :: (a -> b) -> [a] -> [b]
+map f []     = []
+map f (x:xs) = f x : map f xs
+
+{-@ reflect compose @-}
+compose :: (b -> c) -> (a -> b) ->  a -> c
+compose f g x = f (g x)</div>
+</div>
+
+<p>And now, using the equational reasoning operators <code>===</code>, <code>***</code>, <code>QED</code>, and <code>?</code>, prove the map fusion property.</p>
+<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-2" class="programbox">{-@ mapFusion :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
+              -> {map (compose f g) xs == (map f) (map g xs)} @-}
+mapFusion :: (b -> c) -> (a -> b) -> [a] -> Proof
+mapFusion f g xs = undefined </div>
+</div>
+
+<p>1.2 <strong>PLE Automation:</strong> Now, using the <code>PLE</code> tactic, which is already activated in this module, write a shorter version of your proof.</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ mapFusionShorter :: f:(b -> c) -> g:(a -> b) -> xs:[a] 
+              -> {map (compose f g) xs == (map f) (map g xs)} @-}
+mapFusionShorter :: (b -> c) -> (a -> b) -> [a] -> Proof
+mapFusionShorter f g xs = undefined </div>
+</div>
+
+<p>1.3 <strong>Fold Fusion:</strong></p>
+<p>Folds also have a fusion property.</p>
+<p>Let’s first define and reflect the <code>foldr</code> function.</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">{-@ reflect foldr @-}
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr f b (x:xs) = f x (foldr f b xs)
+foldr f b []      = b</div>
+</div>
+
+<p>The fusion property for <code>foldr</code> states that the composition of a function <code>h</code> with the fold <code>foldr f e</code> is equivalent to folding a different function <code>g</code> over the list <code>xs</code>. Prove the fold fusion property:</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">{-@ foldrFusion :: h:(b -> c) -> f:(a -> b -> b) -> g:(a -> c -> c) -> e:b -> ys:[a]
+                -> fuse:(x:a -> y:b -> {h (f x y) == g x (h y)})
+                -> { (compose h (foldr f e)) (ys) == foldr g (h e) ys }
+  @-}
+foldrFusion :: (b -> c) -> (a -> b -> b) -> (a -> c -> c) -> b -> [a]
+             -> (a -> b -> Proof)
+             -> Proof
+foldrFusion h f g e _  fuse = undefined</div>
+</div>
+
+</section>
+<section id="higher-order-properties" class="level2">
+<h2>2. Higher Order Properties</h2>
+<p>2.1 <strong>Universal Fold Property:</strong> Fold has a (universal property)[https://www.cs.nott.ac.uk/~pszgmh/fold.pdf] that states that folding a function <code>f</code> over a list is equivalent to applying a function <code>h</code> to the list, as long as the two functions satisfy two conditions, encoded as <code>base</code> and <code>step</code>, below. Prove the universal fold property.</p>
+<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-6" class="programbox">{-@ foldrUniversal
+      :: f:(a -> b -> b)
+      -> h:([a] -> b)
+      -> e:b
+      -> ys:[a]
+      -> base:{h [] == e }
+      -> step: (x:a -> xs:[a] -> {h (x:xs) == f x (h xs)})
+      -> { h ys == foldr f e ys }
+  @-}
+foldrUniversal :: (a -> b -> b) -> ([a] -> b) -> b
+               -> [a] -> () -> (a -> [a] -> ()) -> ()
+foldrUniversal f h e _ base step = undefined</div>
+</div>
+
+<p>2.2 <strong>Fusion via Universality:</strong> The universal property provides a powerful way to prove fusion properties.</p>
+<p>Prove, again the <code>foldrFusion</code> property, but this time using the <code>foldrUniversal</code> property. That is, the proof should call <code>foldrUniversal</code> with the appropriate arguments. As the <code>base</code> and <code>step</code> conditions, you can use the provided helper functions <code>fuse_base</code> and <code>fuse_step</code>, given in task <code>2.3</code>.</p>
+<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-7" class="programbox">{-@ foldrFusionUniv :: h:(b -> c) -> f:(a -> b -> b) -> g:(a -> c -> c) -> e:b -> ys:[a]
+            -> fuse:(x:a -> y:b -> {h (f x y) == g x (h y)})
+            -> { (compose h (foldr f e)) (ys) == foldr g (h e) ys }
+  @-}
+foldrFusionUniv :: (b -> c) -> (a -> b -> b) -> (a -> c -> c) -> b -> [a]
+                -> (a -> b -> ())
+                -> ()
+foldrFusionUniv h f g e ys fuse
+  = undefined </div>
+</div>
+
+<p>2.3 <strong>Completing the Proof:</strong></p>
+<p>To complete the proof, we need to provide the helper functions <code>fuse_base</code> and <code>fuse_step</code>. <em>Hint:</em> The step goes by case splitting on the list while the base case is trivial.</p>
+<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-8" class="programbox">fuse_step :: (b -> c) -> (a -> b -> b) -> b -> (a -> c -> c)
+         -> (a -> b -> ())
+         -> a -> [a] -> ()
+{-@ fuse_step :: h:(b -> c) -> f:(a -> b -> b) -> e:b -> g:(a -> c -> c)
+         -> thm:(x:a -> y:b -> { h (f x y) == g x (h y)})
+         -> x:a -> xs:[a]
+         -> {(compose h (foldr f e)) (x:xs) == g x ((compose h (foldr f e)) (xs))}
+  @-}
+fuse_step h f e g thm x _ = undefined </div>
+</div>
+
+<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-9" class="programbox">fuse_base :: (b -> c) -> (a -> b -> b) -> b -> ()
+{-@ fuse_base :: h:(b -> c) -> f:(a -> b -> b) -> e:b
+              -> { compose h (foldr f e) [] == h e } @-}
+fuse_base h f e = undefined</div>
+</div>
+
+</section>
+<section id="encoding-of-logical-properties" class="level2">
+<h2>3. Encoding of Logical Properties</h2>
+<p>The following three logical properties are encoded as refinement types, using the encoding presented in the <a href="https://nikivazou.github.io/lh-course/Lecture_08_NaturalDeduction.html">class</a>.</p>
+<p>Prove these properties, by defining the Haskell function definitions for <code>lp1</code>, <code>lp2</code>, and <code>lp3</code>:</p>
+<p>3.1 <strong>Distributivity of <code>And</code> over <code>Or</code>:</strong> <span class="math display">\[ lp_1  \doteq (p \land (q \lor r)) \Rightarrow ((p \land q) \lor (p \land r)) \]</span></p>
+<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-10" class="programbox">{-@ lp1 :: p:Bool -> q:Bool -> r:Bool 
+       -> ({v:() | p}, Either {v:() | q} {v:() | r})
+       -> Either ({v:() | p}, {v:() | q}) ({v:() | p}, {v:() | r})
+   @-}
+lp1 :: Bool -> Bool -> Bool -> (() , Either () ()) 
+    -> Either (() , ()) (() , ())
+lp1 _ _ _ _ = undefined</div>
+</div>
+
+<p>3.2 <strong>Contraposition:</strong></p>
+<p><span class="math display">\[ lp_2 \doteq (p \Rightarrow q) \Rightarrow \neg q \Rightarrow \neg p \]</span></p>
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-11" class="programbox">{-@ lp2 :: p:Bool -> q:Bool 
+        -> ({v:() | p} -> {v:() | q})
+        -> ({v:() | q} -> {v:() | false})
+        -> ({v:() | p} -> {v:() | false}) @-}
+lp2 :: Bool -> Bool -> (() -> ()) -> (() -> ()) -> (() -> ())
+lp2 _ _ _ _ _ = undefined</div>
+</div>
+
+<p>3.3 <strong>Existential Introduction:</strong></p>
+<p><span class="math display">\[ lp_3 \doteq ((\forall x. p\ x \Rightarrow q) \land \exists x.  p\ x) \Rightarrow q \]</span></p>
+<div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-12" class="programbox">{-@ lp3 :: p:(a -> Bool) -> q:Bool 
+       -> ((x:a -> {v:() | p x} -> {v:() | q}), (x::a, {v:() | p x}))
+       -> {v:() | q} @-}
+lp3 :: (a -> Bool) -> Bool -> (a -> () -> (), (a, ())) -> ()
+lp3 _ _ _ = undefined</div>
+</div>
+
+</section>
+</section>
+
+</div>
+</div>
+
+<div class="hidden">
+<!--Site Meter -->
+  <script type="text/javascript" src="//s23.sitemeter.com/js/counter.js?site=s23liquidtypes"></script>
+  <noscript>
+    <a href="http://s23.sitemeter.com/stats.asp?site=s23liquidtypes" 
+      target="_top">
+      <img src="http://s23.sitemeter.com/meter.asp?site=s23liquidtypes" 
+      alt="Site Meter" border="0"/></a>
+  </noscript>
+  <!-- Copyright (c)2009 Site Meter -->
+</div>
+
+
+
+
+
+<!-- JavaScript below! ============================================== -->
+
+  <script src="./js/ace/ace.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="./js/ace/theme-monokai.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./js/ace/mode-haskell.js"  type="text/javascript" charset="utf-8"></script>
+  <script src="./js/liquid/tooltip.js"></script> 
+  <script src="./js/liquid/annot.js"></script> 
+  <script src="./js/liquid/config.js"></script> 
+  <script src="./js/liquid/liquid.js"></script>
+
+  <script type="text/javascript">
+    var queryServerURL = "https://liquid-demo.programming.systems/" ;
+  </script>
+  
+  <!-- rust nav JS --> 
+  <script type="text/javascript">
+    window.playgroundUrl = "";
+  </script>
+  
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+
+ document.getElementById("toggle-nav").onclick = toggleNav;
+
+  function toggleNav() {
+    var toc         = document.getElementById("toc");
+    var pagewrapper = document.getElementById("page-wrapper");
+    var status      = document.getElementById("checker-status");
+
+    toggleClass(toc,         "mobile-hidden");
+    // toggleClass(status,      "mobile-hidden");
+    toggleClass(pagewrapper, "mobile-hidden");
+  };
+
+  function toggleClass(el, className) {
+     // from http://youmightnotneedjquery.com/
+     if (el.classList) {
+       el.classList.toggle(className);
+     } else {
+       var classes = el.className.split(' ');
+       var existingIndex = classes.indexOf(className);
+
+       if (existingIndex >= 0) {
+         classes.splice(existingIndex, 1);
+       } else {
+         classes.push(className);
+       }
+       el.className = classes.join(' ');
+     }
+  }
+});
+</script>
+</body>
+</html>
