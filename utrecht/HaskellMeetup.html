@@ -186,10 +186,10 @@ MathJax.Hub.Config({
 <p>Liquid Haskell is a refinement type checker for Haskell! You can run it</p>
 <ul>
 <li>in the browser (e.g., using this link),</li>
-<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a> or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>),</li>
-<li>or as a GHC plugin (<code>-fplugin=LiquidHaskell</code>).</li>
+<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a> or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>), or</li>
+<li>as a GHC plugin (<code>-fplugin=LiquidHaskell</code>).</li>
 </ul>
-<p>You can use it to <em>automatically</em> prove light program properties (e.g., no division by zero) or to <em>manually</em> prove deep program properties (e.g., correctness of `mapReduce``).</p>
+<p>You can use it to <em>automatically</em> prove light program properties (e.g., no division by zero) or to <em>manually</em> prove deep program properties (e.g., correctness of <code>mapReduce</code>).</p>
 <p>Let’s how it works!</p>
 <p>This is a Haskell module that you can run in your browser:</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
@@ -209,7 +209,7 @@ import Prelude hiding (take, drop)</div>
 <h2>Refinement Types</h2>
 <p>Liquid Haskell comes with refinement types for various built in Haskell functions. For example, division by zero is not allowed:</p>
 <pre class="spec"><code>{-@ div :: Integral a =&gt; x:a -&gt; {v:a | v != 0} -&gt; a @-}</code></pre>
-<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em> (over booleans, linear arithmetic, uninterpreted functions, etc).</p>
+<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em> (over booleans, linear arithmetic, uninterpreted functions, etc.).</p>
 <p><em>Notation:</em> We use the <code>{-@ ... @-}</code> special comments for <em>refinement type annotations</em>. (These comments are parsed by Liquid Haskell.)</p>
 <p>Each call to <code>div</code> will check that the second argument is not zero.</p>
 <div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
@@ -259,7 +259,7 @@ test0 x = 42 `div` 0</div>
   </button>
  
   <div id="program-2" class="programbox">
-test1 :: [Int] -> Int -> Maybe [Int]
+test1 :: [Int] -> Int -> [Int]
 test1 xs i = take i xs</div>
 </div>
 
