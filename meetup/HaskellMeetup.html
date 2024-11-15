@@ -359,7 +359,7 @@ chunk i xs
 <p>We saw how to use Liquid Haskell to <em>automatically</em> prove light program properties, i.e., division by zero and safe indexing. Such verification is <em>path sensitive</em>, <em>type based</em>, and <em>SMT automated</em>. For more information, check out the Liquid Haskell <a href="https://ucsd-progsys.github.io/liquidhaskell/">documentation</a>, <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">tutorial</a>, and <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>.</p>
 <p>Next, we will see how Liquid Haskell can be used to manually prove properties about Haskell functions. For example, can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list?</p>
 <pre class="spec"><code>forall i. xs.  xs == take i xs ++ drop i xs </code></pre>
-<p>Yes, using <a href="https://nikivazou.github.io/utrecht/TheoremProving.html">deep verification</a>!</p>
+<p>Yes, using <a href="https://nikivazou.github.io/meetup/TheoremProving.html">deep verification</a>!</p>
 </section>
 </section>
 
