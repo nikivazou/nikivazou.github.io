@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106754474-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments)};
+  gtag('js', new Date());
+
+  gtag('config', 'UA-106754474-1');
+</script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <title>Liquid Haskell</title>
+
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <link href="./css/bootstrap-theme.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="./css/rust-book.css">
+    <link rel="stylesheet" type="text/css" href="./css/editor.css">
+
+   
+    <style type="text/css">code{white-space: pre;}
+
+      .dropdown-menu {
+          min-width: 0px;
+      }
+      
+      #checker-status {
+          width: 30;
+          height: 20;
+          padding-top: 2px;
+          padding-right: 10px;
+          position: absolute;
+          top: 0;
+          right: 0;
+          z-index:99;
+      }
+    </style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+
+
+<!-- <script type="text/javascript" src="js/jquery/jquery-1.7.1.min.js"></script> -->
+<script type="text/javascript" src="./js/jquery/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="./js/angular/angular.js"></script>
+<script type="text/javascript" src="./js/bootstrap/bootstrap.js"></script>
+
+<!-- MATHJAX TEMPLATES GO HERE -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: {
+    extensions: ["color.js"],
+    Macros: {
+      True: "\\mathit{True}",
+      RR:   "{\\bf R}",
+      Int:  "\\mathtt{Int}",
+      Nat:  "\\mathtt{Nat}",
+      Zero: "\\mathtt{Zero}",
+      foo:   ["{\\bf Jhala FOO #1}", 1],
+      kvar:  ["{\\color[rgb]{1,0,0}{K_{#1}({#2})}}", 2],
+      bindx: ["{{#1}\\!:\\!{#2}}", 2],
+      reft:  ["\\{\\bindx{#1}{#2} \\mid {#3}\\}", 3],
+      ereft: ["\\bindx{#1}{\\{#2 \\mid #3\\}}", 3],
+      reftx: ["\\{{#1}\\mid{#2}\\}", 2],
+      inferrule: ["\\frac{#2}{#3}\\;{#1}", 3],
+      tcap:  ["(\\mathtt{intersection}\\ #1\\ #2)", 2],
+      tcup:  ["(\\mathtt{union}\\ #1\\ #2)", 2],
+      tsng:  ["(\\mathtt{singleton}\\ #1)", 1]
+  }
+  }
+});
+</script>
+
+<!-- GITHUB -->
+<script
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+  type="text/javascript"></script>
+  
+<!-- LOCAL 
+
+  <script src="js/MathJax-2.6.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    type="text/javascript"></script>
+    
+  -->
+  
+
+
+
+
+
+
+
+</head>
+<body class="rustdoc" data-spy="scroll" data-target=".bs-docs-sidebar" ng-app="liquidDemo" ng-controller="LiquidDemoCtrl">
+
+    <div id="nav">
+       <button id="toggle-nav" class="toggle-nav">
+         <span class="sr-only">Toggle navigation</span>
+         <span class="bar"></span>
+         <span class="bar"></span>
+         <span class="bar"></span>
+       </button>
+    </div>
+
+<div id='toc' class='mobile-hidden'>
+<ul class='chapter'>
+<li><a href='HaskellMeetup.html'><b>1.</b>Refinement Types</a></li>
+<ul class='section'>
+<li><a href='HaskellMeetup.html#'><b>1.1.</b> Liquid Haskell</a></li>
+<li><a href='HaskellMeetup.html#'><b>1.2.</b> Basic Types</a></li>
+<li><a href='HaskellMeetup.html#'><b>1.3.</b> Pre- and Post-Conditions</a></li>
+<li><a href='HaskellMeetup.html#'><b>1.4.</b> Recursive Functions</a></li>
+<li><a href='HaskellMeetup.html#'><b>1.5.</b> Summary</a></li>
+</ul>
+<li><a href='TheoremProving.html'><b>2.</b>Deep Verification</a></li>
+<ul class='section'>
+<li><a href='TheoremProving.html#'><b>2.1.</b> Equational Proofs</a></li>
+<li><a href='TheoremProving.html#'><b>2.2.</b> MapReduce Definition</a></li>
+<li><a href='TheoremProving.html#'><b>2.3.</b> Map Reduce Example Client:</a></li>
+<li><a href='TheoremProving.html#'><b>2.4.</b> Proving Code Equivalence: <code>sum</code> and <code>psum</code></a></li>
+<li><a href='TheoremProving.html#'><b>2.5.</b> Higher Order Map Reduce Theorem</a></li>
+<li><a href='TheoremProving.html#'><b>2.6.</b> Summary</a></li>
+<li><a href='TheoremProving.html#'><b>2.7.</b> Missing Code</a></li>
+</ul>
+</ul>
+
+</div>
+      
+       <div id="checker-status">
+         <!-- Verifying ... -->
+         <button class="btn btn-xs btn-link actbutton" type="button" style="font-size:30px; z-index:1"
+                ng-show="isChecking" ng-click="verifySource()">
+          <span class="glyphicon glyphicon-hourglass"></span>
+         </button>
+
+        
+         <!-- Safe -->
+         <button class="btn btn-xs btn-link actbutton" type="button" style="font-size:30px; color:green; z-index:1"
+                 ng-show="isSafe">
+           <span class="glyphicon glyphicon-ok"></span>
+         </button>
+
+         <div class="dropdown" ng-show="isBad">
+             <button class="btn btn-xs btn-link dropdown-toggle"
+                     type="button"
+                     id="errorblockdropdown"
+                     data-toggle="dropdown"
+                     style="font-size:30px; color:red; z-index:1">
+               <span class="glyphicon glyphicon-remove" style="vertical-align:middle"></span><font size="4">{{errorBlocks.length}}</font>
+               </span>
+             </button>
+             <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+               <li ng-repeat="err in errorBlocks">
+                 <a tabindex="-1" ng-href="#program-{{err.data}}">{{err.index}}</a>
+               </li>
+             </ul>
+         </div>
+       </div>
+       
+
+<div id='page-wrapper'>
+<div id='page'>
+
+<section id="refinement-types" class="level1">
+<h1>Refinement Types</h1>
+<p>Add “dependent types” to <em>existing programming languages</em>!</p>
+<p>Typed languages can say</p>
+<blockquote>
+<p>42 is an Int</p>
+</blockquote>
+<blockquote>
+<p>“Madrid” is a String</p>
+</blockquote>
+<p>Refinement typed languages can say</p>
+<blockquote>
+<p>42 is an Non Zero Int, 42 : {v:Int | v != 0}</p>
+</blockquote>
+<blockquote>
+<p>“Madrid” is a Non Empty String, “Madrid” : {v:String | len v &gt; 0}</p>
+</blockquote>
+<p>Refimenet Types exist in many languages, e.g.,</p>
+<ul>
+<li><a href="https://github.com/flux-rs/flux">Flux</a> for Rust</li>
+<li><a href="https://epfl-lara.github.io/stainless/">Stainless</a> for Scala</li>
+<li><a href="https://catarinagamboa.github.io/liquidjava.html">Liquid Java</a> for Java</li>
+<li><a href="https://ucsd-progsys.github.io/liquidhaskell/">Liquid Haskell</a> for Haskell</li>
+</ul>
+<section id="liquid-haskell" class="level2">
+<h2>Liquid Haskell</h2>
+<p>Liquid Haskell is a refinement type checker for Haskell!</p>
+<p>You can run it</p>
+<ul>
+<li>in the browser (e.g., using this link),</li>
+<li>in the command line (after installation from <a href="https://hackage.haskell.org/package/liquidhaskell">Hackage</a> or <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>), or</li>
+<li>as a GHC plugin (<code>-fplugin=LiquidHaskell</code>).</li>
+</ul>
+<p>You can use it in two modes:</p>
+<ul>
+<li>to <em>automatically</em> prove light program properties (e.g., no division by zero) or</li>
+<li>to <em>manually</em> prove deep program properties (e.g., correctness of <code>mapReduce</code>).</li>
+</ul>
+<p>Let’s how it works!</p>
+<p>This is a Haskell module that you can run in your browser:</p>
+<div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-0" class="programbox">module HaskellMeetup where
+
+import Prelude hiding (take, drop)</div>
+</div>
+
+</section>
+<section id="basic-types" class="level2">
+<h2>Basic Types</h2>
+<p>Liquid Haskell comes with refinement types for various built in Haskell functions. For example, division by zero is not allowed:</p>
+<pre class="spec"><code>{-@ div :: Integral a =&gt; x:a -&gt; {v:a | v != 0} -&gt; a @-}</code></pre>
+<p>Refinement Types, like <code>{v:a | v != 0}</code>, are here, Haskell types refined with <em>logical predicates</em> (over booleans, linear arithmetic, uninterpreted functions, etc.).</p>
+<p><em>Notation:</em> We use the <code>{-@ ... @-}</code> special comments for <em>refinement type annotations</em>. (These comments are parsed by Liquid Haskell.)</p>
+<p>Each call to <code>div</code> will check that the second argument is not zero.</p>
+<div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-1" class="programbox">
+test0 :: Int -> Int 
+test0 x = 42 `div` 0</div>
+</div>
+
+<p>Note, the check is <em>automatically</em> performed by an external SMT solver (Z3 by default).</p>
+<p>Concretely, refinement types are using the SMT to check subtyping. For the <code>0</code> case, the subtyping check is:</p>
+<pre class="spec"><code>        forall v. v = 0 =&gt; v != 0
+    --------------------------------
+  {v:Int | v = 0 } &lt;: {v:Int | v != 0}    0:{v:Int | v = 0 }
+ -------------------------------------------------------------
+                0 :: {v:Int | v != 0} </code></pre>
+<p>The SMT rejects the implication, thus type checking fails!</p>
+<p>For the <code>2</code> case, the subtyping succeeds:</p>
+<pre class="spec"><code>        forall v. v = 2 =&gt; v != 0
+    --------------------------------
+  {v:Int | v = 2 } &lt;: {v:Int | v != 0}    0:{v:Int | v = 2 }
+ -------------------------------------------------------------
+                2 :: {v:Int | v != 0} </code></pre>
+</section>
+<section id="pre--and-post-conditions" class="level2">
+<h2>Pre- and Post-Conditions</h2>
+<p>Refinement types are used to specify function’s requirements, i.e., <em>preconditions</em> and guarantees, i.e., <em>postconditions</em>.</p>
+<p>For example, we can give <code>take</code> a type that says that</p>
+<ul>
+<li>if the index <code>i</code> is in bounds,</li>
+<li>then the result is a list of length <code>i</code>.</li>
+</ul>
+<pre class="spec"><code>{-@ take :: i:Nat -&gt; xs:{[a] | i &lt; len xs} -&gt; {v:[a] | len v = i} @-}</code></pre>
+<p>Now let’s use <code>take</code>:</p>
+<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-2" class="programbox">
+test1 :: [Int] -> Int -> [Int]
+test1 xs i = take i xs</div>
+</div>
+
+<p>The type error here is telling us what is wrong. Let’s first use a runtime check to fix it! Next, let’s replace the runtime check with a Liquid Haskell refinement type. Finally, let’s strengthen the refinement type to allow us to divide <code>42</code> with all the elements we took.</p>
+<p>This example revealed many unique features of verification with Liquid Haskell. It is:</p>
+<ol type="1">
+<li><em>path sensitive</em>, i.e., runtime checks can be used to guide the verification,</li>
+<li><em>type based</em>, i.e., we can specify behaviors of collection of data, and</li>
+<li><em>SMT automated</em>, i.e., there is no need for user explicit proofs.</li>
+</ol>
+</section>
+<section id="recursive-functions" class="level2">
+<h2>Recursive Functions</h2>
+<p>Let’s now define the <code>take</code> function.</p>
+<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-3" class="programbox">{-@ take :: i:Nat -> xs:{[a] | i < len xs}
+         -> {v:[a] | len v = i} @-}
+take :: Int -> [a] -> [a]
+take = undefined </div>
+</div>
+
+<p>When defining a function, Liquid Haskell requires both the refined and unrefined types. (GHC does not see the refinement types, which are provided as comments.) But, for each function Liquid Haskell checks that is <em>total</em> (i.e., all cases are covered) and <em>terminating</em> (i.e., recursive call is on a smaller input) (which can be deactivated with the <code>--no-totality</code> and <code>--no-termination</code> flags respectively).</p>
+<p>Dually, let’s define the <code>drop</code> function.</p>
+<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs} -> [a] @-}
+drop :: Int -> [a] -> [a]
+drop = undefined </div>
+</div>
+
+<p>Using <code>take</code> and <code>drop</code> we can now define the <code>chunk</code> function that splits a list into chunks of size <code>i</code>.</p>
+<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-5" class="programbox">
+chunk :: Int -> [a] -> [[a]]
+chunk i xs | length xs <= i || i <= 1 
+  = [xs]
+chunk i xs 
+  = take i xs : chunk i (drop i xs)</div>
+</div>
+
+<p>Liquid Haskell gives a termination error! Does <code>chunk</code> terminate?</p>
+<p>To show termination we need to 1. define a <em>termination metric</em> and 2. refine the postcondition of <code>drop</code>!</p>
+</section>
+<section id="summary" class="level2">
+<h2>Summary</h2>
+<p>We saw how to use Liquid Haskell to <em>automatically</em> prove light program properties, i.e., division by zero and safe indexing. Such verification is <em>path sensitive</em>, <em>type based</em>, and <em>SMT automated</em>. For more information, check out the Liquid Haskell <a href="https://ucsd-progsys.github.io/liquidhaskell/">documentation</a>, <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">tutorial</a>, and <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>.</p>
+<p>Next, we will see how Liquid Haskell can be used to manually prove properties about Haskell functions. For example, can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list?</p>
+<pre class="spec"><code>forall i. xs.  xs == take i xs ++ drop i xs </code></pre>
+<p>Yes, using <a href="https://nikivazou.github.io/utrecht/TheoremProving.html">deep verification</a>!</p>
+</section>
+</section>
+
+</div>
+</div>
+
+<div class="hidden">
+<!--Site Meter -->
+  <script type="text/javascript" src="//s23.sitemeter.com/js/counter.js?site=s23liquidtypes"></script>
+  <noscript>
+    <a href="http://s23.sitemeter.com/stats.asp?site=s23liquidtypes" 
+      target="_top">
+      <img src="http://s23.sitemeter.com/meter.asp?site=s23liquidtypes" 
+      alt="Site Meter" border="0"/></a>
+  </noscript>
+  <!-- Copyright (c)2009 Site Meter -->
+</div>
+
+
+
+
+
+<!-- JavaScript below! ============================================== -->
+
+  <script src="./js/ace/ace.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="./js/ace/theme-monokai.js" type="text/javascript" charset="utf-8"></script>
+  <script src="./js/ace/mode-haskell.js"  type="text/javascript" charset="utf-8"></script>
+  <script src="./js/liquid/tooltip.js"></script> 
+  <script src="./js/liquid/annot.js"></script> 
+  <script src="./js/liquid/config.js"></script> 
+  <script src="./js/liquid/liquid.js"></script>
+
+  <script type="text/javascript">
+    var queryServerURL = "https://liquidhaskell.goto.ucsd.edu/" ;
+  </script>
+  
+  <!-- rust nav JS --> 
+  <script type="text/javascript">
+    window.playgroundUrl = "";
+  </script>
+  
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function(event) {
+
+ document.getElementById("toggle-nav").onclick = toggleNav;
+
+  function toggleNav() {
+    var toc         = document.getElementById("toc");
+    var pagewrapper = document.getElementById("page-wrapper");
+    var status      = document.getElementById("checker-status");
+
+    toggleClass(toc,         "mobile-hidden");
+    // toggleClass(status,      "mobile-hidden");
+    toggleClass(pagewrapper, "mobile-hidden");
+  };
+
+  function toggleClass(el, className) {
+     // from http://youmightnotneedjquery.com/
+     if (el.classList) {
+       el.classList.toggle(className);
+     } else {
+       var classes = el.className.split(' ');
+       var existingIndex = classes.indexOf(className);
+
+       if (existingIndex >= 0) {
+         classes.splice(existingIndex, 1);
+       } else {
+         classes.push(className);
+       }
+       el.className = classes.join(' ');
+     }
+  }
+});
+</script>
+</body>
+</html>
