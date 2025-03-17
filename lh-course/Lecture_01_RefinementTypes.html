@@ -15,7 +15,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <title>Lectures on Liquid Haskell</title>
+    <title>Liquid Haskell</title>
 
     <link href="./css/bootstrap.css" rel="stylesheet">
     <link href="./css/bootstrap-theme.css" rel="stylesheet">
@@ -223,31 +223,14 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.1.</b> Even Numbers</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.2.</b> Metatheory of Programming Languages</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.3.</b> Evaluation of Expressions</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.4.</b> Typing of Expressions</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.5.</b> Soundness = Progress + Preservation</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.6.</b> Summary</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Appendix: Missing Code</a></li>
-</ul>
-<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
-<ul class='section'>
-<li><a href='Task1.html#'><b>10.1.</b> 1. Lists</a></li>
-<li><a href='Task1.html#'><b>10.2.</b> 2. Insertion Sort</a></li>
-<li><a href='Task1.html#'><b>10.3.</b> 3. Merge Sort</a></li>
-</ul>
-<li><a href='Task1All.html'><b>11.</b>Task 1: Program Verification</a></li>
-<ul class='section'>
-</ul>
-<li><a href='Task2.html'><b>12.</b>Task 2: Proving Theorems</a></li>
-<ul class='section'>
-<li><a href='Task2.html#'><b>12.1.</b> 1. Fusions</a></li>
-<li><a href='Task2.html#'><b>12.2.</b> 2. Higher Order Properties</a></li>
-<li><a href='Task2.html#'><b>12.3.</b> 3. Encoding of Logical Properties</a></li>
-</ul>
-<li><a href='Task2All.html'><b>13.</b>Task 2: Proving Theorems</a></li>
-<ul class='section'>
-<li><a href='Task2All.html#'><b>13.1.</b> 1. Fusions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.2.</b> Construction of Even Numbers</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.3.</b> Functions on Even Numbers</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.4.</b> Metatheory of Programming Languages</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.5.</b> Evaluation of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.6.</b> Typing of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
 </ul>
 </ul>
 
@@ -471,7 +454,11 @@ two = 2 </div>
 <p><span class="math display">\[
 \forall x\ y. x = y \Rightarrow f(x) = f(y)
 \]</span></p>
-<p>They are essential for program verification because 1. they can be used to encode program functions in the logic and 2. they can be used to capture ideas not directly implemented.</p>
+<p>They are essential for program verification because:</p>
+<ol type="1">
+<li><p>they can be used to encode program functions in the logic and</p></li>
+<li><p>they can be used to capture ideas not directly implemented.</p></li>
+</ol>
 <p>For example, in Liquid Haskell, we use the <code>measure</code> keyword to define uninterpreted functions.</p>
 <div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
 
@@ -634,22 +621,7 @@ incr2 x = incr (incr x)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-10" class="programbox">
-fII, fIP, fIN, fPI, fPP, fPN, fNI, fNP, fNN :: Int -> Int 
-higher :: (Int -> Int) -> Int 
-fII = undefined 
-fIP = undefined
-fIN = undefined
-fPI = undefined
-fPP = undefined
-fPN = undefined
-fNI = undefined
-fNP = undefined
-fNN = undefined
-higher = undefined 
-
-
-{-@ fII :: Int -> Int @-}
+  <div id="program-10" class="programbox">{-@ fII :: Int -> Int @-}
 {-@ fIP :: Int -> Pos @-}
 {-@ fIN :: Int -> Nat @-}
 {-@ fPI :: Pos -> Int @-}
@@ -662,11 +634,24 @@ higher = undefined
 
 {-@ higher :: (Nat -> Nat) -> Nat @-}
 
-testhigher = higher fNN</div>
+testhigher = higher fNN
+
+fII, fIP, fIN, fPI, fPP, fPN, fNI, fNP, fNN :: Int -> Int 
+higher :: (Int -> Int) -> Int 
+fII = undefined 
+fIP = undefined
+fIN = undefined
+fPI = undefined
+fPP = undefined
+fPN = undefined
+fNI = undefined
+fNP = undefined
+fNN = undefined
+higher = undefined </div>
 </div>
 
 <p><em>Intuitively:</em> <code>higher</code> will use the argument function, so the result type of the function should be stricter, so that its result is used whenever the result of the argument function is required. The argument of the function can be more general, since type checking of <code>higher</code> ensures that the argument function is used correctly.</p>
-<p>This intuition is captured in the rule of function subtyping that says that the result type should be a subtype but the argument a subpertype.</p>
+<p>This intuition is captured in the rule of function subtyping that says that the result type should be a subtype but the argument a supertype.</p>
 <p><span class="math display">\[
 \inferrule
   {\texttt{Sub-Fun}}
@@ -703,7 +688,7 @@ abs x = if x > 0 then x else -x </div>
 \inferrule
   {\texttt{T-If}}
   {
-    \Gamma \vdash x : \{v:\texttt{bool} \mid p \} \quad 
+    \Gamma \vdash x : \{v:\texttt{bool} \mid p \} \\ 
     \Gamma; y:\{y:\texttt{bool} \mid  x  \} \vdash e_1 : \tau \quad 
     \Gamma; y:\{y:\texttt{bool} \mid  \lnot x  \}  \vdash e_2 : \tau
   }{
@@ -740,7 +725,7 @@ sumN n = if n == 0 then 0 else n + sumN (n - 1)</div>
 </section>
 <section id="refined-polymorphism" class="level2">
 <h2>Refined Polymorphism</h2>
-<p>The truth is polymorphism is a difficult topic in the area of programming languages. But, as a first step let’s only see its great points and for refinement types, the great benefit of polymorphism is that any polymorphic function can be instantiated to refined values. For example, the identity function can be instantiated to propagate natural numbers:</p>
+<p>Polymorphism is strong topic in the area of programming languages. As a first step let’s only see its great points and for refinement types, the great benefit of polymorphism is that any polymorphic function can be instantiated to refined values. For example, the identity function can be instantiated to propagate natural numbers:</p>
 <div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -1063,7 +1048,7 @@ primes n = go  1 0  (new n (nextPrime 1))
   <script src="./js/liquid/liquid.js"></script>
 
   <script type="text/javascript">
-    var queryServerURL = "https://liquid-demo.programming.systems/" ;
+    var queryServerURL = "https://liquidhaskell.goto.ucsd.edu/" ;
   </script>
   
   <!-- rust nav JS --> 
