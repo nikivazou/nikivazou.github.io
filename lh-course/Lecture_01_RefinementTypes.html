@@ -274,7 +274,7 @@ MathJax.Hub.Config({
 <section id="refinement-types" class="level1">
 <h1>Refinement Types</h1>
 <p>Refinement types are types refined with logical predicates that enforce a variety of invariants at compile time. In this course, we will learn the refinement type system of Liquid Haskell.</p>
-<p>If you follow this course via a brouser, you can just click the check button that exists on the code spinnets to run Liquid Haskell on your file. If you follow it on an editor, then compile the code using the Haskell compiler and turn on the `Liquid Haskell plugin``, but uncommenting the following line:</p>
+<p>If you follow this course via a brouser, you can just click the check button that exists on the code spinnets to run Liquid Haskell on your file. If you follow it on an editor, then compile the code using the Haskell compiler and turn on the <code>Liquid Haskell plugin</code>, but uncommenting the following line:</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -785,22 +785,13 @@ testPoly = higher myid</div>
   </button>
  
   <div id="program-14" class="programbox">type Array a = Int -> a 
-{-@ type ArrayN a N = {i:Nat | i < N} -> a @-}
-
-new :: Int -> a -> Array a 
-{-@ new :: n:Nat -> a -> ArrayN a n @-}
-new n x = \i -> if 0 <= i && i < n then x else error "Out of Bounds"
-
-set :: Int -> Int -> a -> Array a  -> Array a 
-{-@ set :: n:Nat -> i:{Nat | i < n} -> a -> ArrayN a n -> ArrayN a n @-}
-set n i x a = \j -> if i == j then x else a j
-
-get :: Int -> Int -> Array a -> a 
-{-@ get :: n:Nat -> i:{Nat | i < n} -> ArrayN a n -> a @-}
-get n i a = a i </div>
+{-@ type ArrayN a N = {i:Nat | i < N} -> a @-}</div>
 </div>
 
-Let’s create an array with 42 elements:
+<ul>
+<li><strong>Creating Arrays</strong></li>
+</ul>
+<p><strong>Question:</strong> Can you define the identity, constant, arrays below?</p>
 <div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -809,8 +800,80 @@ Let’s create an array with 42 elements:
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-15" class="programbox">
-{-@ arr42 :: ArrayN Int 42 @-}
+  <div id="program-15" class="programbox">-- arrayId returns its index, e.g., arrayId 3 = 3, arrayId 5 = 5
+
+arrayId :: Array Int 
+arrayId = undefined 
+
+-- array0 returns zero, e.g., arrayId 3 = 0, arrayId 5 = 0
+
+array0 :: Array Int 
+array0 = undefined 
+
+
+-- arrayConst x returns x, e.g., arrayConst 42 3 = 42, arrayConst 42 5 = 42
+arrayConst :: a -> Array a
+arrayConst x = undefined</div>
+</div>
+
+<p><strong>Question:</strong> Can you refine the types to describe the values of the arrays?</p>
+<ul>
+<li><strong>Creating Finite Arrays</strong><br />
+Now, let’s define arrays of a fixed size. The <code>new</code> function creates an array of size <code>n</code> with all elements equal to <code>x</code>, and otherwise it throws an out of bounds error.</li>
+</ul>
+<p>To encode crashing, Haskell uses the <code>error</code> function, and Liquid Haskell can ensure that it will never be called!</p>
+<pre class="spec"><code>error :: {v:String | false} -&gt; a</code></pre>
+<p><strong>Question:</strong> Define the <code>new</code> function that creates an array of size <code>n</code> with all elements equal to <code>x</code>.</p>
+<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-16" class="programbox">
+-- new n x i returns x if i is in bounds, otherwise it crashes
+
+new :: Int -> a -> Array a 
+new n x = undefined</div>
+</div>
+
+<ul>
+<li><strong>Getting and Setting Elements</strong></li>
+</ul>
+<p><strong>Question:</strong> Define the <code>get</code> and <code>set</code> functions that get and set the <code>i-th</code> element of an array.</p>
+<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-17" class="programbox">
+-- set n i x a returns a new array that is the same as a, but with the i-th element set to x
+set :: Int -> Int -> a -> Array a  -> Array a 
+set n i x a = undefined 
+
+-- get n i a returns the i-th element of a
+get :: Int -> Int -> Array a -> a 
+get n i a = undefined  </div>
+</div>
+
+<ul>
+<li><strong>Using Arrays</strong> Let’s create an array with 42 elements:</li>
+</ul>
+<div id="program-pane-18" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-18" class="programbox">
+{- arr42 :: ArrayN Int 42 @-}
 arr42 :: Array Int
 arr42 = new 42 0
 
@@ -820,8 +883,8 @@ getElem = get 42 10 arr42</div>
 </div>
 
 <p><strong>Question:</strong> What are good indices of <code>arr42</code>?</p>
-<p>To put now <em>all</em> the features we learnt together, let’s assume a function that checks for primality and use it to generate the next prime number.</p>
-<div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
+<p>To put now <em>all</em> the features we learnt together, let’s assume a function that checks for if a number is odd and use it to generate the next odd number.</p>
+<div id="program-pane-19" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -829,19 +892,19 @@ getElem = get 42 10 arr42</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-16" class="programbox">{-@ type Prime = {v:Int | isPrime v } @-}
+  <div id="program-19" class="programbox">{-@ type Odd = {v:Nat | v mod 2 = 1 } @-}
 
-isPrime :: Int -> Bool 
-{-@ isPrime :: i:Int -> {v:Bool | v <=> isPrime i } @-}
-isPrime = undefined 
+isOdd :: Int -> Bool 
+{-@ isOdd :: i:Int -> {v:Bool | v <=> (i mod 2 = 1) } @-}
+isOdd i = i `mod` 2 == 1
 
-nextPrime :: Int -> Int 
-{-@ nextPrime :: Nat -> Prime  @-}
-nextPrime x = if isPrime x then x else nextPrime (x + 1)</div>
+nextOdd :: Int -> Int 
+{-@ nextOdd :: Int -> Odd  @-}
+nextOdd x = if isOdd x then x else (x + 1)</div>
 </div>
 
-<p><strong>Question:</strong> Given <code>nextPrime</code> can you generate an array that contains only prime numbers?</p>
-<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
+<p><strong>Question:</strong> Given <code>nextOdd</code> can you generate an array that contains only odd numbers?</p>
+<div id="program-pane-20" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -849,9 +912,9 @@ nextPrime x = if isPrime x then x else nextPrime (x + 1)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-17" class="programbox">{-@ primes :: n:Nat -> ArrayN Prime n @-}
-primes :: Int -> Array Int
-primes = undefined </div>
+  <div id="program-20" class="programbox">{-@ odds :: n:Nat -> ArrayN Odd n @-}
+odds :: Int -> Array Int
+odds = undefined </div>
 </div>
 
 </section>
@@ -1002,12 +1065,15 @@ primes = undefined </div>
 <section id="cheatsheet" class="level2">
 <h2>Cheatsheet</h2>
 <p>Here is the definition of the primes array.</p>
-<pre class="spec"><code>primes :: Int -&gt; Array Int
-primes n = go  1 0  (new n (nextPrime 1))
+<pre class="spec"><code>odds :: Int -&gt; Array Int
+odds n = go  1 0  (new n (nextOdd 1))
   where 
     go i j a 
-      | i &lt; n     = go (i + 1) (j + 1) (set n j (nextPrime j) a)
+      | i &lt; n     = go (i + 1) (j + 1) (set n j (nextOdd j) a)
       | otherwise = a</code></pre>
+<p>or just</p>
+<pre class="spec"><code>odds :: Int -&gt; Array Int
+odds n = \i -&gt; 2 * i + 1 </code></pre>
 </section>
 </section>
 <section class="footnotes" role="doc-endnotes">
