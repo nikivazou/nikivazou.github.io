@@ -762,7 +762,7 @@ sparseProduct' x y  = foldl' body 0 y
 <p> LiquidHaskell digests this without difficulty. The main trick is in how the polymorphism of <code>foldl'</code> is instantiated.</p>
 <ol type="1">
 <li><p>GHC infers that at this site, the type variable <code>b</code> from the signature of <code>foldl'</code> is instantiated to the Haskell type <code>(Int, a)</code>.</p></li>
-<li><p>Correspondingly, LiquidHaskell infers that in fact <code>b</code> can be instantiated to the <em>refined</em> <code>(Btwn 0 (vlen x), a)</code>.</p></li>
+<li><p>Correspondingly, LiquidHaskell infers that in fact <code>b</code> can be instantiated to the <em>refined</em> <code>(Btwn 0 (llen x), a)</code>.</p></li>
 </ol>
 <p>Thus, the inference mechanism saves us a fair bit of typing and allows us to reuse existing polymorphic functions over containers and such without ceremony.</p>
 <p><strong>Question:</strong> Modify the <code>sparseProduct'</code> function to only add the elements that are indexed by odd indices.</p>
@@ -944,7 +944,7 @@ testPlus    = plus vec1 vec2
   </button>
  
   <div id="program-29" class="programbox">
-elem :: Sparse a -> Int -> Bool 
+elem :: Int -> Sparse a -> Bool 
 elem  = undefined 
 
 update :: Sparse a -> Int -> (a -> a) -> Sparse a
@@ -966,22 +966,29 @@ extend = undefined</div>
          -&gt; SparseIN a (spDim sp) @-}
 plus     :: (Num a) =&gt; Sparse a -&gt; Sparse a -&gt; Sparse a
 plus x (SP _ y) = foldl&#39; body x y 
-  where body sp (i,v) | sp `indexedAt` i = update sp i (+v) 
-                      | otherwise        = extend sp (i,v)
+  where body sp (i,v) | i `elem` sp = update sp i (+v) 
+                      | otherwise   = extend sp (i,v)
 
 
-indexedAt :: Sparse a -&gt; Int -&gt; Bool 
-indexedAt (SP i x) j = any (== j) (fst &lt;$&gt; x) 
+elem :: Int -&gt; Sparse a -&gt; Bool 
+elem j (SP i x) = any (== j) (map fst x) 
 
 {-@ update :: sp:Sparse a -&gt; Btwn 0 (spDim sp) -&gt; (a -&gt; a)
            -&gt; SparseIN a (spDim sp) @-}
 update :: Sparse a -&gt; Int -&gt; (a -&gt; a) -&gt; Sparse a
-update (SP d xs) i f = SP d (go &lt;$&gt; xs)
+update (SP d xs) i f = SP d (map go xs)
   where go (j,v) = if i == j then (j,f v) else (j,v) 
 
 {-@ extend :: sp:Sparse a -&gt; (Btwn 0 (spDim sp), a) -&gt; SparseIN a (spDim sp) @-}
 extend :: Sparse a -&gt; (Int, a) -&gt; Sparse a 
-extend (SP d xs) iv = SP d (iv:xs)</code></pre>
+extend (SP d xs) iv = SP d (iv:xs)
+
+{- testPlus :: SparseIN Int 3 @-}
+testPlus :: Sparse Int
+testPlus    = plus vec1 vec2
+  where
+    vec1 = SP 3 [(0, 12), (2, 9)]
+    vec2 = SP 3 [(0, 8),  (1, 100)]</code></pre>
 </details>
 </section>
 <section id="ordered-lists" class="level2">
@@ -1040,7 +1047,7 @@ badList = 2 :< 1 :< 3 :< Emp      -- rejected by LH</div>
 </div>
 
 <p> It’s all very well to <em>specify</em> ordered lists. Next, let’s see how it’s equally easy to <em>establish</em> these invariants by implementing several textbook sorting routines.</p>
-<p>First, let’s implement insertion sort, which converts an ordinary list <code>[a]</code> into an ordered list <code>IncList a</code>.</p>
+<p>First, let’s implement <a href="https://en.wikipedia.org/wiki/Insertion_sort#/media/File:Insertion-sort-example-300px.gif">insertion sort</a>, which converts an ordinary list <code>[a]</code> into an ordered list <code>IncList a</code>.</p>
 <div id="program-pane-33" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -1104,7 +1111,12 @@ insertSort' xs  = foldr f b xs
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
-<p>Today we saw how refinement interact with data types. Concretely we saw how to define <em>measures</em> to specify properties of user defined data and how to refine the definitions of data types to specify invariants. Finally, we saw how all these features interact with existing Haskell libraries, and concretely how to use LiquidHaskell to reason about Haskell’s lists.</p>
+<p>Today we saw how refinement interact with data types. Concretely we saw:</p>
+<ul>
+<li>how to define <em>measures</em> to specify properties of user defined data and</li>
+<li>how to <em>refine</em> the definitions of data types to specify <em>invariants</em>.</li>
+</ul>
+<p>Finally, we saw how all these features interact with existing Haskell libraries, and concretely how to use LiquidHaskell to reason about Haskell’s lists.</p>
 </section>
 </section>
 <section class="footnotes" role="doc-endnotes">
