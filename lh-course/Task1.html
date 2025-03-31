@@ -15,7 +15,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <title>Lectures on Liquid Haskell</title>
+    <title>Liquid Haskell</title>
 
     <link href="./css/bootstrap.css" rel="stylesheet">
     <link href="./css/bootstrap-theme.css" rel="stylesheet">
@@ -223,31 +223,14 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.1.</b> Even Numbers</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.2.</b> Metatheory of Programming Languages</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.3.</b> Evaluation of Expressions</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.4.</b> Typing of Expressions</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.5.</b> Soundness = Progress + Preservation</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.6.</b> Summary</a></li>
-<li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Appendix: Missing Code</a></li>
-</ul>
-<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
-<ul class='section'>
-<li><a href='Task1.html#'><b>10.1.</b> 1. Lists</a></li>
-<li><a href='Task1.html#'><b>10.2.</b> 2. Insertion Sort</a></li>
-<li><a href='Task1.html#'><b>10.3.</b> 3. Merge Sort</a></li>
-</ul>
-<li><a href='Task1All.html'><b>11.</b>Task 1: Program Verification</a></li>
-<ul class='section'>
-</ul>
-<li><a href='Task2.html'><b>12.</b>Task 2: Proving Theorems</a></li>
-<ul class='section'>
-<li><a href='Task2.html#'><b>12.1.</b> 1. Fusions</a></li>
-<li><a href='Task2.html#'><b>12.2.</b> 2. Higher Order Properties</a></li>
-<li><a href='Task2.html#'><b>12.3.</b> 3. Encoding of Logical Properties</a></li>
-</ul>
-<li><a href='Task2All.html'><b>13.</b>Task 2: Proving Theorems</a></li>
-<ul class='section'>
-<li><a href='Task2All.html#'><b>13.1.</b> 1. Fusions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.2.</b> Construction of Even Numbers</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.3.</b> Functions on Even Numbers</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.4.</b> Metatheory of Programming Languages</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.5.</b> Evaluation of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.6.</b> Typing of Expressions</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
+<li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
 </ul>
 </ul>
 
@@ -298,30 +281,28 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">
-{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+  <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
 module Task1 where
 
 import Data.Set hiding (insert, elems, take, drop)
 import Prelude  hiding (take, drop)
 
 
-{-@ type TRUE = {v:Bool | v} @-}</div>
-</div>
+{-@ type TRUE = {v:Bool | v} @-}
 
-</section>
-<section id="lists" class="level2">
-<h2>1. Lists</h2>
-<p><strong>1.1 Length Preservation:</strong> The function <code>append</code> below takes two lists and returns a new list that is the concatenation of the two input lists. Complete the type specification of <code>append</code> below, so that the property <code>prop_append_1</code> is accepted by LiquidHaskell.</p>
-<div id="program-pane-1" class="welleditor" style="background:#fff; position:relative">
+{- 
+1. Lists 
+---------
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-1" class="programbox">{-@ append :: xs:[a] -> ys:[a] -> [a] @-}
+**1.1 Length Preservation:** 
+The function `append` below takes two lists and 
+returns a new list that is the concatenation of the two input lists.
+Complete the type specification of `append` below, so that the property `prop_append_1`
+is accepted by LiquidHaskell.
+
+-}
+
+{-@ append :: xs:[a] -> ys:[a] -> [a] @-}
 append :: [a] -> [a] -> [a]
 append [] ys     = ys
 append (x:xs) ys = x : append xs ys
@@ -329,72 +310,57 @@ append (x:xs) ys = x : append xs ys
 
 {-@ prop_append_1 :: (Ord a) => [a] -> [a] -> TRUE @-}
 prop_append_1 :: (Ord a) => [a] -> [a] -> Bool
-prop_append_1 xs ys = length (append xs ys) == length xs + length ys</div>
-</div>
+prop_append_1 xs ys = length (append xs ys) == length xs + length ys
 
-<p><strong>1.2 Element Preservation:</strong> Append also preserves the elements of the input lists. We encode the elements of the list using the measure <code>elems</code> below.</p>
-<div id="program-pane-2" class="welleditor" style="background:#fff; position:relative">
+{- 
+**1.2 Element Preservation:** 
+Append also preserves the elements of the input lists.
+We encode the elements of the list using the measure `elems` below.
+-}
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-2" class="programbox">{-@ measure elems @-}
+{-@ measure elems @-}
 elems        :: (Ord a) => [a] -> Set a
 elems []     = empty
-elems (x:xs) = singleton x `union` elems xs</div>
-</div>
+elems (x:xs) = singleton x `union` elems xs
 
-<p>Edit the type specification of <code>append</code> above, so that the properties <code>prop_append_2</code> and <code>prop_append_3</code> are accepted by LiquidHaskell.</p>
-<div id="program-pane-3" class="welleditor" style="background:#fff; position:relative">
+{- 
+Edit the type specification of `append` above, 
+so that the properties `prop_append_2` and `prop_append_3` are accepted by LiquidHaskell.
+-}
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-3" class="programbox">{-@ prop_append_2 :: (Ord a) => [a] -> [a] -> TRUE @-}
+{-@ prop_append_2 :: (Ord a) => [a] -> [a] -> TRUE @-}
 prop_append_2 :: (Ord a) => [a] -> [a] -> Bool
 prop_append_2 xs ys = isSubsetOf (elems xs) (elems (append xs ys))
 
 {-@ prop_append_3 :: (Ord a) => [a] -> [a] -> TRUE @-}
 prop_append_3 :: (Ord a) => [a] -> [a] -> Bool
-prop_append_3 xs ys = isSubsetOf (elems xs) (elems (append xs ys))</div>
-</div>
+prop_append_3 xs ys = isSubsetOf (elems ys) (elems (append xs ys))
 
-<p><strong>1.3 Halve:</strong> The function <code>halve</code> below behaves the opposite of append. It takes a list and returns a pair of lists such that the elements of the input list are the union of the elements of the two output lists. Complete the definition of <code>halve</code> below, so that the type signature is accepted by LiquidHaskell.</p>
-<div id="program-pane-4" class="welleditor" style="background:#fff; position:relative">
+{- 
+**1.3 Halve:** 
+The function `halve` below behaves the opposite of append. 
+It takes a list and returns a pair of lists such that the elements of the input list are the union of the elements of the two output lists.
+Complete the definition of `halve` below, so that the type signature is accepted by LiquidHaskell.
+-}
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-4" class="programbox">{-@ halve :: xs:[a] 
+{-@ halve :: xs:[a] 
           -> {v:([a],[a]) | len (fst v) + len (snd v) = len xs && elems xs = union (elems (fst v)) (elems (snd v)) } @-}
 halve :: [a] -> ([a],[a])
 halve []         = undefined 
 halve [x]        = undefined 
-halve (x1:x2:xs) = undefined </div>
-</div>
+halve (x1:x2:xs) = undefined 
 
-</section>
-<section id="insertion-sort" class="level2">
-<h2>2. Insertion Sort</h2>
-<p>In the class we saw that refinements of data type definitions can be used to encode increasing lists and use them to define insertion sort:</p>
-<div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-5" class="programbox">data IncList a = Emp | (:<) a (IncList a)
+
+{- 
+2. Insertion Sort 
+-----------------
+
+In the class we saw that refinements of data type definitions can be used 
+to encode increasing lists and use them to define insertion sort:
+-}
+
+data IncList a = Emp | (:<) a (IncList a)
 {-@ data IncList a =
         Emp
       | (:<) { hd :: a, tl :: IncList {v:a | hd <= v}}  @-}
@@ -410,59 +376,58 @@ insert y (x :< xs)
 
 isort :: (Ord a) => [a] -> IncList a
 isort []     = Emp
-isort (x:xs) = insert x (isort xs)</div>
-</div>
+isort (x:xs) = insert x (isort xs)
 
-<p><strong>2.1 Length Preservation:</strong> Measures can be defined for <code>IncList</code>s too. For example, the measure <code>ilen</code> below defines the length of an <code>IncList</code>.</p>
-<div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-6" class="programbox">ilen :: IncList a -> Int
+{- 
+**2.1 Length Preservation:**
+Measures can be defined for `IncList`s too. For example, the measure `ilen` below defines 
+the length of an `IncList`.
+-}
+
+ilen :: IncList a -> Int
 {-@ ilen :: IncList a -> Nat @-}
 {-@ measure ilen @-}
 ilen Emp = 0
-ilen (_ :< xs) = 1 + ilen xs</div>
-</div>
+ilen (_ :< xs) = 1 + ilen xs
 
-<p>Give the proper type specification for <code>insert</code> so that <code>isort</code> satisfies the below type:</p>
-<pre class=".{spec}"><code>{-@ isort :: (Ord a) =&gt; xs:[a] -&gt; {v:IncList a | ilen v = len xs } @-}</code></pre>
-<p><em>Note:</em> You should have discovered a bug in the code above. Fix it!</p>
-<p><strong>2.2 Element Preservation:</strong> We can also measure the elements of an <code>IncList</code> using the measure <code>ielems</code> below.</p>
-<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+{- 
+Give the proper type specification for `insert` so that `isort` satisfies the below type: 
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-7" class="programbox">ielems :: Ord a => IncList a -> Set a 
+~~~.{spec}
+{-@ isort :: (Ord a) => xs:[a] -> {v:IncList a | ilen v = len xs } @-}
+~~~
+
+_Note:_ You should have discovered a bug in the code above. Fix it!
+-}
+
+{- 
+**2.2 Element Preservation:**
+We can also measure the elements of an `IncList` using the measure `ielems` below.
+-}
+
+ielems :: Ord a => IncList a -> Set a 
 {-@ ielems :: Ord a => IncList a -> Set a @-}
 {-@ measure ielems @-}
 ielems Emp = empty 
-ielems (x :< xs) = singleton x `union` ielems xs</div>
-</div>
+ielems (x :< xs) = singleton x `union` ielems xs
 
-<p>Give the proper type specification for <code>insert</code> so that <code>isort</code> satisfies the below type:</p>
-<pre class=".{spec}"><code>{-@ isort :: (Ord a) =&gt; xs:[a] -&gt; {v:IncList a | ilen v = len xs &amp;&amp; ielems v = elems xs } @-}</code></pre>
-</section>
-<section id="merge-sort" class="level2">
-<h2>3. Merge Sort</h2>
-<p>The code below defines merge sort using lists refined to be increasing.</p>
-<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-8" class="programbox">{-@ type IList a = [a]<{\x y -> x <= y}>@-}
+{- 
+Give the proper type specification for `insert` so that `isort` satisfies the below type: 
+
+~~~.{spec}
+{-@ isort :: (Ord a) => xs:[a] -> {v:IncList a | ilen v = len xs && ielems v = elems xs } @-}
+~~~
+-}
+
+{- 
+3. Merge Sort 
+-------------
+The code below defines merge sort using lists refined to be increasing.
+-}
+
+{-@ type IList a = [a]<{\x y -> x <= y}>@-}
 
 {-@ merge :: Ord a => xs:IList a -> ys:IList a 
           -> {v:IList a | len v = len xs + len ys && elems v = union (elems xs) (elems ys) } @-}
@@ -476,35 +441,34 @@ msort :: Ord a => [a] -> [a]
 msort []  = []
 msort [x] = [x]
 msort  xs = merge (msort left) (msort right)
-            where (left,right) = halve xs</div>
+            where (left,right) = halve xs
+
+
+{- 
+**3.1 Merge** 
+Complete the definition of `merge` above so that the type signature is accepted by LiquidHaskell.
+
+**3.2 Termination of Merge** 
+Termination of `merge` is not trivially shown. Provide a termination metric for `merge` 
+so that you remove the `lazy` annotation below.
+-}
+
+{-@ lazy merge @-}
+
+{- 
+**3.3 Termination of Msort**
+Termination of `msort` is also not trivial. 
+Can you remove the `lazy` annotation below by providing a termination metric for `msort`?
+-}
+
+{-@ lazy msort @-}
+
+{- 
+_Hint:_ You have to refine the result of `halve` to ensure that 
+when the input list has more than 2 elements, then each of the two output lists is smaller than the input list.
+-}</div>
 </div>
 
-<p><strong>3.1 Merge</strong> Complete the definition of <code>merge</code> above so that the type signature is accepted by LiquidHaskell.</p>
-<p><strong>3.2 Termination of Merge</strong> Termination of <code>merge</code> is not trivially shown. Provide a termination metric for <code>merge</code> so that you remove the <code>lazy</code> annotation below.</p>
-<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-9" class="programbox">{-@ lazy merge @-}</div>
-</div>
-
-<p><strong>3.3 Termination of Msort</strong> Termination of <code>msort</code> is also not trivial. Can you remove the <code>lazy</code> annotation below by providing a termination metric for <code>msort</code>?</p>
-<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-10" class="programbox">{-@ lazy msort @-}</div>
-</div>
-
-<p><em>Hint:</em> You have to refine the result of <code>halve</code> to ensure that when the input list has more than 2 elements, then each of the two output lists is smaller than the input list.</p>
 </section>
 
 </div>
@@ -537,7 +501,7 @@ msort  xs = merge (msort left) (msort right)
   <script src="./js/liquid/liquid.js"></script>
 
   <script type="text/javascript">
-    var queryServerURL = "https://liquid-demo.programming.systems/" ;
+    var queryServerURL = "https://liquidhaskell.goto.ucsd.edu/" ;
   </script>
   
   <!-- rust nav JS --> 
