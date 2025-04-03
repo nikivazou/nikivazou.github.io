@@ -748,7 +748,16 @@ fibMono = fMonotonic fib fibUp</div>
 </section>
 <section id="proofs-by-natural-induction" class="level2">
 <h2>Proofs By Natural Induction</h2>
-<p>The proofs we did so far are essentially proofs by natural induction. Let’s prove the textbook theorem that the sum of the first <code>n</code> natural numbers is <code>n*(n+1)/2</code>.</p>
+<p>The proofs we did so far are essentially proofs by natural induction.</p>
+<p><a href="https://en.wikipedia.org/wiki/Mathematical_induction">Natural induction</a> is a proof technique that is used to prove theorems about natural numbers. Concretely, it is used to prove that a property <code>P(n)</code> holds for all natural numbers <code>n</code>. The proof consists of two steps:</p>
+<ol type="1">
+<li><strong>Base case</strong>: Prove that <code>P(0)</code> holds.</li>
+<li><strong>Inductive step</strong>: Prove that if <code>P(k)</code> holds for some <code>k</code>, then <code>P(k+1)</code> also holds.</li>
+<li><strong>Conclusion</strong>: Conclude that <code>P(n)</code> holds for all <code>n</code>.</li>
+</ol>
+<p>For example, we can prove the textbook theorem that the sum of the first <code>n</code> natural numbers is <code>n*(n+1)/2</code>.</p>
+<p><span class="math display">\[ P(n) = 1 + .... + n = n*(n+1)/2 \]</span></p>
+<p>Let’s prove it using Liquid Haskell.</p>
 <p>For that, we first define the <code>sumTo</code> function that computes the sum of the first <code>n</code> natural numbers.</p>
 <div id="program-pane-18" class="welleditor" style="background:#fff; position:relative">
 
@@ -797,6 +806,22 @@ sumToN n =
   === n * (n + 1) `div` 2
   *** QED </code></pre>
 </details>
+<p><strong>Question:</strong> Can you <em>embed</em> this theorem in the type of the <code>sumTo</code> function?</p>
+<details>
+<summary>
+<strong>Solution</strong>
+</summary>
+<p>
+<em>Yes! This theorem can be part of the specification of <code>sumTo</code> if we refine its type signature to:</em>
+</p>
+<pre class="spec"><code>{-@ sumTo :: lo:Nat -&gt; hi:{Nat | lo &lt;= hi} 
+          -&gt; {v:Nat | lo = 0 =&gt; v = hi * (hi+1) / 2 } / [hi]@-}</code></pre>
+</details>
+<p><strong>Intrinsic vs Extrinsic Theorems:</strong> Instrinsic theorems are the thereoms that are part of the type signature of the function. These theorems do not require explicit proofs, since the <em>definition</em> of the function is already a proof of the theorem. Extrinsic theorems are theorems that are not part of the type signature of the function, like the <code>fibMonotonic</code> theorem. These theorems require explicit proof terms but they are more expressive, since they can encode properties that cannot be encoded or proved by the definition of the function. Concretely, extrinsic theorems:</p>
+<ul>
+<li>can relate different functions or different calls to the same function and</li>
+<li>can encode theorems that require different proof techniques (e.g., induction, case analysis, etc.).</li>
+</ul>
 <p>Next, we will see how the concept of natural induction can be generalized to prove properties of data types as structural induction.</p>
 </section>
 <section id="summary" class="level2">
