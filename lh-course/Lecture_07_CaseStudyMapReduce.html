@@ -438,6 +438,26 @@ chunk :: Int -> [a] -> [[a]]
 chunk i x = [x] </div>
 </div>
 
+<details>
+<summary>
+<strong>Solution</strong>
+</summary>
+<p>
+<em>The functions <code>take</code>, <code>drop</code>, and <code>chunk</code> can be defined as follows:</em>
+</p>
+<pre class="spec"><code>drop :: Int -&gt; [a] -&gt; [a]
+drop 0 x = x 
+drop i (x:xs) = drop (i-1) xs 
+
+take 0 _ = []
+take i (x:xs) = x : take (i-1) xs
+
+{-@ chunk :: Int -&gt; x:[a] -&gt; [[a]] / [len x] @-}
+chunk :: Int -&gt; [a] -&gt; [[a]]
+chunk i x 
+  | i &lt;= 0 || length x &lt;= i = [x]
+  | otherwise = take i x : chunk i (drop i x)</code></pre>
+</details>
 </section>
 <section id="higher-order-theorem-mrtheorem" class="level2">
 <h2>Higher Order Theorem: <code>mRTheorem</code></h2>
@@ -465,6 +485,42 @@ mRTheorem n f op rightId distrib is = undefined </div>
 </div>
 
 <p><strong>Question:</strong> What is the proof of <code>mRTheorem</code>?</p>
+<details>
+<summary>
+<strong>Solution</strong>
+</summary>
+<p>
+<em>The function <code>mRTheorem</code> can be defined as follows:</em>
+</p>
+<pre class="spec"><code>mRTheorem n f op rightId distrib is 
+  | n &lt;= 0 || length is &lt;= n 
+  =   mapReduce n f op is 
+  === reduce op (f []) (map f (chunk n is))
+  === reduce op (f []) [f is]
+  ? rightId is
+  === f is 
+  *** QED 
+
+mRTheorem n f op rightId distrib is  
+  =   mapReduce n f op is 
+  === reduce op (f []) (map f (chunk n is))
+  === reduce op (f []) (map f (take n is : chunk n (drop n is)))
+  === reduce op (f []) (f (take n is) : map f (chunk n (drop n is)))
+  ===  op (f (take n is)) (reduce op (f []) (map f (chunk n (drop n is))))
+  ? mRTheorem n f op rightId distrib (drop n is)
+  === op (f (take n is)) (f (drop n is))
+  ? distrib (take n is) (drop n is)
+  === f (take n is ++ drop n is)
+   ? takeDrop n is
+  === f is   
+  *** QED  
+
+takeDrop :: Int -&gt; [a] -&gt; Proof
+{-@ takeDrop :: i:Nat -&gt; xs:{[a] | i &lt;= len xs }
+             -&gt; {take i xs ++ drop i xs == xs} @-}
+takeDrop 0 xs     = ()
+takeDrop n (_:xs) = takeDrop (n-1) xs</code></pre>
+</details>
 </section>
 <section id="lemmata-for-mrtheorem-on-plus" class="level2">
 <h2>Lemmata for <code>mRTheorem</code> on plus</h2>
@@ -483,6 +539,16 @@ plusRightId = undefined </div>
 </div>
 
 <p><strong>Question:</strong> What is the proof of <code>plusRightId</code>?</p>
+<details>
+<summary>
+<strong>Solution</strong>
+</summary>
+<p>
+<em>The function <code>plusRightId</code> can be defined as follows:</em>
+</p>
+<pre class="spec"><code>plusRightId []     = ()
+plusRightId (x:xs) = plusRightId xs </code></pre>
+</details>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -498,6 +564,16 @@ sumDistr xs = undefined </div>
 </div>
 
 <p><strong>Question:</strong> What is the proof of <code>sumDistr</code>?</p>
+<details>
+<summary>
+<strong>Solution</strong>
+</summary>
+<p>
+<em>The function <code>sumDistr</code> can be defined as follows:</em>
+</p>
+<pre class="spec"><code>sumDistr [] ys = ()
+sumDistr (x:xs) ys = sumDistr xs ys  </code></pre>
+</details>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
