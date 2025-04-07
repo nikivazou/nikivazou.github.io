@@ -570,8 +570,6 @@ distributivity (x:xs) ys
   === reverse ys ++ reverse (x:xs)
   *** QED  </code></pre>
 </details>
-<p>Liquid Haskell has a (beta) tactic that allows the proof to get automated using existing equations proved in lemmas. Thus the proof can be automated as follows:</p>
-<pre class=".{spec}"><code>{-@ rewriteWith distributivity [appendAssoc, emptyRightIdentity] @-}</code></pre>
 </section>
 <section id="summary" class="level2">
 <h2>Summary</h2>
