@@ -522,9 +522,9 @@ conj ϕ1 ϕ2 = (ϕ1,ϕ2)</div>
   </button>
  
   <div id="program-3" class="programbox">{-@ ex1 :: φ1:Bool -> φ2:Bool -> φ3:Bool 
-    -> {v:() | φ1}
-    -> ({v:() | φ2}, {v:() | φ3})
-    -> ({v:() | φ1}, {v:() | φ3}) @-}
+        -> {v:() | φ1}
+        -> ({v:() | φ2}, {v:() | φ3})
+        -> ({v:() | φ1}, {v:() | φ3}) @-}
 ex1 :: Bool -> Bool -> Bool -> () -> ((), ()) -> ((), ())
 ex1 _ _ _ x1 x23 = 
   (x1, case x23 of (x2,x3) -> x3)</div>
@@ -591,7 +591,7 @@ ex1 _ _ _ x1 x23 =
   </button>
  
   <div id="program-4" class="programbox">{-@ disj :: ϕ1:Bool -> ϕ2:Bool -> {v:() | ϕ1 || ϕ2 }
-         -> Either {v:() | ϕ1} {v:() |  ϕ2 } @-}
+         -> Either {v:() | ϕ1} {v:() | ϕ2} @-}
 disj :: Bool -> Bool -> () -> Either () ()
 disj ϕ1 ϕ2 p = if ϕ1 then Left p else Right p</div>
 </div>
@@ -643,7 +643,7 @@ disj ϕ1 ϕ2 p = if ϕ1 then Left p else Right p</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">{-@ exOr :: ϕ:Bool -> Either {v:() | ϕ} {v:() |  false }
+  <div id="program-5" class="programbox">{-@ exOr :: ϕ:Bool -> Either {v:() | ϕ} {v:() | false }
          -> {v:() | ϕ}  @-}
 exOr :: Bool -> Either () () -> ()
 exOr φ p = undefined </div>
@@ -727,7 +727,7 @@ exOr ϕ (Right p) = error &quot;impossible&quot;</code></pre>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">Introduction</td>
-<td style="text-align: center;"><span class="math inline">\(\inferrule{}{ \Gamma, \phi_x \vdash \phi}{\Gamma \vdash \phi_x \rightarrow \phi}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\inferrule{}{ \Gamma, \phi_x \vdash \phi}{\Gamma \vdash \phi_x \Rightarrow \phi}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma, x : \phi_x \vdash e : \phi  }{  \Gamma \vdash \lambda x. e : \phi_x \rightarrow \phi  }\)</span></td>
 </tr>
 <tr class="even">
@@ -917,7 +917,7 @@ exDN ϕ nnp = ()</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">Elimination</td>
-<td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \phi_x[x / e_x] \vdash e&#39; : \phi  }{  \Gamma \vdash e&#39; [x / e_x] : \phi  }\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \phi_x[x / e_x] \vdash \phi  }{  \Gamma \vdash : \phi  }\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash e : (x:\tau, \phi_x) \\  \Gamma, x:\tau, y:\phi_x \vdash e&#39; : \phi  }{  \Gamma \vdash \text{case } e \text{ of } (x, y) \rightarrow e&#39; : \phi  }\)</span></td>
 </tr>
 </tbody>
@@ -945,7 +945,7 @@ exDN ϕ nnp = ()</code></pre>
 <tr class="odd">
 <td style="text-align: right;">Disjunction</td>
 <td style="text-align: center;"><span class="math inline">\(\phi_1 \lor \phi_2\)</span></td>
-<td style="text-align: center;"> <span class="math inline">\(\phi_1\)</span> <span class="math inline">\(\phi_2\)</span></td>
+<td style="text-align: center;">Either <span class="math inline">\(\phi_1\)</span> <span class="math inline">\(\phi_2\)</span></td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">Implication</td>
@@ -973,7 +973,10 @@ exDN ϕ nnp = ()</code></pre>
 </section>
 <section id="examples" class="level2">
 <h2>Examples</h2>
-<p><strong>Example 4: existsAll</strong> This example encodes a proof that if there exists an <span class="math inline">\(x\)</span> that satisfies a property forall <span class="math inline">\(y\)</span>, then forall <span class="math inline">\(y\)</span> there exists an <span class="math inline">\(x\)</span> that satisfies the property.</p>
+<ul>
+<li><strong>Example 4: ExistsAll</strong></li>
+</ul>
+<p>This example encodes a proof that if there exists an <span class="math inline">\(x\)</span> that satisfies a property forall <span class="math inline">\(y\)</span>, then forall <span class="math inline">\(y\)</span> there exists an <span class="math inline">\(x\)</span> that satisfies the property.</p>
 <p><span class="math display">\[ \phi \doteq \exists x. \forall y. p\ x \ y  \Rightarrow \forall y. \exists x. p \ x \ y \]</span></p>
 <p>Let’s prove this propery in Liquid Haskell!</p>
 <div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
