@@ -382,7 +382,7 @@ foldrFusion h f g e _  fuse = undefined
 ---------------------------
 
 2.1 **Universal Fold Property:**
-Fold has a (universal property)[https://www.cs.nott.ac.uk/~pszgmh/fold.pdf]
+Fold has a [universal property](https://www.cs.nott.ac.uk/~pszgmh/fold.pdf)
 that states that folding a function `f` over a list is equivalent 
 to applying a function `h` to the list, 
 as long as the two functions satisfy two conditions, encoded as `base` and `step`, below. 
@@ -463,7 +463,9 @@ for `lp1`, `lp2`, and `lp3`:
 
 {- 
 3.1 **Distributivity of `And` over `Or`:**
-$$ lp_1  \doteq (p \land (q \lor r)) \Rightarrow ((p \land q) \lor (p \land r)) $$
+
+lp1≐(p∧(q∨r))⇒((p∧q)∨(p∧r))
+
 -}
 
 {-@ lp1 :: p:Bool -> q:Bool -> r:Bool 
@@ -478,7 +480,8 @@ lp1 _ _ _ _ = undefined
 {- 
 3.2 **Contraposition:**
 
-$$ lp_2 \doteq (p \Rightarrow q) \Rightarrow \neg q \Rightarrow \neg p $$
+lp2≐(p⇒q)⇒¬q⇒¬p
+
 -}
 
 {-@ lp2 :: p:Bool -> q:Bool 
@@ -492,7 +495,8 @@ lp2 _ _ _ _ _ = undefined
 {- 
 3.3 **Existential Introduction:**
 
-$$ lp_3 \doteq ((\forall x. p\ x \Rightarrow q) \land \exists x.  p\ x) \Rightarrow q $$
+lp3≐((∀x.p x⇒q)∧∃x.p x)⇒q
+
 -}
 
 {-@ lp3 :: p:(a -> Bool) -> q:Bool 
