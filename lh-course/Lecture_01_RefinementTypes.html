@@ -139,7 +139,6 @@ MathJax.Hub.Config({
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
 </ul>
 <li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
 <ul class='section'>
@@ -210,15 +209,10 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.2.</b> Native Terms</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.3.</b> Conjunction</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.4.</b> Disjunction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Negation</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Forall</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Exists</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.9.</b> Example 1: existsAll</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.10.</b> Example 2: Distributing Qualifiers</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.11.</b> Example 3: List Properties</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.12.</b> Example 4: Natural Induction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.13.</b> Summary</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication &amp; Negation</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Forall and Exists</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Examples</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
@@ -231,6 +225,28 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
+</ul>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task1.pretty.html'><b>11.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.pretty.html#'><b>11.1.</b> 1. Lists</a></li>
+<li><a href='Task1.pretty.html#'><b>11.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.pretty.html#'><b>11.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>12.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task2.html'><b>13.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.html#'><b>13.1.</b> 1. Fusions</a></li>
+</ul>
+<li><a href='Task2.pretty.html'><b>14.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.pretty.html#'><b>14.1.</b> 1. Fusions</a></li>
+<li><a href='Task2.pretty.html#'><b>14.2.</b> 2. Higher Order Properties</a></li>
+<li><a href='Task2.pretty.html#'><b>14.3.</b> 3. Encoding of Logical Properties</a></li>
 </ul>
 </ul>
 
@@ -342,7 +358,6 @@ test x = 42 `div` 2</div>
 {-@ type NZero    = {v:Int | v /= 0}  @-}
 {-@ type Pos      = {v:Int | v >  0}  @-}
 {-@ type Neg      = {v:Int | v <  0}  @-}
-{-@ type Nat      = {v:Int | 0 <= v}  @-}
 
 
 two :: Int
@@ -585,6 +600,8 @@ plusSix x = x + 6 </code></pre>
 <h2>Function Types</h2>
 <p>Refinements on function arguments define <em>preconditions</em>, i.e., assumptions about the arguments of the function, while refinements on the return type define <em>postconditions</em>, i.e., guarantees about the return value of the function.</p>
 <p>For example, addition of two odd numbers is guaranteed to be even:</p>
+<pre class="spec"><code>{-@ type Odd  = {v:Int | v mod 2 = 1} @-}
+{-@ type Even = {v:Int | v mod 2 = 0} @-}</code></pre>
 <div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -593,9 +610,7 @@ plusSix x = x + 6 </code></pre>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">{-@ type Odd  = {v:Int | v mod 2 = 1} @-}
-{-@ type Even = {v:Int | v mod 2 = 0} @-}
-
+  <div id="program-7" class="programbox">
 {-@ addOdds :: x:Odd -> y:Odd -> Even @-}
 addOdds :: Int -> Int -> Int
 addOdds x y = x + y</div>
@@ -1040,7 +1055,6 @@ To put now _all_ the features we learnt together, let&#39;s assume a function
 that checks for if a number is odd and use it to generate the next odd number.
 
 \begin{code}
-{-@ type Odd = {v:Nat | v mod 2 = 1 } @-}
 
 isOdd :: Int -&gt; Bool 
 {-@ isOdd :: i:Int -&gt; {v:Bool | v &lt;=&gt; (i mod 2 = 1) } @-}
