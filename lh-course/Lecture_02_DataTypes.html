@@ -139,7 +139,6 @@ MathJax.Hub.Config({
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
 </ul>
 <li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
 <ul class='section'>
@@ -210,15 +209,10 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.2.</b> Native Terms</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.3.</b> Conjunction</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.4.</b> Disjunction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Negation</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Forall</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Exists</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.9.</b> Example 1: existsAll</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.10.</b> Example 2: Distributing Qualifiers</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.11.</b> Example 3: List Properties</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.12.</b> Example 4: Natural Induction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.13.</b> Summary</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication &amp; Negation</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Forall and Exists</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Examples</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
@@ -231,6 +225,28 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
+</ul>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task1.pretty.html'><b>11.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.pretty.html#'><b>11.1.</b> 1. Lists</a></li>
+<li><a href='Task1.pretty.html#'><b>11.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.pretty.html#'><b>11.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>12.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task2.html'><b>13.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.html#'><b>13.1.</b> 1. Fusions</a></li>
+</ul>
+<li><a href='Task2.pretty.html'><b>14.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.pretty.html#'><b>14.1.</b> 1. Fusions</a></li>
+<li><a href='Task2.pretty.html#'><b>14.2.</b> 2. Higher Order Properties</a></li>
+<li><a href='Task2.pretty.html#'><b>14.3.</b> 3. Encoding of Logical Properties</a></li>
 </ul>
 </ul>
 
@@ -281,8 +297,8 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
-{- LIQUID "--no-termination" @-}
+  <div id="program-0" class="programbox">{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
+{-@ LIQUID "--no-termination" @-}
 module Lecture_02_DataTypes where
 
 import Data.List    (foldl')
@@ -439,7 +455,7 @@ oneElem = tail twoElems</div>
 <strong>Solution</strong>
 </summary>
 <p>
-<em>The type provided before is strong enought because its postcondition state that the result list has the same length as the input list minus one. This strong postcondition is not required to define the function tail, but it is required to verify the uses of the function.</em>
+<em>The type provided before is strong enough because its postcondition state that the result list has the same length as the input list minus one. This strong postcondition is not required to define the function tail, but it is required to verify the uses of the function.</em>
 </p>
 </details>
 <p><strong>Question:</strong> Let’s now define a safe indexing function for lists.</p>
@@ -522,7 +538,7 @@ listSum xs = go 0 0
 <em>The function will fail to typecheck because the indexing of lists is out of bounds.</em>
 </p>
 </details>
-<p><strong>Question:</strong> Write a variant of the above function that computes the <code>absuluteSum</code> of the list, i.e., the sum of the absolute values of the elements.</p>
+<p><strong>Question:</strong> Write a variant of the above function that computes the <code>absoluteSum</code> of the list, i.e., the sum of the absolute values of the elements.</p>
 <div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -934,7 +950,7 @@ testPlus    = plus vec1 vec2
     vec2 = SP 3 [(0, 8),  (1, 100)]</div>
 </div>
 
-<p><strong>Hint:</strong> Fold over the elements of the second vector, starting from the first. At each iteration <code>(i,x)</code>: if <code>i</code> is <em>element</em> of the first vector, <em>update</em> the value of the first vectot, otherwise <em>extend</em> a new element to the first vector. Now define these helper functions:</p>
+<p><strong>Hint:</strong> Fold over the elements of the second vector, starting from the first. At each iteration <code>(i,x)</code>: if <code>i</code> is <em>element</em> of the first vector, <em>update</em> the value of the first vector, otherwise <em>extend</em> a new element to the first vector. Now define these helper functions:</p>
 <div id="program-pane-29" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -982,13 +998,7 @@ update (SP d xs) i f = SP d (map go xs)
 {-@ extend :: sp:Sparse a -&gt; (Btwn 0 (spDim sp), a) -&gt; SparseIN a (spDim sp) @-}
 extend :: Sparse a -&gt; (Int, a) -&gt; Sparse a 
 extend (SP d xs) iv = SP d (iv:xs)
-
-{- testPlus :: SparseIN Int 3 @-}
-testPlus :: Sparse Int
-testPlus    = plus vec1 vec2
-  where
-    vec1 = SP 3 [(0, 12), (2, 9)]
-    vec2 = SP 3 [(0, 8),  (1, 100)]</code></pre>
+</code></pre>
 </details>
 </section>
 <section id="ordered-lists" class="level2">

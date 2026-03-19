@@ -290,7 +290,7 @@ MathJax.Hub.Config({
 <section id="refinement-types" class="level1">
 <h1>Refinement Types</h1>
 <p>Refinement types are types refined with logical predicates that enforce a variety of invariants at compile time. In this course, we will learn the refinement type system of Liquid Haskell.</p>
-<p>If you follow this course via a brouser, you can just click the check button that exists on the code spinnets to run Liquid Haskell on your file. If you follow it on an editor, then compile the code using the Haskell compiler and turn on the <code>Liquid Haskell plugin</code>, but uncommenting the following line:</p>
+<p>If you follow this course via a browser, you can just click the check button that exists on the code spinnets to run Liquid Haskell on your file. If you follow it on an editor, then compile the code using the Haskell compiler and turn on the <code>Liquid Haskell plugin</code>, but uncommenting the following line:</p>
 <div id="program-pane-0" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -300,7 +300,7 @@ MathJax.Hub.Config({
   </button>
  
   <div id="program-0" class="programbox">
-{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
 {-@ LIQUID "--no-termination" @-}
 module Lecture_01_RefinementTypes where
 
@@ -334,8 +334,8 @@ test x = 42 `div` 2</div>
 <li><a href="https://ucsd-progsys.github.io/liquidhaskell/install/"><code>cabal install liquidhaskell</code></a> will install the Liquid Haskell plugin that you can use in your Haskell projects.</li>
 <li><a href="https://github.com/ucsd-progsys/liquidhaskell?tab=readme-ov-file#running-the-pluging-on-individual-files">Source installation</a> will let you clone Liquid Haskell from github and install it.</li>
 </ul>
-<p>The source code of these class notes can also be downloaded and executed from <a href="https://github.com/nikivazou/liquidhaskell-course">github</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
-<p><strong>Note:</strong> This is the first time I am giving these lectures, so I would appreciate any feedback you might have, via the virtual classroom, pull requests, or email at <code>niki.vazou@imdea.org</code>.</p>
+<p>The source code of these class notes can also be downloaded and executed from <a href="https://github.com/nikivazou/lh-lectures">github</a><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p><strong>Note:</strong> If you have any feedback, do let me know, via the virtual classroom, pull requests, or email at <code>niki.vazou@imdea.org</code>.</p>
 </section>
 <section id="basic-refinement-types" class="level2">
 <h2>Basic Refinement Types</h2>
@@ -916,7 +916,7 @@ testPoly = higher myid</div>
 arrayId :: Array Int 
 arrayId = undefined 
 
--- array0 returns zero, e.g., arrayId 3 = 0, arrayId 5 = 0
+-- array0 returns zero, e.g., array0 3 = 0, array0 5 = 0
 
 array0 :: Array Int 
 array0 = undefined 
