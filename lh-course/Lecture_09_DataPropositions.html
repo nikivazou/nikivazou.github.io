@@ -139,7 +139,6 @@ MathJax.Hub.Config({
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
 </ul>
 <li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
 <ul class='section'>
@@ -210,15 +209,10 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.2.</b> Native Terms</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.3.</b> Conjunction</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.4.</b> Disjunction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Negation</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Forall</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Exists</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.9.</b> Example 1: existsAll</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.10.</b> Example 2: Distributing Qualifiers</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.11.</b> Example 3: List Properties</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.12.</b> Example 4: Natural Induction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.13.</b> Summary</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication &amp; Negation</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Forall and Exists</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Examples</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
@@ -231,6 +225,28 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
+</ul>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task1.pretty.html'><b>11.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.pretty.html#'><b>11.1.</b> 1. Lists</a></li>
+<li><a href='Task1.pretty.html#'><b>11.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.pretty.html#'><b>11.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>12.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task2.html'><b>13.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.html#'><b>13.1.</b> 1. Fusions</a></li>
+</ul>
+<li><a href='Task2.pretty.html'><b>14.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.pretty.html#'><b>14.1.</b> 1. Fusions</a></li>
+<li><a href='Task2.pretty.html#'><b>14.2.</b> 2. Higher Order Properties</a></li>
+<li><a href='Task2.pretty.html#'><b>14.3.</b> 3. Encoding of Logical Properties</a></li>
 </ul>
 </ul>
 
@@ -281,7 +297,7 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+  <div id="program-0" class="programbox">{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
 {-# LANGUAGE GADTs                    #-}
 
 module Lecture_09_DataPropositions where
@@ -328,7 +344,7 @@ data Eveness = EVEN N
 
 {-@ data EVEN where 
      E0 :: Prop (EVEN Z)
-   | E2 :: n:N -> Prop (EVEN n) -> Prop (EVEN (S (S n))) @-}</div>
+     E2 :: n:N -> Prop (EVEN n) -> Prop (EVEN (S (S n))) @-}</div>
 </div>
 
 <p>The two constructors <code>E0</code> and <code>E2</code> axiomatize the evenness of numbers. <code>E0</code> states that <code>Z</code> is even, and <code>E2</code> states that if <code>n</code> is even, then <code>S (S n)</code> is also even.</p>
@@ -400,7 +416,7 @@ even1_false (E2 n p) = even1_false p</code></pre>
 </section>
 <section id="functions-on-even-numbers" class="level2">
 <h2>Functions on Even Numbers</h2>
-<p>As a fist function on even numbers, let’s define a function that takes a non zero, even number and returns its predecessor. That is, each even number, other than <code>0</code>, can be written as <code>2 + n</code>, for some <code>n</code>.</p>
+<p>As a first function on even numbers, let’s define a function that takes a non zero, even number and returns its predecessor. That is, each even number, other than <code>0</code>, can be written as <code>2 + n</code>, for some <code>n</code>.</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -510,10 +526,10 @@ data Step where
     SAppPL :: e1:Expr -> e1':Expr -> e2:Expr 
            -> Prop (Step e1 e1')          
            -> Prop (Step (EApp e1 e2) (EApp e1' e2)) 
-  | SAppPR :: e1:Expr -> e2:Expr -> e2':Expr 
+    SAppPR :: e1:Expr -> e2:Expr -> e2':Expr 
            -> Prop (Step e2 e2')
            -> Prop (Step (EApp e1 e2) (EApp e1 e2')) 
-  | SAppE  :: e:Expr -> ex:Expr -> tx:Type 
+    SAppE  :: e:Expr -> ex:Expr -> tx:Type 
            -> Prop (Step (EApp (ELam tx e) ex) (subst e ex)) 
   @-}</div>
 </div>
@@ -530,7 +546,7 @@ data Step where
   <div id="program-10" class="programbox">{-@ 
 data Evals where 
     ERefl :: e:Expr -> Prop {Evals e e}
-  | EStep :: e1:{Expr | lc e1 } -> e2:{Expr | lc e2} -> e3:Expr
+    EStep :: e1:{Expr | lc e1 } -> e2:{Expr | lc e2} -> e3:Expr
           -> Prop (Step  e1 e2)
           -> Prop (Evals e2 e3) 
           -> Prop (Evals e1 e3)  
@@ -554,13 +570,13 @@ data Evals where
             -> Prop (HasType g e (TFun tx t)) 
             -> Prop (HasType g ex tx)
             -> Prop (HasType g (EApp e ex) t) 
-     | TLam :: g:Env -> e:Expr -> tx:Type -> t:Type 
+       TLam :: g:Env -> e:Expr -> tx:Type -> t:Type 
             -> x:{Var | not (member x (dom g)) && not (member x (freeVars e))} 
             -> Prop (HasType (EBind x tx g) (subst e (EFVar x)) t) 
             -> Prop (HasType g (ELam tx e) (TFun tx t)) 
-     | TVar :: g:Env -> x:{Var | member x (dom g)} 
+       TVar :: g:Env -> x:{Var | member x (dom g)} 
             -> Prop (HasType g (EFVar x) (lookupEnv g x))
-     | TTInt :: g:Env -> i:Int
+       TTInt :: g:Env -> i:Int
             -> Prop (HasType g (EInt i) TInt)
  @-}</div>
 </div>

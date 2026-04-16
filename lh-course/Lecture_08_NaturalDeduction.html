@@ -139,7 +139,6 @@ MathJax.Hub.Config({
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.10.</b> Putting it all together: Safe Indexing</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.11.</b> Summary</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.12.</b> Further Reading</a></li>
-<li><a href='Lecture_01_RefinementTypes.html#'><b>1.13.</b> Cheatsheet</a></li>
 </ul>
 <li><a href='Lecture_02_DataTypes.html'><b>2.</b>Data Types</a></li>
 <ul class='section'>
@@ -210,15 +209,10 @@ MathJax.Hub.Config({
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.2.</b> Native Terms</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.3.</b> Conjunction</a></li>
 <li><a href='Lecture_08_NaturalDeduction.html#'><b>8.4.</b> Disjunction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Negation</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Forall</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Exists</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.9.</b> Example 1: existsAll</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.10.</b> Example 2: Distributing Qualifiers</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.11.</b> Example 3: List Properties</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.12.</b> Example 4: Natural Induction</a></li>
-<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.13.</b> Summary</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.5.</b> Implication &amp; Negation</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.6.</b> Forall and Exists</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.7.</b> Examples</a></li>
+<li><a href='Lecture_08_NaturalDeduction.html#'><b>8.8.</b> Summary</a></li>
 </ul>
 <li><a href='Lecture_09_DataPropositions.html'><b>9.</b>Data Propositions</a></li>
 <ul class='section'>
@@ -231,6 +225,28 @@ MathJax.Hub.Config({
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.7.</b> Soundness = Progress + Preservation</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.8.</b> Summary</a></li>
 <li><a href='Lecture_09_DataPropositions.html#'><b>9.9.</b> Appendix: The rest of the Code</a></li>
+</ul>
+<li><a href='Task1.html'><b>10.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task1.pretty.html'><b>11.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+<li><a href='Task1.pretty.html#'><b>11.1.</b> 1. Lists</a></li>
+<li><a href='Task1.pretty.html#'><b>11.2.</b> 2. Insertion Sort</a></li>
+<li><a href='Task1.pretty.html#'><b>11.3.</b> 3. Merge Sort</a></li>
+</ul>
+<li><a href='Task1All.html'><b>12.</b>Task 1: Program Verification</a></li>
+<ul class='section'>
+</ul>
+<li><a href='Task2.html'><b>13.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.html#'><b>13.1.</b> 1. Fusions</a></li>
+</ul>
+<li><a href='Task2.pretty.html'><b>14.</b>Task 2: Proving Theorems</a></li>
+<ul class='section'>
+<li><a href='Task2.pretty.html#'><b>14.1.</b> 1. Fusions</a></li>
+<li><a href='Task2.pretty.html#'><b>14.2.</b> 2. Higher Order Properties</a></li>
+<li><a href='Task2.pretty.html#'><b>14.3.</b> 3. Encoding of Logical Properties</a></li>
 </ul>
 </ul>
 
@@ -281,7 +297,7 @@ MathJax.Hub.Config({
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-0" class="programbox">{- OPTIONS_GHC -fplugin=LiquidHaskell #-}
+  <div id="program-0" class="programbox">{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
 module Lecture_08_NaturalDeduction where
 
 {-@ LIQUID "--reflection" @-}
@@ -291,7 +307,7 @@ import Language.Haskell.Liquid.ProofCombinators
 import Prelude hiding ((++))</div>
 </div>
 
-<p>In a previous lecture we saw tha programs are proofs and we proved a higher order property, i.e., a property over functions, that all increasing functions are monotonic.</p>
+<p>In a previous lecture we saw that programs are proofs and we proved a higher order property, i.e., a property over functions, that all increasing functions are monotonic.</p>
 <p>In this lecture, we see that <em>any</em> higher order property can be encoded in Liquid Haskell, because refinement types can encode higher order logic and type checking can encode the natural deduction proof system.</p>
 <section id="logical-properties" class="level2">
 <h2>Logical Properties</h2>
@@ -634,7 +650,7 @@ disj ϕ1 ϕ2 p = if ϕ1 then Left p else Right p</div>
 <li><strong>Example 2: Disjunction</strong></li>
 </ul>
 <p>Consider the valid logical formula: <span class="math display">\[ \textit{If } \phi \lor \text{ false,} \textit{ then }  \phi .\]</span></p>
-<p>In Liquid Haskell, it is encoded usint the below type specification:</p>
+<p>In Liquid Haskell, it is encoded using the below type specification:</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -895,7 +911,7 @@ exDN ϕ nnp = ()</code></pre>
 </tr>
 </tbody>
 </table>
-<p><strong>Existsential quantification</strong> is encoded by the dependent pair type. It has two rules: <em>introduction</em> and <em>elimination</em>:</p>
+<p><strong>Existential quantification</strong> is encoded by the dependent pair type. It has two rules: <em>introduction</em> and <em>elimination</em>:</p>
 <table>
 <colgroup>
 <col style="width: 26%" />
@@ -917,7 +933,7 @@ exDN ϕ nnp = ()</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">Elimination</td>
-<td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \phi_x[x / e_x] \vdash \phi  }{  \Gamma \vdash : \phi  }\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \phi_x[x / e_x] \vdash \phi  }{  \Gamma \vdash \phi  }\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash e : (x:\tau, \phi_x) \\  \Gamma, x:\tau, y:\phi_x \vdash e&#39; : \phi  }{  \Gamma \vdash \text{case } e \text{ of } (x, y) \rightarrow e&#39; : \phi  }\)</span></td>
 </tr>
 </tbody>
