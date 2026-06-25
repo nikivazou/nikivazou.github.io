@@ -933,7 +933,7 @@ exDN ϕ nnp = ()</code></pre>
 </tr>
 <tr class="even">
 <td style="text-align: right;">Elimination</td>
-<td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \forall e_x. \phi_x[x / e_x] \vdash \phi  }{  \Gamma \vdash \phi  }\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\inferrule{}  { \text{fresh}\ y \quad \Gamma \vdash \exists x. \phi_x  \\  \Gamma, \phi_x[x / y] \vdash \phi  }{  \Gamma \vdash \phi  }\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\inferrule{}  {  \Gamma \vdash e : (x:\tau, \phi_x) \\  \Gamma, x:\tau, y:\phi_x \vdash e&#39; : \phi  }{  \Gamma \vdash \text{case } e \text{ of } (x, y) \rightarrow e&#39; : \phi  }\)</span></td>
 </tr>
 </tbody>
