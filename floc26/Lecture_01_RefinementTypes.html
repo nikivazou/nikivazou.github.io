@@ -132,7 +132,7 @@ MathJax.Hub.Config({
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.3.</b> Recursive Functions</a></li>
 <li><a href='Lecture_01_RefinementTypes.html#'><b>1.4.</b> Summary</a></li>
 </ul>
-<li><a href='Lecture_02_TheoremProving.html'><b>2.</b>Deep Verification</a></li>
+<li><a href='Lecture_02_TheoremProving.html'><b>2.</b>Theorem Proving</a></li>
 <ul class='section'>
 <li><a href='Lecture_02_TheoremProving.html#'><b>2.1.</b> Equational Proofs</a></li>
 <li><a href='Lecture_02_TheoremProving.html#'><b>2.2.</b> MapReduce Definition</a></li>
@@ -144,18 +144,15 @@ MathJax.Hub.Config({
 </ul>
 <li><a href='Lecture_03_DataPropositions.html'><b>3.</b>Data Propositions and Higher-Order Reasoning</a></li>
 <ul class='section'>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.1.</b> Refinement Types: Calculating Correct Compilers</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.2.</b> The Stack Machine</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.3.</b> Data Propositions: Programs for the Stack Machine</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.4.</b> Reasoning About Higher-Order Indices</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.5.</b> The PNil Branch</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.6.</b> The PLEX Algorithm</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.7.</b> Step 1: Eta and Beta Equalities</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.8.</b> Step 2: Function Unfolding</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.9.</b> Step 3: Unification from Pattern Matching</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.10.</b> Step 4: Completing the Branch</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.11.</b> Arithmetic for Free: Completing the Compiler</a></li>
-<li><a href='Lecture_03_DataPropositions.html#'><b>3.12.</b> Summary</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.1.</b> Refined Data Types</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.2.</b> Data Propositions: Even Numbers</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.3.</b> Construction of Even Numbers</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.4.</b> Functions on Even Numbers</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.5.</b> Case Study: A Correct-by-Construction Compiler</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.6.</b> Data Propositions: Programs for the Stack Machine</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.7.</b> Reasoning About Higher-Order Indices</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.8.</b> Arithmetic for Free: Completing the Compiler</a></li>
+<li><a href='Lecture_03_DataPropositions.html#'><b>3.9.</b> Summary</a></li>
 </ul>
 </ul>
 
@@ -211,7 +208,6 @@ MathJax.Hub.Config({
   </button>
  
   <div id="program-0" class="programbox">
-{-# OPTIONS_GHC -fplugin=LiquidHaskell #-}
 module Lecture_01_RefinementTypes where
 import Prelude hiding (replicate, take, drop)</div>
 </div>
@@ -252,7 +248,7 @@ test x = 42 `div` 2</div>
 <p>For the <code>2</code> case, the subtyping succeeds:</p>
 <pre class="spec"><code>                               forall v. v = 2 =&gt; v != 0
                            --------------------------------
-   0:{v:Int | v = 2 }    {v:Int | v = 2 } &lt;: {v:Int | v != 0}   
+   2:{v:Int | v = 2 }    {v:Int | v = 2 } &lt;: {v:Int | v != 0}   
  -------------------------------------------------------------
                 2 :: {v:Int | v != 0} </code></pre>
 <p>So, types are <em>implicitly casted</em> via <em>semantic subtyping</em>, which is automatically checked by the SMT solver.</p>
@@ -277,7 +273,7 @@ test x = 42 `div` 2</div>
  
   <div id="program-2" class="programbox">
 test1 :: [Int] -> Int -> [Int]
-test1 xs i = take i xs</div>
+test1 xs i = undefined -- take i xs</div>
 </div>
 
 <p>The type error here is telling us what is wrong.</p>
@@ -320,7 +316,8 @@ take = undefined </div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs} -> [a] @-}
+  <div id="program-4" class="programbox">{-@ drop :: i:Nat -> xs:{[a] | i < len xs} 
+         -> {os:[a] | len os = len xs - i} @-}
 drop :: Int -> [a] -> [a]
 drop = undefined </div>
 </div>
@@ -335,11 +332,11 @@ drop = undefined </div>
   </button>
  
   <div id="program-5" class="programbox">
-chunk :: Int -> [a] -> [[a]]
-chunk i xs | length xs <= i || i <= 1 
+chunk :: [a] -> Int -> [[a]]
+chunk xs i | length xs <= i || i <= 1 
   = [xs]
-chunk i xs 
-  = take i xs : chunk i (drop i xs)</div>
+chunk xs i 
+  = take i xs : chunk (drop i xs) i</div>
 </div>
 
 <p>Liquid Haskell gives a termination error! Does <code>chunk</code> terminate?</p>
@@ -350,7 +347,7 @@ chunk i xs
 <p>We saw how to use Liquid Haskell to <em>automatically</em> prove light program properties, i.e., division by zero and safe indexing. Such verification is <em>path sensitive</em>, <em>type based</em>, and <em>SMT automated</em>. For more information, check out the Liquid Haskell <a href="https://ucsd-progsys.github.io/liquidhaskell/">documentation</a>, <a href="https://ucsd-progsys.github.io/liquidhaskell-tutorial/">tutorial</a>, and <a href="https://github.com/ucsd-progsys/liquidhaskell">github</a>.</p>
 <p>Next, we will see how Liquid Haskell can be used to manually prove properties about Haskell functions. For example, can we now prove that <code>take</code> and <code>drop</code> reconstruct the original list?</p>
 <pre class="spec"><code>forall i. xs.  xs == take i xs ++ drop i xs </code></pre>
-<p>Yes, using <a href="https://nikivazou.github.io/floc26/TheoremProving.html">theorem proving</a>!</p>
+<p>Yes, using <a href="https://nikivazou.github.io/floc26/Lecture_02_TheoremProving.html">theorem proving</a>!</p>
 </section>
 </section>
 
