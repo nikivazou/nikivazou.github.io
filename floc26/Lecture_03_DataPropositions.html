@@ -294,13 +294,7 @@ badDate :: Date
 badDate = Date 7 15 2026</div>
 </div>
 
-<p>Such kind of invariants appear often in programs to, for example, encode dependencies between data fields, sizes or properties of data structures, like red-black trees, heaps, etc.</p>
-</section>
-<section id="data-propositions-even-numbers" class="level2">
-<h2>Data Propositions: Even Numbers</h2>
-<p>Using refined data types we encode data propositions, that essentially axiomatize the behavior of predicates in the data type definitions, without actually giving a Haskell definition.</p>
-<p>They are very similar to Rocq’s <a href="http://adam.chlipala.net/cpdt/html/Predicates.html">inductive predicates</a>. Thus, let’s look at the using the textbook example of even numbers.</p>
-<p>First, we define the data type of natural numbers.</p>
+<p>When doing pattern matching, the invariants are retrieved:</p>
 <div id="program-pane-5" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -309,10 +303,19 @@ badDate = Date 7 15 2026</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-5" class="programbox">data N = Z | S N </div>
+  <div id="program-5" class="programbox">
+{-@ getDay :: Date -> {v:Int | 1 <= v && v <= 31} @-}
+getDay :: Date -> Int
+getDay (Date d _ _) = d</div>
 </div>
 
-<p>Then, we <em>axiomatize</em> the proposition that a number is even.</p>
+<p>Such kind of invariants appear often in programs to, for example, encode dependencies between data fields, sizes or properties of data structures, like red-black trees, heaps, etc.</p>
+</section>
+<section id="data-propositions-even-numbers" class="level2">
+<h2>Data Propositions: Even Numbers</h2>
+<p>Using refined data types we encode data propositions, that essentially axiomatize the behavior of predicates in the data type definitions, without actually giving a Haskell definition.</p>
+<p>They are very similar to Rocq’s <a href="http://adam.chlipala.net/cpdt/html/Predicates.html">inductive predicates</a>. Thus, let’s look at the using the textbook example of even numbers.</p>
+<p>First, we define the data type of natural numbers.</p>
 <div id="program-pane-6" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -321,7 +324,19 @@ badDate = Date 7 15 2026</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-6" class="programbox">data EVEN where 
+  <div id="program-6" class="programbox">data N = Z | S N </div>
+</div>
+
+<p>Then, we <em>axiomatize</em> the proposition that a number is even.</p>
+<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-7" class="programbox">data EVEN where 
     E0 :: EVEN 
     E2 :: N -> EVEN -> EVEN
 
@@ -334,7 +349,7 @@ data Eveness = EVEN N
 
 <p>The two constructors <code>E0</code> and <code>E2</code> axiomatize the evenness of numbers. <code>E0</code> states that <code>Z</code> is even and <code>E2</code> states that if <code>n</code> is even, then <code>S (S n)</code> is also even.</p>
 <p>The definition is using the <code>Prop</code> type, that converts expressions into proof objects.</p>
-<div id="program-pane-7" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -342,7 +357,7 @@ data Eveness = EVEN N
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-7" class="programbox">
+  <div id="program-8" class="programbox">
 {-@ measure prop :: a -> b           @-}
 {-@ type Prop E = {v:_ | prop v = E} @-}</div>
 </div>
@@ -357,7 +372,7 @@ data Eveness = EVEN N
 <section id="construction-of-even-numbers" class="level2">
 <h2>Construction of Even Numbers</h2>
 <p>Let’s construct some even numbers using the <code>EVEN</code> data proposition.</p>
-<div id="program-pane-8" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -365,7 +380,7 @@ data Eveness = EVEN N
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-8" class="programbox">even0, even2, even4 :: EVEN
+  <div id="program-9" class="programbox">even0, even2, even4 :: EVEN
 {-@ even0 :: Prop (EVEN Z) @-}
 even0 = undefined 
 
@@ -389,7 +404,7 @@ even2 = E2 Z even0
 even4 = E2 (S (S Z)) even2</code></pre>
 </details>
 <p>Since <code>EVEN</code> is a proof object one can inspect it, to, for example, show contradictions.</p>
-<div id="program-pane-9" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -397,7 +412,7 @@ even4 = E2 (S (S Z)) even2</code></pre>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-9" class="programbox">even1_false :: EVEN -> () 
+  <div id="program-10" class="programbox">even1_false :: EVEN -> () 
 {-@ even1_false :: Prop (EVEN (S Z)) -> {v:() | false} @-}
 even1_false _ = undefined</div>
 </div>
@@ -417,7 +432,7 @@ even1_false (E2 n p) = even1_false p</code></pre>
 <section id="functions-on-even-numbers" class="level2">
 <h2>Functions on Even Numbers</h2>
 <p>As a first function on even numbers, let’s define a function that takes a non zero, even number and returns its predecessor. That is, each even number, other than <code>0</code>, can be written as <code>2 + n</code>, for some <code>n</code>.</p>
-<div id="program-pane-10" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -425,7 +440,7 @@ even1_false (E2 n p) = even1_false p</code></pre>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-10" class="programbox">even_plus_2 :: N -> EVEN -> (N,()) 
+  <div id="program-11" class="programbox">even_plus_2 :: N -> EVEN -> (N,()) 
 {-@ even_plus_2 :: n:{N | n /= Z} 
                 -> Prop (EVEN n) 
                 -> (m::N, {v:() | n == S (S m)}) @-}
@@ -444,21 +459,6 @@ even_plus_2 _ _ = undefined </div>
 </details>
 <p>As a final exercise, let’s show that the sum of two even numbers is also even.</p>
 <p>To do so, we first define the <code>plus</code> function:</p>
-<div id="program-pane-11" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-11" class="programbox">{-@ reflect plus @-}
-plus :: N -> N -> N
-plus Z     m = m
-plus (S n) m = S (plus n m)</div>
-</div>
-
-<p><strong>Question:</strong> Fill in the definition of the <code>even_plus</code> function.</p>
 <div id="program-pane-12" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -467,7 +467,22 @@ plus (S n) m = S (plus n m)</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-12" class="programbox">even_plus :: N -> N -> EVEN -> EVEN -> EVEN 
+  <div id="program-12" class="programbox">{-@ reflect plus @-}
+plus :: N -> N -> N
+plus Z     m = m
+plus (S n) m = S (plus n m)</div>
+</div>
+
+<p><strong>Question:</strong> Fill in the definition of the <code>even_plus</code> function.</p>
+<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-13" class="programbox">even_plus :: N -> N -> EVEN -> EVEN -> EVEN 
 {-@ even_plus :: n:N -> m:N 
               -> Prop (EVEN n) -> Prop (EVEN m) 
               -> Prop (EVEN (plus n m)) @-}
@@ -493,23 +508,6 @@ even_plus n m pn@(E2 _ pn&#39;) pm
 <p>Data propositions are very useful to encode the semantics of programs. In this last part, we show how to use data propositions to encode the semantics of a stack machine.</p>
 <p>This example is presented in <a href="https://dl.acm.org/doi/epdf/10.1145/3798248">PLEX OOPSLA’26 paper</a> that extends Liquid Haskell’s PLE solver with higher-order reasoning. It is based on the <a href="https://www.cambridge.org/core/journals/journal-of-functional-programming/article/calculating-correct-compilers/70AA17724EBCA4182B1B2B522362A9AF?utm_campaign=shareaholic&amp;utm_medium=copy_link&amp;utm_source=bookmark">correct-by-construction compiler</a> previously mechanized in Agda.</p>
 <p><strong>Expression Language:</strong> The source of the compiler is a simple expression language:</p>
-<div id="program-pane-13" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-13" class="programbox">
-data Expr where
-  EConst :: Int -> Expr
-  EAdd   :: Expr -> Expr -> Expr
-  EMul   :: Expr -> Expr -> Expr
-  ENeg   :: Expr -> Expr</div>
-</div>
-
-<p>The meaning of an expression is given by <code>eval</code>.</p>
 <div id="program-pane-14" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -519,15 +517,14 @@ data Expr where
   </button>
  
   <div id="program-14" class="programbox">
-{-@ reflect eval @-}
-eval :: Expr -> Int
-eval (EConst x) = x
-eval (EAdd e1 e2) = eval e1 + eval e2
-eval (EMul e1 e2) = eval e1 * eval e2
-eval (ENeg e)     = - (eval e)</div>
+data Expr where
+  EConst :: Int -> Expr
+  EAdd   :: Expr -> Expr -> Expr
+  EMul   :: Expr -> Expr -> Expr
+  ENeg   :: Expr -> Expr</div>
 </div>
 
-<p><strong>The Stack Machine:</strong> The target language is a stack machine with three instructions.</p>
+<p>The meaning of an expression is given by <code>eval</code>.</p>
 <div id="program-pane-15" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -537,15 +534,15 @@ eval (ENeg e)     = - (eval e)</div>
   </button>
  
   <div id="program-15" class="programbox">
-type Stack = [Int]
-
-data OpCode where
-  OpPush :: Int -> OpCode
-  OpAdd :: OpCode
-  OpMul :: OpCode</div>
+{-@ reflect eval @-}
+eval :: Expr -> Int
+eval (EConst x) = x
+eval (EAdd e1 e2) = eval e1 + eval e2
+eval (EMul e1 e2) = eval e1 * eval e2
+eval (ENeg e)     = - (eval e)</div>
 </div>
 
-<p>Each instruction denotes a stack transformer.</p>
+<p><strong>The Stack Machine:</strong> The target language is a stack machine with three instructions.</p>
 <div id="program-pane-16" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -555,6 +552,24 @@ data OpCode where
   </button>
  
   <div id="program-16" class="programbox">
+type Stack = [Int]
+
+data OpCode where
+  OpPush :: Int -> OpCode
+  OpAdd :: OpCode
+  OpMul :: OpCode</div>
+</div>
+
+<p>Each instruction denotes a stack transformer.</p>
+<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-17" class="programbox">
 {-@ reflect push @-}
 push :: Int -> Stack -> Stack
 push v s = v : s
@@ -567,21 +582,6 @@ execOpCode OpMul      = \case (x : y : xs) -> (y * x) : xs</div>
 </div>
 
 <p>The <code>OpAdd</code> and <code>OpMul</code> cases need at least two stack elements. Instead of leaving that as a partial function, we introduce a reflected function that computes how many stack elements an opcode requires.</p>
-<div id="program-pane-17" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-17" class="programbox">{-@ reflect minStackSize @-}
-minStackSize :: OpCode -> Int
-minStackSize (OpPush x) = 0
-minStackSize _          = 2</div>
-</div>
-
-<p>Now <code>execOpCode</code> can be given a precise precondition:</p>
 <div id="program-pane-18" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -590,7 +590,22 @@ minStackSize _          = 2</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-18" class="programbox">{-@ execOpCode :: o:OpCode 
+  <div id="program-18" class="programbox">{-@ reflect minStackSize @-}
+minStackSize :: OpCode -> Int
+minStackSize (OpPush x) = 0
+minStackSize _          = 2</div>
+</div>
+
+<p>Now <code>execOpCode</code> can be given a precise precondition:</p>
+<div id="program-pane-19" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-19" class="programbox">{-@ execOpCode :: o:OpCode 
                -> { v:Stack | len v >= minStackSize o } 
                -> Stack @-}</div>
 </div>
@@ -601,19 +616,6 @@ minStackSize _          = 2</div>
 <h2>Data Propositions: Programs for the Stack Machine</h2>
 <p>A stack-machine program is essentially a list of opcodes. But for a correct-by-construction compiler, a plain list is too weak. We want the program to carry its semantics in its type.</p>
 <p>Concretely, we will use data propositions to index programs by their semantics:</p>
-<div id="program-pane-19" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-19" class="programbox">data PROGRAM = Program (Stack -> Stack)</div>
-</div>
-
-<p>The index is a function from stacks to stacks. A value of type <code>Program p</code> represents a program whose semantics is the stack transformer <code>p</code>.</p>
-<p>The indexed program constructors the following shape:</p>
 <div id="program-pane-20" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -622,7 +624,20 @@ minStackSize _          = 2</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-20" class="programbox">
+  <div id="program-20" class="programbox">data PROGRAM = Program (Stack -> Stack)</div>
+</div>
+
+<p>The index is a function from stacks to stacks. A value of type <code>Program p</code> represents a program whose semantics is the stack transformer <code>p</code>.</p>
+<p>The indexed program constructors the following shape:</p>
+<div id="program-pane-21" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-21" class="programbox">
 data Program where
 {-@ PNil :: Prop (Program id) @-}
   PNil :: Program
@@ -641,7 +656,8 @@ data Program where
 <section id="reasoning-about-higher-order-indices" class="level2">
 <h2>Reasoning About Higher-Order Indices</h2>
 <p>Now we can write a function that composes two stack programs.</p>
-<div id="program-pane-21" class="welleditor" style="background:#fff; position:relative">
+<p>The specification says that if <code>p1</code> has semantics <code>s1</code> and <code>p2</code> has semantics <code>s2</code>, then <code>compose s1 s2 p1 p2</code> has semantics <code>s2 . s1</code>.</p>
+<div id="program-pane-22" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -649,7 +665,7 @@ data Program where
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-21" class="programbox">{-@ reflect compose @-}
+  <div id="program-22" class="programbox">{-@ reflect compose @-}
 {-@ compose :: s1:(Stack -> Stack) -> s2:(Stack -> Stack)
             -> Prop (Program s1) -> Prop (Program s2)
             -> Prop (Program (s2 . s1)) @-}
@@ -659,10 +675,9 @@ compose s1 s2 p1 (PCons cmd srest rest) =
   PCons cmd (srest . s1) (compose s1 srest p1 rest)</div>
 </div>
 
-<p>The specification says that if <code>p1</code> has semantics <code>s1</code> and <code>p2</code> has semantics <code>s2</code>, then <code>compose s1 s2 p1 p2</code> has semantics <code>s2 . s1</code>.</p>
-<p>The verification requires reasoning about higher-order functions. In the <code>PNil</code> branch, we need to show that</p>
+<p>In the <code>PNil</code> branch, verification reduces to the subtyping check:</p>
 <pre class="spec"><code>Prop (Program s1) &lt;: Prop (Program (s2 . s1))</code></pre>
-<p>To automate such higher order reasoning, the PLEX algorithm extends Liquid Haskell’s PLE solver with beta, eta, unfolding, and local unification.</p>
+<p>Which in turn reduces to the following verification condition:</p>
 <div id="fig:plex-algorithm" style="align: left; text-align:center;">
   <img src="img/PLEX.png" height="360px" style="display:block;  margin-left:auto; margin-right:auto">
   <div class="caption" style="text-align:center"><b>Figure 1.1:</b> Overview of the PLEX algorithm. </div>
@@ -676,20 +691,7 @@ compose s1 s2 p1 (PCons cmd srest rest) =
 <section id="arithmetic-for-free-completing-the-compiler" class="level2">
 <h2>Arithmetic for Free: Completing the Compiler</h2>
 <p>After <code>compose</code> is verified, we define a correct by construction compiler.</p>
-<p>The correctness is guaranteed by the type signature of compile, which asserts that the semantics of the compiled program is equal to pushing on top ofthe stack the evaluation of the given expression.</p>
-<div id="program-pane-22" class="welleditor" style="background:#fff; position:relative">
-
-  <!-- Verify Source -->
-  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
-          ng-show="isUnknown" ng-click="verifySource()">
-    <span class="glyphicon glyphicon-play"></span>
-  </button>
- 
-  <div id="program-22" class="programbox">{-@ compile :: e:Expr -> Prop (Program (push $ eval e)) @-}
-compile :: Expr -> Program</div>
-</div>
-
-<p>The implementation follows the expression structure.</p>
+<p>The correctness is guaranteed by the type signature of compile, which asserts that the semantics of the compiled program is equal to pushing on top of the stack the evaluation of the given expression.</p>
 <div id="program-pane-23" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
@@ -698,7 +700,20 @@ compile :: Expr -> Program</div>
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-23" class="programbox">compile (EConst x)   = PCons (OpPush x) id PNil
+  <div id="program-23" class="programbox">{-@ compile :: e:Expr -> Prop (Program (push $ eval e)) @-}
+compile :: Expr -> Program</div>
+</div>
+
+<p>The implementation follows the expression structure.</p>
+<div id="program-pane-24" class="welleditor" style="background:#fff; position:relative">
+
+  <!-- Verify Source -->
+  <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
+          ng-show="isUnknown" ng-click="verifySource()">
+    <span class="glyphicon glyphicon-play"></span>
+  </button>
+ 
+  <div id="program-24" class="programbox">compile (EConst x)   = PCons (OpPush x) id PNil
 compile (EAdd e1 e2) =
   PCons
     OpAdd
@@ -722,7 +737,7 @@ compile (ENeg e)     =
 <h2>Summary</h2>
 <p>We saw invariants on data types and how they naturally lead to data propositions. Yet, data propositions can be used to encode semantic indices that, in turn, require higher-order reasoning.</p>
 <p>PLEX permits higher order reasoning, integrated with SMT automation, expanding the expressive power of refinement types; that can still be used to verify shallow properties of programs.</p>
-<div id="program-pane-24" class="welleditor" style="background:#fff; position:relative">
+<div id="program-pane-25" class="welleditor" style="background:#fff; position:relative">
 
   <!-- Verify Source -->
   <button class="btn btn-xs btn-link actbutton" type="button" style="z-index:1"
@@ -730,7 +745,7 @@ compile (ENeg e)     =
     <span class="glyphicon glyphicon-play"></span>
   </button>
  
-  <div id="program-24" class="programbox">{-@ reflect id @-}
+  <div id="program-25" class="programbox">{-@ reflect id @-}
 {-@ reflect $  @-}
 
 {-@ reflect .  @-}
